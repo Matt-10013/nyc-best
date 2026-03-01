@@ -64,6 +64,8 @@
       bottom: 0;
       display: flex;
       flex-direction: column;
+      background: transparent;
+      z-index: 1;
     }
 
     .header {
@@ -108,6 +110,12 @@
 
     .view.active {
       display: block;
+    }
+
+    /* Non-home views get dark background so text is readable over video */
+    .view:not(#homeView) {
+      background: var(--bg);
+      min-height: 100%;
     }
 
     @keyframes fadeIn {
@@ -225,8 +233,9 @@
     .app-video-bg {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      z-index: -2;
+      z-index: 0;
       overflow: hidden;
+      background: #000;
     }
 
     .app-video-bg video {
@@ -237,15 +246,23 @@
       min-height: 100%;
       transform: translate(-50%, -50%);
       object-fit: cover;
-      opacity: 0.55;
-      filter: saturate(0.7) brightness(1.1);
+      opacity: 0.9;
+      filter: brightness(1.2) saturate(0.85);
     }
 
     .app-video-bg::after {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(ellipse at center, transparent 0%, rgba(8,9,13,0.6) 85%);
+      background: linear-gradient(
+        180deg,
+        rgba(0,0,0,0.4) 0%,
+        rgba(0,0,0,0.1) 20%,
+        rgba(0,0,0,0.0) 40%,
+        rgba(0,0,0,0.0) 60%,
+        rgba(0,0,0,0.1) 80%,
+        rgba(0,0,0,0.5) 100%
+      );
     }
 
     /* Bottom Navigation */
@@ -1856,6 +1873,18 @@
       document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
       const activeView = document.querySelector(`[data-view="${S.currentView}"]`);
       if (activeView) activeView.classList.add('active');
+
+      // Header: transparent on home, dark on other views
+      const header = document.querySelector('.header');
+      if (header) {
+        if (S.currentView === 'home') {
+          header.style.background = 'transparent';
+          header.style.backdropFilter = 'none';
+        } else {
+          header.style.background = 'rgba(8, 9, 13, 0.95)';
+          header.style.backdropFilter = 'blur(20px)';
+        }
+      }
 
       if (S.user) {
         document.getElementById('loginScreen').classList.add('hidden');
