@@ -901,6 +901,40 @@
       min-width: 60px;
     }
 
+    .pref-textarea {
+      width: 100%;
+      min-height: 100px;
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 0;
+      color: var(--text);
+      font-family: Inter, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 1rem;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    .pref-textarea:focus {
+      outline: none;
+      border-color: var(--accent-solid);
+    }
+
+    .pref-textarea::placeholder {
+      color: var(--text2);
+      opacity: 0.6;
+    }
+
+    .pref-saved-msg {
+      font-size: 11px;
+      color: var(--accent-solid);
+      margin-top: 0.5rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
     .bar-fill {
       height: 4px;
       background: var(--surface2);
@@ -1148,7 +1182,7 @@
   <div class="container" id="appContainer" style="display: none;">
     <div class="app-video-bg">
       <video autoplay muted loop playsinline>
-        <source src="https://videos.pexels.com/video-files/3202634/3202634-hd_1280_720_30fps.mp4" type="video/mp4">
+        <source src="https://videos.pexels.com/video-files/32458596/13843680_1080_1920_30fps.mp4" type="video/mp4">
       </video>
     </div>
     <div class="header">
@@ -1238,9 +1272,30 @@
       <!-- Preferences View -->
       <div class="view" id="preferencesView" data-view="preferences">
         <div style="padding: 1rem;">
-          <div class="detail-section">
-            <h3 class="detail-section-title">Dining Preferences</h3>
-            <div id="preferencesContent"></div>
+          <!-- Personal Dining Preferences -->
+          <div class="detail-section" style="margin-bottom: 2rem;">
+            <h3 class="detail-section-title" style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--matt); display: inline-block;"></span>
+              Matt's Preferences
+            </h3>
+            <textarea id="mattPrefsInput" class="pref-textarea" placeholder="What do you look for in a great restaurant? Favorite cuisines, vibes, neighborhoods, deal-breakers..."></textarea>
+            <div id="mattPrefsSaved" class="pref-saved-msg" style="display: none;">Saved</div>
+          </div>
+
+          <div class="detail-section" style="margin-bottom: 2rem;">
+            <h3 class="detail-section-title" style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--denise); display: inline-block;"></span>
+              Denise's Preferences
+            </h3>
+            <textarea id="denisePrefsInput" class="pref-textarea" placeholder="What does Denise look for? Cuisines, ambiance, must-haves, no-gos..."></textarea>
+            <div id="denisePrefsSaved" class="pref-saved-msg" style="display: none;">Saved</div>
+          </div>
+
+          <div style="border-top: 1px solid var(--surface2); padding-top: 1.5rem;">
+            <div class="detail-section">
+              <h3 class="detail-section-title">Dining Patterns</h3>
+              <div id="preferencesContent"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1909,39 +1964,9 @@
       const newDiscoveries = S.discoveries.filter(d => d.status === 'new').length;
       document.getElementById('discoveryCount').textContent = newDiscoveries > 0 ? `${newDiscoveries} new discoveries waiting — check Discover` : '';
 
-      // Hero recommendation — pick a random wishlist restaurant
-      const wishlistRests = S.restaurants.filter(r => r.status === 'wishlist');
+      // Hero recommendation — disabled for now (home is video-only)
       const heroEl = document.getElementById('heroRecommendation');
-      if (wishlistRests.length > 0) {
-        // Pick a different one each session based on date
-        const dayIndex = new Date().getDate() % wishlistRests.length;
-        const pick = wishlistRests[dayIndex];
-        const reasons = [
-          `On your wishlist — ${pick.neighborhood || 'NYC'} is calling.`,
-          `You haven't tried this one yet. ${(pick.tags || []).length > 0 ? pick.tags[0] + '.' : 'Could be a new favorite.'}`,
-          `A ${(pick.cuisine || ['restaurant'])[0].toLowerCase()} spot in ${pick.neighborhood || 'Manhattan'} worth exploring.`,
-        ];
-        const reason = reasons[dayIndex % reasons.length];
-
-        document.getElementById('heroName').textContent = pick.name;
-        document.getElementById('heroMeta').textContent = [pick.neighborhood, (pick.cuisine || [])[0]].filter(Boolean).join(' · ');
-
-        document.getElementById('heroCard').onclick = () => onRestaurantClick(pick.id);
-        heroEl.style.display = 'flex';
-      } else if (S.restaurants.length > 0) {
-        // No wishlist — show a favorite instead
-        const favs = S.restaurants.filter(r => r.status === 'favorite');
-        if (favs.length > 0) {
-          const pick = favs[Math.floor(Math.random() * favs.length)];
-          document.getElementById('heroName').textContent = pick.name;
-          document.getElementById('heroMeta').textContent = [pick.neighborhood, (pick.cuisine || [])[0]].filter(Boolean).join(' · ');
-          document.getElementById('heroCard').onclick = () => onRestaurantClick(pick.id);
-          heroEl.style.display = 'flex';
-          document.querySelector('#heroRecommendation > div:first-child').textContent = 'Revisit a Favorite';
-        }
-      } else {
-        heroEl.style.display = 'none';
-      }
+      if (heroEl) heroEl.style.display = 'none';
     }
 
     function renderRestaurantGrid() {
