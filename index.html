@@ -67,31 +67,29 @@
     }
 
     .header {
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--surface2);
-      backdrop-filter: blur(20px);
-      background: rgba(8, 9, 13, 0.7);
+      padding: 1.25rem 1.5rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(30px);
+      background: rgba(8, 9, 13, 0.65);
       z-index: 100;
       position: relative;
     }
 
     .header h1 {
       font-family: Playfair Display, Georgia, serif;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       letter-spacing: -0.5px;
-      background: var(--accent);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 0.5rem;
+      color: #fff;
+      margin-bottom: 0.25rem;
     }
 
     .header-subtitle {
-      font-size: 12px;
-      color: var(--text2);
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1.5px;
+      font-weight: 400;
     }
 
     .content {
@@ -116,7 +114,7 @@
       to { opacity: 1; }
     }
 
-    /* Login Screen */
+    /* Login Screen — Aesop-inspired video hero */
     .login-screen {
       position: fixed;
       top: 0;
@@ -126,36 +124,46 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      background: #08090d;
+      justify-content: flex-end;
+      background: #000;
       z-index: 300;
-      padding: 2rem;
+      padding: 0;
       text-align: center;
       overflow: hidden;
     }
 
-    .login-screen::before {
-      content: '';
+    .login-video-bg {
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-image: url('https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1200&q=80');
-      background-size: cover;
-      background-position: center;
-      filter: grayscale(100%) brightness(0.25) contrast(1.1);
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
       z-index: 0;
+      opacity: 0.7;
     }
 
     .login-screen::after {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(180deg, rgba(8,9,13,0.3) 0%, rgba(8,9,13,0.7) 50%, rgba(8,9,13,0.95) 100%);
+      background: linear-gradient(
+        180deg,
+        rgba(0,0,0,0.1) 0%,
+        rgba(0,0,0,0.0) 30%,
+        rgba(0,0,0,0.2) 60%,
+        rgba(0,0,0,0.85) 100%
+      );
       z-index: 1;
     }
 
-    .login-screen > * {
+    .login-content {
       position: relative;
       z-index: 2;
+      padding: 0 2rem calc(3rem + env(safe-area-inset-bottom));
+      width: 100%;
+      max-width: 400px;
     }
 
     .login-screen.hidden {
@@ -164,55 +172,75 @@
 
     .login-logo {
       font-family: Playfair Display, Georgia, serif;
-      font-size: 42px;
+      font-size: 52px;
       font-weight: 700;
-      margin-bottom: 0.5rem;
-      background: var(--accent);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -1px;
+      margin-bottom: 0.25rem;
+      color: #fff;
+      letter-spacing: -2px;
+      line-height: 1;
+      text-shadow: 0 2px 40px rgba(0,0,0,0.5);
     }
 
     .login-tagline {
-      font-size: 16px;
-      color: rgba(255,255,255,0.6);
-      margin-bottom: 3rem;
-      max-width: 280px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 2.5rem;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
       line-height: 1.6;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 400;
     }
 
     .login-btn {
-      padding: 1rem 2.5rem;
-      background: rgba(255,255,255,0.08);
-      color: var(--accent-solid);
-      border: 1px solid rgba(212, 165, 116, 0.3);
-      border-radius: 8px;
-      font-size: 15px;
+      width: 100%;
+      padding: 1rem 2rem;
+      background: rgba(255,255,255,0.95);
+      color: #111;
+      border: none;
+      border-radius: 0;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s var(--ease);
-      backdrop-filter: blur(10px);
-      letter-spacing: 0.5px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-family: Inter, sans-serif;
     }
 
     .login-btn:hover {
-      transform: scale(1.05);
-      background: rgba(212, 165, 116, 0.15);
-      border-color: rgba(212, 165, 116, 0.5);
-      box-shadow: 0 8px 32px rgba(212, 165, 116, 0.2);
+      background: #fff;
+      transform: none;
+      box-shadow: 0 4px 30px rgba(255,255,255,0.15);
     }
 
-    /* App background */
-    .container::before {
-      content: '';
+    /* App background — ambient video */
+    .app-video-bg {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background-image: url('https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1200&q=80');
-      background-size: cover;
-      background-position: center;
-      filter: grayscale(100%) brightness(0.12) contrast(1.1);
-      z-index: -1;
+      z-index: -2;
+      overflow: hidden;
+    }
+
+    .app-video-bg video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      opacity: 0.15;
+      filter: saturate(0.3);
+    }
+
+    .app-video-bg::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at center, transparent 0%, var(--bg) 70%);
     }
 
     /* Bottom Navigation */
@@ -221,11 +249,11 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: calc(64px + var(--safe-bottom));
+      height: calc(56px + var(--safe-bottom));
       padding: 0 0 var(--safe-bottom) 0;
-      border-top: 1px solid var(--surface2);
-      backdrop-filter: blur(20px);
-      background: rgba(8, 9, 13, 0.8);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(30px);
+      background: rgba(8, 9, 13, 0.75);
       display: flex;
       justify-content: space-around;
       z-index: 100;
@@ -237,40 +265,40 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.25rem;
+      gap: 0.2rem;
       cursor: pointer;
-      color: var(--text2);
-      transition: all 0.2s var(--ease);
+      color: rgba(255,255,255,0.3);
+      transition: all 0.3s var(--ease);
       position: relative;
-      font-size: 11px;
+      font-size: 9px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
       font-weight: 500;
     }
 
     .nav-item.active {
-      color: var(--accent-solid);
+      color: #fff;
     }
 
     .nav-item.active::after {
       content: '';
       position: absolute;
-      top: 4px;
-      width: 6px;
-      height: 6px;
-      background: var(--accent-solid);
-      border-radius: 50%;
-      box-shadow: 0 0 12px rgba(212, 165, 116, 0.5);
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 2px;
+      background: #fff;
     }
 
     .nav-icon {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
     }
 
     .nav-icon svg {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       fill: none;
       stroke: currentColor;
       stroke-width: 1.5;
@@ -284,19 +312,17 @@
 
     /* Glass Cards */
     .card {
-      background: var(--surface);
-      border: 1px solid var(--surface2);
-      border-radius: 12px;
-      padding: 1rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 2px;
+      padding: 1.25rem;
       backdrop-filter: blur(20px);
-      transition: all 0.3s var(--ease);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      transition: all 0.4s var(--ease);
     }
 
     .card:hover {
-      transform: scale(1.01);
-      border-color: var(--surface2);
-      box-shadow: 0 8px 32px rgba(212, 165, 116, 0.15), 0 0 0 1px rgba(212, 165, 116, 0.2);
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.1);
     }
 
     /* Grid Layouts */
@@ -345,12 +371,12 @@
 
     /* Restaurant Cards */
     .restaurant-card {
-      background: var(--surface);
-      border: 1px solid var(--surface2);
-      border-radius: 12px;
-      padding: 1rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 2px;
+      padding: 1.25rem;
       backdrop-filter: blur(20px);
-      transition: all 0.3s var(--ease);
+      transition: all 0.4s var(--ease);
       cursor: pointer;
       display: flex;
       flex-direction: column;
@@ -360,22 +386,72 @@
     }
 
     .restaurant-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 32px rgba(212, 165, 116, 0.15), 0 0 0 1px rgba(212, 165, 116, 0.2);
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+    }
+
+    .restaurant-card * {
+      pointer-events: none;
+    }
+
+    /* Detail action buttons row */
+    .detail-actions-row {
+      display: flex;
+      gap: 0.5rem;
+      padding: 1rem 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .detail-actions-row .btn {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+      font-size: 12px;
+      padding: 0.6rem 0.75rem;
+    }
+
+    .detail-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      margin: 1rem 1.5rem 0;
+      cursor: pointer;
+      color: var(--accent-solid);
+      font-size: 13px;
+      font-weight: 500;
+      background: none;
+      border: none;
+      transition: opacity 0.2s;
+    }
+
+    .detail-back-btn:hover {
+      opacity: 0.7;
+    }
+
+    .detail-back-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .source-badge {
       position: absolute;
       top: 0.75rem;
       right: 0.75rem;
-      background: rgba(212, 165, 116, 0.2);
-      color: var(--accent-solid);
-      padding: 0.25rem 0.75rem;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 600;
+      background: transparent;
+      color: rgba(255,255,255,0.3);
+      padding: 0;
+      border-radius: 0;
+      font-size: 9px;
+      font-weight: 400;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
 
     .restaurant-name {
@@ -402,12 +478,20 @@
     }
 
     .pill {
-      background: rgba(212, 165, 116, 0.1);
-      color: var(--accent-solid);
-      padding: 0.25rem 0.75rem;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 500;
+      background: transparent;
+      color: rgba(255,255,255,0.4);
+      padding: 0.2rem 0;
+      border-radius: 0;
+      font-size: 10px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pill + .pill::before {
+      content: '·';
+      margin-right: 0.5rem;
+      color: rgba(255,255,255,0.2);
     }
 
     .ratings-display {
@@ -449,28 +533,30 @@
 
     .status-badge {
       display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0;
+      font-size: 9px;
+      font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
 
     .status-wishlist {
-      background: rgba(155, 163, 175, 0.15);
-      color: var(--text2);
-      border: 1px dashed var(--text2);
+      background: transparent;
+      color: rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
     .status-visited {
-      background: rgba(107, 186, 122, 0.15);
+      background: transparent;
       color: var(--green);
+      border: 1px solid rgba(107, 186, 122, 0.3);
     }
 
     .status-favorite {
-      background: rgba(212, 165, 116, 0.2);
+      background: transparent;
       color: var(--accent-solid);
+      border: 1px solid rgba(212, 165, 116, 0.3);
     }
 
     /* Discovery Cards */
@@ -525,51 +611,53 @@
       flex-wrap: wrap;
     }
 
-    /* Buttons */
+    /* Buttons — sharp, editorial */
     .btn {
       border: none;
-      border-radius: 6px;
+      border-radius: 0;
       padding: 0.75rem 1.25rem;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s var(--ease);
+      transition: all 0.3s var(--ease);
       font-family: Inter, sans-serif;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
 
     .btn-primary {
-      background: var(--accent-solid);
-      color: var(--bg);
+      background: rgba(255,255,255,0.9);
+      color: #111;
     }
 
     .btn-primary:hover {
-      background: var(--accent2);
-      transform: scale(1.02);
+      background: #fff;
     }
 
     .btn-secondary {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--surface2);
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.15);
     }
 
     .btn-secondary:hover {
-      background: var(--surface2);
-      border-color: var(--accent-solid);
-      color: var(--accent-solid);
+      border-color: rgba(255,255,255,0.4);
+      color: #fff;
     }
 
     .btn-small {
       padding: 0.5rem 0.75rem;
-      font-size: 11px;
+      font-size: 10px;
     }
 
     .btn-danger {
-      background: rgba(239, 68, 68, 0.2);
+      background: transparent;
       color: var(--red);
-      border: 1px solid var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover {
+      border-color: var(--red);
     }
 
     /* Search & Filters */
@@ -580,24 +668,25 @@
 
     .search-input {
       width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--surface2);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
       color: var(--text);
-      padding: 0.75rem 1rem;
-      border-radius: 6px;
+      padding: 0.75rem 0;
+      border-radius: 0;
       font-size: 14px;
       font-family: Inter, sans-serif;
-      transition: all 0.2s var(--ease);
+      transition: all 0.3s var(--ease);
     }
 
     .search-input::placeholder {
-      color: var(--text2);
+      color: rgba(255,255,255,0.25);
+      font-style: italic;
     }
 
     .search-input:focus {
       outline: none;
-      border-color: var(--accent-solid);
-      background: var(--surface2);
+      border-color: rgba(255,255,255,0.3);
     }
 
     .filter-chips {
@@ -610,21 +699,23 @@
     }
 
     .chip {
-      background: var(--surface);
-      color: var(--text2);
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
+      background: transparent;
+      color: rgba(255,255,255,0.4);
+      padding: 0.4rem 0.75rem;
+      border-radius: 0;
       cursor: pointer;
       white-space: nowrap;
-      font-size: 12px;
-      border: 1px solid var(--surface2);
-      transition: all 0.2s var(--ease);
+      font-size: 11px;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s var(--ease);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .chip.active {
-      background: var(--accent-solid);
-      color: var(--bg);
-      border-color: var(--accent-solid);
+      background: transparent;
+      color: #fff;
+      border-color: #fff;
     }
 
     /* Modal */
@@ -653,14 +744,16 @@
     .modal {
       width: 100%;
       max-width: 100%;
-      background: var(--surface);
-      border-radius: 16px 16px 0 0;
-      border: 1px solid var(--surface2);
+      background: rgba(20, 22, 28, 0.97);
+      border-radius: 0;
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.06);
       padding: 1.5rem;
       max-height: 90vh;
       overflow-y: auto;
       animation: slideUp 0.3s var(--ease);
       padding-bottom: calc(1.5rem + var(--safe-bottom));
+      backdrop-filter: blur(40px);
     }
 
     .modal-header {
@@ -676,10 +769,7 @@
       font-family: Playfair Display, Georgia, serif;
       font-size: 22px;
       font-weight: 700;
-      background: var(--accent);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #fff;
     }
 
     .modal-close {
@@ -708,24 +798,25 @@
 
     .form-label {
       display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text2);
-      margin-bottom: 0.5rem;
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 0.4rem;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
 
     .form-input, .form-select, .form-textarea {
       width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--surface2);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
       color: var(--text);
-      padding: 0.75rem;
-      border-radius: 6px;
+      padding: 0.75rem 0;
+      border-radius: 0;
       font-size: 14px;
       font-family: Inter, sans-serif;
-      transition: all 0.2s var(--ease);
+      transition: all 0.3s var(--ease);
     }
 
     .form-textarea {
@@ -735,8 +826,14 @@
 
     .form-input:focus, .form-select:focus, .form-textarea:focus {
       outline: none;
-      border-color: var(--accent-solid);
-      background: var(--surface2);
+      border-color: rgba(255,255,255,0.4);
+      background: transparent;
+    }
+
+    .form-select {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 0.75rem;
     }
 
     .star-input {
@@ -1015,12 +1112,22 @@
 </head>
 <body>
   <div class="login-screen" id="loginScreen">
-    <div class="login-logo">NYC Dining</div>
-    <div class="login-tagline">Your personal guide to dining in New York City</div>
-    <button class="login-btn" id="googleLoginBtn">Sign in with Google</button>
+    <video class="login-video-bg" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1200&q=80">
+      <source src="https://videos.pexels.com/video-files/5834550/5834550-hd_1920_1080_24fps.mp4" type="video/mp4">
+    </video>
+    <div class="login-content">
+      <div class="login-logo">NYC<br>Dining</div>
+      <div class="login-tagline">Your personal guide to the city</div>
+      <button class="login-btn" id="googleLoginBtn">Sign in with Google</button>
+    </div>
   </div>
 
   <div class="container" id="appContainer" style="display: none;">
+    <div class="app-video-bg">
+      <video autoplay muted loop playsinline>
+        <source src="https://videos.pexels.com/video-files/3202634/3202634-hd_1280_720_30fps.mp4" type="video/mp4">
+      </video>
+    </div>
     <div class="header">
       <h1>NYC Dining</h1>
       <div class="header-subtitle" id="headerSubtitle"></div>
@@ -1074,8 +1181,11 @@
 
       <!-- Collection View -->
       <div class="view" id="collectionView" data-view="collection">
-        <div class="search-section">
-          <input type="text" class="search-input" id="searchInput" placeholder="Search restaurants...">
+        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 1rem 1rem 0;">
+          <div class="search-section" style="flex: 1; margin: 0; padding: 0;">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search restaurants...">
+          </div>
+          <button class="btn btn-primary" onclick="onAddRestaurant()" style="white-space: nowrap; padding: 0.6rem 1rem; font-size: 13px;">+ Add</button>
         </div>
         <div class="filter-chips">
           <div class="chip active" data-filter="all">All</div>
@@ -1088,16 +1198,28 @@
 
       <!-- Detail View -->
       <div class="view" id="detailView" data-view="detail">
+        <button class="detail-back-btn" id="detailBackBtn">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
         <div class="detail-hero">
           <div class="detail-name" id="detailName"></div>
           <div class="detail-meta" id="detailMeta"></div>
+          <div id="detailAddress" style="font-size: 12px; color: var(--text2); margin-top: 0.5rem;"></div>
+        </div>
+
+        <div class="detail-actions-row" id="detailActionsRow">
+          <button class="btn btn-primary" id="detailWebsiteBtn" style="display:none;">Website</button>
+          <button class="btn btn-primary" id="detailResyBtn" onclick="window.open('https://resy.com/cities/ny?query=' + encodeURIComponent(S.selectedRestaurant?.name || ''), '_blank')">Resy</button>
+          <button class="btn btn-primary" id="detailOpenTableBtn" onclick="window.open('https://www.opentable.com/s?term=' + encodeURIComponent(S.selectedRestaurant?.name || '') + '&metroId=8', '_blank')">OpenTable</button>
+          <button class="btn btn-secondary" id="detailGoogleBtn" onclick="window.open('https://www.google.com/search?q=' + encodeURIComponent((S.selectedRestaurant?.name || '') + ' NYC restaurant'), '_blank')">Google It</button>
         </div>
 
         <div id="detailRatings"></div>
         <div id="detailExternalRatings"></div>
         <div id="detailVisits"></div>
 
-        <div class="detail-section">
+        <div class="detail-section" style="padding: 1rem 1.5rem;">
           <button class="btn btn-primary" id="logVisitBtn" style="width: 100%; margin-bottom: 0.5rem;">Log Visit</button>
           <button class="btn btn-secondary" id="editRestaurantBtn" style="width: 100%; margin-bottom: 0.5rem;">Edit</button>
           <button class="btn btn-danger" id="deleteRestaurantBtn" style="width: 100%;">Delete</button>
@@ -1218,6 +1340,10 @@
         <div class="form-group">
           <label class="form-label">Address</label>
           <input type="text" class="form-input" id="address">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Website</label>
+          <input type="url" class="form-input" id="restaurantWebsite" placeholder="https://...">
         </div>
         <div class="form-group">
           <label class="form-label">Price Range</label>
@@ -1548,6 +1674,7 @@
       document.getElementById('neighborhood').value = r.neighborhood || '';
       document.getElementById('cuisine').value = (r.cuisine || []).join(', ');
       document.getElementById('address').value = r.address || '';
+      document.getElementById('restaurantWebsite').value = r.website || r.externalLinks?.website || '';
       document.getElementById('priceRange').value = r.priceRange || '1';
       document.getElementById('atmosphere').value = r.atmosphere || 'casual';
       document.getElementById('status').value = r.status || 'wishlist';
@@ -1604,6 +1731,8 @@
           neighborhood: document.getElementById('neighborhood').value,
           cuisine: document.getElementById('cuisine').value.split(',').map(c => c.trim()).filter(c => c),
           address: document.getElementById('address').value,
+          website: document.getElementById('restaurantWebsite').value || '',
+          externalLinks: { website: document.getElementById('restaurantWebsite').value || '' },
           priceRange: parseInt(document.getElementById('priceRange').value),
           atmosphere: document.getElementById('atmosphere').value,
           status: document.getElementById('status').value,
@@ -1703,6 +1832,11 @@
 
     document.getElementById('addSourceBtn').onclick = () => document.getElementById('addSourceModal').classList.remove('hidden');
 
+    document.getElementById('detailBackBtn').onclick = () => set({ currentView: 'collection', selectedRestaurant: null });
+    document.getElementById('logVisitBtn').onclick = () => onLogVisit();
+    document.getElementById('editRestaurantBtn').onclick = () => onEditRestaurant();
+    document.getElementById('deleteRestaurantBtn').onclick = () => { if (confirm('Delete this restaurant?')) onDeleteRestaurant(); };
+
     document.getElementById('searchInput').oninput = (e) => set({ searchQuery: e.target.value.toLowerCase() });
 
     document.addEventListener('click', (e) => {
@@ -1714,8 +1848,9 @@
         const view = navItem.dataset.view;
         if (view) onViewClick(view);
       }
-      if (e.target.classList.contains('restaurant-card')) {
-        const id = e.target.closest('[data-id]')?.dataset.id;
+      const card = e.target.closest('.restaurant-card');
+      if (card) {
+        const id = card.dataset.id;
         if (id) onRestaurantClick(id);
       }
     });
@@ -1867,6 +2002,16 @@
         <span>${'$'.repeat(r.priceRange || 1)}</span>
         <span>${(r.cuisine || []).join(', ')}</span>
       `;
+      document.getElementById('detailAddress').textContent = r.address || '';
+
+      // Website button
+      const webBtn = document.getElementById('detailWebsiteBtn');
+      if (r.externalLinks?.website || r.website) {
+        webBtn.style.display = '';
+        webBtn.onclick = () => window.open(r.externalLinks?.website || r.website, '_blank');
+      } else {
+        webBtn.style.display = 'none';
+      }
 
       let ratingsHtml = '<div class="detail-section">';
       ratingsHtml += '<h3 class="detail-section-title">Ratings</h3>';
