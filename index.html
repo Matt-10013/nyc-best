@@ -127,10 +127,35 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #0a0b10 0%, #1a1a25 100%);
+      background: #08090d;
       z-index: 300;
       padding: 2rem;
       text-align: center;
+      overflow: hidden;
+    }
+
+    .login-screen::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url('https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1200&q=80');
+      background-size: cover;
+      background-position: center;
+      filter: grayscale(100%) brightness(0.25) contrast(1.1);
+      z-index: 0;
+    }
+
+    .login-screen::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(180deg, rgba(8,9,13,0.3) 0%, rgba(8,9,13,0.7) 50%, rgba(8,9,13,0.95) 100%);
+      z-index: 1;
+    }
+
+    .login-screen > * {
+      position: relative;
+      z-index: 2;
     }
 
     .login-screen.hidden {
@@ -139,37 +164,55 @@
 
     .login-logo {
       font-family: Playfair Display, Georgia, serif;
-      font-size: 48px;
+      font-size: 42px;
       font-weight: 700;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       background: var(--accent);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      letter-spacing: -1px;
     }
 
     .login-tagline {
-      font-size: 18px;
-      color: var(--text2);
+      font-size: 16px;
+      color: rgba(255,255,255,0.6);
       margin-bottom: 3rem;
-      max-width: 300px;
+      max-width: 280px;
+      line-height: 1.6;
     }
 
     .login-btn {
-      padding: 1rem 2rem;
-      background: var(--accent-solid);
-      color: var(--bg);
-      border: none;
+      padding: 1rem 2.5rem;
+      background: rgba(255,255,255,0.08);
+      color: var(--accent-solid);
+      border: 1px solid rgba(212, 165, 116, 0.3);
       border-radius: 8px;
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.3s var(--ease);
+      backdrop-filter: blur(10px);
+      letter-spacing: 0.5px;
     }
 
     .login-btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 8px 32px rgba(212, 165, 116, 0.3);
+      background: rgba(212, 165, 116, 0.15);
+      border-color: rgba(212, 165, 116, 0.5);
+      box-shadow: 0 8px 32px rgba(212, 165, 116, 0.2);
+    }
+
+    /* App background */
+    .container::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url('https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1200&q=80');
+      background-size: cover;
+      background-position: center;
+      filter: grayscale(100%) brightness(0.12) contrast(1.1);
+      z-index: -1;
     }
 
     /* Bottom Navigation */
@@ -221,7 +264,22 @@
     }
 
     .nav-icon {
-      font-size: 20px;
+      width: 22px;
+      height: 22px;
+    }
+
+    .nav-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-item * {
+      pointer-events: none;
     }
 
     /* Glass Cards */
@@ -957,7 +1015,7 @@
 </head>
 <body>
   <div class="login-screen" id="loginScreen">
-    <div class="login-logo">🍽️</div>
+    <div class="login-logo">NYC Dining</div>
     <div class="login-tagline">Your personal guide to dining in New York City</div>
     <button class="login-btn" id="googleLoginBtn">Sign in with Google</button>
   </div>
@@ -971,26 +1029,43 @@
     <div class="content">
       <!-- Home View -->
       <div class="view active" id="homeView" data-view="home">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-number" id="totalCount">0</div>
-            <div class="stat-label">Total Restaurants</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" id="favoritesCount">0</div>
-            <div class="stat-label">Favorites</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" id="visitedCount">0</div>
-            <div class="stat-label">Visited</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" id="wishlistCount">0</div>
-            <div class="stat-label">Wishlist</div>
+        <!-- Tonight's Pick -->
+        <div id="heroRecommendation" style="padding: 1.5rem;">
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-solid); margin-bottom: 0.75rem; font-weight: 600;">Tonight's Pick</div>
+          <div class="card" id="heroCard" style="padding: 1.5rem; cursor: pointer; border-color: rgba(212,165,116,0.15); background: rgba(255,255,255,0.03);">
+            <div id="heroName" style="font-family: Playfair Display, Georgia, serif; font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #c9956b, #e8c5a0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.5rem;"></div>
+            <div id="heroMeta" style="font-size: 13px; color: var(--text2); margin-bottom: 0.75rem;"></div>
+            <div id="heroCuisine" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;"></div>
+            <div id="heroReason" style="font-size: 14px; color: var(--text); line-height: 1.6; font-style: italic; padding: 0.75rem; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 2px solid var(--accent-solid);"></div>
+            <div id="heroRatings" style="display: flex; gap: 1.5rem; margin-top: 1rem; font-size: 13px;"></div>
           </div>
         </div>
 
-        <div id="spotlightContainer"></div>
+        <!-- Quick Stats -->
+        <div style="display: flex; gap: 0; padding: 0 1.5rem; margin-bottom: 1rem;">
+          <div style="flex: 1; text-align: center; padding: 1rem 0; border-right: 1px solid var(--surface2);">
+            <div id="totalCount" style="font-family: Playfair Display; font-size: 24px; font-weight: 700; color: var(--accent-solid);">0</div>
+            <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2);">Total</div>
+          </div>
+          <div style="flex: 1; text-align: center; padding: 1rem 0; border-right: 1px solid var(--surface2);">
+            <div id="favoritesCount" style="font-family: Playfair Display; font-size: 24px; font-weight: 700; color: var(--accent-solid);">0</div>
+            <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2);">Favorites</div>
+          </div>
+          <div style="flex: 1; text-align: center; padding: 1rem 0; border-right: 1px solid var(--surface2);">
+            <div id="visitedCount" style="font-family: Playfair Display; font-size: 24px; font-weight: 700; color: var(--accent-solid);">0</div>
+            <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2);">Visited</div>
+          </div>
+          <div style="flex: 1; text-align: center; padding: 1rem 0;">
+            <div id="wishlistCount" style="font-family: Playfair Display; font-size: 24px; font-weight: 700; color: var(--accent-solid);">0</div>
+            <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2);">Wishlist</div>
+          </div>
+        </div>
+
+        <!-- Recent Favorites -->
+        <div style="padding: 0 1.5rem;">
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text2); margin-bottom: 0.75rem; font-weight: 600;">Recent Favorites</div>
+          <div id="spotlightContainer"></div>
+        </div>
 
         <div style="padding: 1rem; text-align: center; color: var(--text2); font-size: 12px;">
           <p id="discoveryCount"></p>
@@ -1060,23 +1135,23 @@
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
       <div class="nav-item active" data-view="home">
-        <div class="nav-icon">🏠</div>
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
         <div>Home</div>
       </div>
       <div class="nav-item" data-view="collection">
-        <div class="nav-icon">📋</div>
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/><circle cx="12" cy="4" r="1"/></svg></div>
         <div>Collection</div>
       </div>
       <div class="nav-item" data-view="discover">
-        <div class="nav-icon">✨</div>
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
         <div>Discover</div>
       </div>
       <div class="nav-item" data-view="map">
-        <div class="nav-icon">🗺️</div>
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
         <div>Map</div>
       </div>
       <div class="nav-item" data-view="preferences">
-        <div class="nav-icon">⚙️</div>
+        <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
         <div>Prefs</div>
       </div>
     </div>
@@ -1634,8 +1709,9 @@
       if (e.target.classList.contains('chip')) {
         if (e.target.dataset.filter) onFilterClick(e);
       }
-      if (e.target.classList.contains('nav-item')) {
-        const view = e.target.dataset.view;
+      const navItem = e.target.closest('.nav-item');
+      if (navItem) {
+        const view = navItem.dataset.view;
         if (view) onViewClick(view);
       }
       if (e.target.classList.contains('restaurant-card')) {
@@ -1683,7 +1759,7 @@
     function renderStats() {
       const total = S.restaurants.length;
       const favorites = S.restaurants.filter(r => r.status === 'favorite').length;
-      const visited = S.restaurants.filter(r => r.status === 'visited').length;
+      const visited = S.restaurants.filter(r => r.status === 'visited' || r.status === 'favorite').length;
       const wishlist = S.restaurants.filter(r => r.status === 'wishlist').length;
 
       document.getElementById('totalCount').textContent = total;
@@ -1692,7 +1768,52 @@
       document.getElementById('wishlistCount').textContent = wishlist;
 
       const newDiscoveries = S.discoveries.filter(d => d.status === 'new').length;
-      document.getElementById('discoveryCount').textContent = newDiscoveries > 0 ? `${newDiscoveries} new discoveries waiting` : 'No new discoveries';
+      document.getElementById('discoveryCount').textContent = newDiscoveries > 0 ? `${newDiscoveries} new discoveries waiting — check Discover` : '';
+
+      // Hero recommendation — pick a random wishlist restaurant
+      const wishlistRests = S.restaurants.filter(r => r.status === 'wishlist');
+      const heroEl = document.getElementById('heroRecommendation');
+      if (wishlistRests.length > 0) {
+        // Pick a different one each session based on date
+        const dayIndex = new Date().getDate() % wishlistRests.length;
+        const pick = wishlistRests[dayIndex];
+        const reasons = [
+          `On your wishlist — ${pick.neighborhood || 'NYC'} is calling.`,
+          `You haven't tried this one yet. ${(pick.tags || []).length > 0 ? pick.tags[0] + '.' : 'Could be a new favorite.'}`,
+          `A ${(pick.cuisine || ['restaurant'])[0].toLowerCase()} spot in ${pick.neighborhood || 'Manhattan'} worth exploring.`,
+        ];
+        const reason = reasons[dayIndex % reasons.length];
+
+        document.getElementById('heroName').textContent = pick.name;
+        document.getElementById('heroMeta').textContent = [pick.neighborhood, pick.priceRange ? '$'.repeat(pick.priceRange) : '', pick.atmosphere].filter(Boolean).join(' · ');
+        document.getElementById('heroCuisine').innerHTML = (pick.cuisine || []).map(c => `<span style="background: rgba(212,165,116,0.12); color: var(--accent-solid); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;">${c}</span>`).join('');
+        document.getElementById('heroReason').textContent = reason;
+
+        let ratingsHtml = '';
+        if (pick.externalRatings?.google?.score) ratingsHtml += `<span style="color:var(--text2);">Google <strong style="color:var(--text);">${pick.externalRatings.google.score}</strong></span>`;
+        if (pick.externalRatings?.michelin?.stars) ratingsHtml += `<span style="color:var(--text2);">Michelin <strong style="color:var(--accent-solid);">${'★'.repeat(pick.externalRatings.michelin.stars)}</strong></span>`;
+        if (pick.externalRatings?.infatuation?.score) ratingsHtml += `<span style="color:var(--text2);">Infatuation <strong style="color:var(--text);">${pick.externalRatings.infatuation.score}</strong></span>`;
+        document.getElementById('heroRatings').innerHTML = ratingsHtml || '<span style="color:var(--text2); font-style:italic;">No external ratings yet</span>';
+
+        document.getElementById('heroCard').onclick = () => onRestaurantClick(pick.id);
+        heroEl.style.display = 'block';
+      } else if (S.restaurants.length > 0) {
+        // No wishlist — show a favorite instead
+        const favs = S.restaurants.filter(r => r.status === 'favorite');
+        if (favs.length > 0) {
+          const pick = favs[Math.floor(Math.random() * favs.length)];
+          document.getElementById('heroName').textContent = pick.name;
+          document.getElementById('heroMeta').textContent = [pick.neighborhood, pick.priceRange ? '$'.repeat(pick.priceRange) : ''].filter(Boolean).join(' · ');
+          document.getElementById('heroCuisine').innerHTML = (pick.cuisine || []).map(c => `<span style="background: rgba(212,165,116,0.12); color: var(--accent-solid); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;">${c}</span>`).join('');
+          document.getElementById('heroReason').textContent = 'One of your favorites — always a good call.';
+          document.getElementById('heroRatings').innerHTML = '';
+          document.getElementById('heroCard').onclick = () => onRestaurantClick(pick.id);
+          heroEl.style.display = 'block';
+          document.querySelector('#heroRecommendation > div:first-child').textContent = 'Revisit a Favorite';
+        }
+      } else {
+        heroEl.style.display = 'none';
+      }
     }
 
     function renderRestaurantGrid() {
