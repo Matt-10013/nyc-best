@@ -67,21 +67,22 @@
     }
 
     .header {
-      padding: 1.25rem 1.5rem 1rem;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      backdrop-filter: blur(30px);
-      background: rgba(8, 9, 13, 0.65);
+      padding: 1.5rem 1.5rem 1rem;
+      border-bottom: none;
+      backdrop-filter: none;
+      background: transparent;
       z-index: 100;
       position: relative;
     }
 
     .header h1 {
       font-family: DM Sans, -apple-system, sans-serif;
-      font-size: 20px;
+      font-size: 28px;
       font-weight: 700;
-      letter-spacing: -0.5px;
+      letter-spacing: -1px;
       color: #fff;
-      margin-bottom: 0.15rem;
+      margin-bottom: 0;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
 
     .header h1 span {
@@ -89,11 +90,7 @@
     }
 
     .header-subtitle {
-      font-size: 11px;
-      color: rgba(255,255,255,0.35);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      font-weight: 400;
+      display: none;
     }
 
     .content {
@@ -240,15 +237,15 @@
       min-height: 100%;
       transform: translate(-50%, -50%);
       object-fit: cover;
-      opacity: 0.25;
-      filter: saturate(0.5);
+      opacity: 0.55;
+      filter: saturate(0.7) brightness(1.1);
     }
 
     .app-video-bg::after {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(ellipse at center, rgba(8,9,13,0.3) 0%, var(--bg) 75%);
+      background: radial-gradient(ellipse at center, transparent 0%, rgba(8,9,13,0.6) 85%);
     }
 
     /* Bottom Navigation */
@@ -259,9 +256,9 @@
       right: 0;
       height: calc(56px + var(--safe-bottom));
       padding: 0 0 var(--safe-bottom) 0;
-      border-top: 1px solid rgba(255,255,255,0.04);
-      backdrop-filter: blur(30px);
-      background: rgba(8, 9, 13, 0.75);
+      border-top: none;
+      backdrop-filter: blur(20px);
+      background: rgba(0, 0, 0, 0.3);
       display: flex;
       justify-content: space-around;
       z-index: 100;
@@ -285,7 +282,7 @@
     }
 
     .nav-item.active {
-      color: #fff;
+      color: var(--accent-solid);
     }
 
     .nav-item.active::after {
@@ -296,7 +293,7 @@
       transform: translateX(-50%);
       width: 24px;
       height: 2px;
-      background: #fff;
+      background: var(--accent-solid);
     }
 
     .nav-icon {
@@ -1143,42 +1140,18 @@
     </div>
 
     <div class="content">
-      <!-- Home View -->
+      <!-- Home View — clean, just video -->
       <div class="view active" id="homeView" data-view="home">
-        <!-- Hero recommendation — name only, big and cinematic -->
-        <div id="heroRecommendation" style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: calc(100vh - 200px); padding: 2rem; text-align: center;">
-          <div style="font-size: 9px; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.3); margin-bottom: 1.5rem; font-weight: 500;">Tonight's Pick</div>
-          <div id="heroCard" style="cursor: pointer;">
-            <div id="heroName" style="font-family: DM Sans, -apple-system, sans-serif; font-size: 48px; font-weight: 700; color: #fff; line-height: 1.1; letter-spacing: -1px; margin-bottom: 1rem;"></div>
-            <div id="heroMeta" style="font-size: 12px; color: rgba(255,255,255,0.35); letter-spacing: 2px; text-transform: uppercase;"></div>
-          </div>
-          <div id="heroCuisine" style="display: none;"></div>
-          <div id="heroReason" style="display: none;"></div>
-          <div id="heroRatings" style="display: none;"></div>
+        <!-- Hidden elements kept for JS compatibility -->
+        <div id="heroRecommendation" style="display: none;">
+          <div id="heroCard"><div id="heroName"></div><div id="heroMeta"></div></div>
+          <div id="heroCuisine"></div><div id="heroReason"></div><div id="heroRatings"></div>
         </div>
-
-        <!-- Minimal stats row -->
-        <div style="display: flex; justify-content: center; gap: 2.5rem; padding: 0 1.5rem 2rem; opacity: 0.4;">
-          <div style="text-align: center;">
-            <div id="totalCount" style="font-size: 18px; font-weight: 300; color: #fff;">0</div>
-            <div style="font-size: 8px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4);">Places</div>
-          </div>
-          <div style="text-align: center;">
-            <div id="favoritesCount" style="font-size: 18px; font-weight: 300; color: #fff;">0</div>
-            <div style="font-size: 8px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4);">Favorites</div>
-          </div>
-          <div style="text-align: center;">
-            <div id="visitedCount" style="font-size: 18px; font-weight: 300; color: #fff;">0</div>
-            <div style="font-size: 8px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4);">Visited</div>
-          </div>
-          <div style="text-align: center;">
-            <div id="wishlistCount" style="font-size: 18px; font-weight: 300; color: #fff;">0</div>
-            <div style="font-size: 8px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4);">Wishlist</div>
-          </div>
+        <div style="display:none;">
+          <span id="totalCount">0</span><span id="favoritesCount">0</span>
+          <span id="visitedCount">0</span><span id="wishlistCount">0</span>
+          <div id="spotlightContainer"></div><p id="discoveryCount"></p>
         </div>
-
-        <div id="spotlightContainer" style="display: none;"></div>
-        <div style="display: none;"><p id="discoveryCount"></p></div>
       </div>
 
       <!-- Collection View -->
@@ -2134,8 +2107,8 @@
 
     // ============ VIDEO SPEED ============
     const loginVid = document.getElementById('loginVideo');
-    if (loginVid) loginVid.playbackRate = 0.6;
-    document.querySelectorAll('.app-video-bg video').forEach(v => v.playbackRate = 0.5);
+    if (loginVid) loginVid.playbackRate = 0.4;
+    document.querySelectorAll('.app-video-bg video').forEach(v => v.playbackRate = 0.35);
 
     // ============ INIT ============
     clearStarInputs();
