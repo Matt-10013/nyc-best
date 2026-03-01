@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#08090d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NYC Dining">
+  <title>NYC Dining Companion</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    :root {
+      --bg: #08090d;
+      --surface: rgba(255, 255, 255, 0.04);
+      --surface2: rgba(255, 255, 255, 0.08);
+      --text: #f5f3f0;
+      --text2: #9ca3af;
+      --accent: linear-gradient(135deg, #c9956b, #e8c5a0);
+      --accent-solid: #d4a574;
+      --accent2: #8b6c4f;
+      --matt: #6b9bd2;
+      --denise: #d4789c;
+      --green: #6bba7a;
+      --red: #ef4444;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --safe-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      overflow: hidden;
+    }
+
+    .container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--surface2);
+      backdrop-filter: blur(20px);
+      background: rgba(8, 9, 13, 0.7);
+      z-index: 100;
+      position: relative;
+    }
+
+    .header h1 {
+      font-family: Playfair Display, Georgia, serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: var(--accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .header-subtitle {
+      font-size: 12px;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: calc(80px + var(--safe-bottom));
+    }
+
+    .view {
+      display: none;
+      animation: fadeIn 0.3s var(--ease);
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Login Screen */
+    .login-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0a0b10 0%, #1a1a25 100%);
+      z-index: 300;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .login-screen.hidden {
+      display: none;
+    }
+
+    .login-logo {
+      font-family: Playfair Display, Georgia, serif;
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: var(--accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .login-tagline {
+      font-size: 18px;
+      color: var(--text2);
+      margin-bottom: 3rem;
+      max-width: 300px;
+    }
+
+    .login-btn {
+      padding: 1rem 2rem;
+      background: var(--accent-solid);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s var(--ease);
+    }
+
+    .login-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 32px rgba(212, 165, 116, 0.3);
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(64px + var(--safe-bottom));
+      padding: 0 0 var(--safe-bottom) 0;
+      border-top: 1px solid var(--surface2);
+      backdrop-filter: blur(20px);
+      background: rgba(8, 9, 13, 0.8);
+      display: flex;
+      justify-content: space-around;
+      z-index: 100;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      cursor: pointer;
+      color: var(--text2);
+      transition: all 0.2s var(--ease);
+      position: relative;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    .nav-item.active {
+      color: var(--accent-solid);
+    }
+
+    .nav-item.active::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      width: 6px;
+      height: 6px;
+      background: var(--accent-solid);
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(212, 165, 116, 0.5);
+    }
+
+    .nav-icon {
+      font-size: 20px;
+    }
+
+    /* Glass Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 12px;
+      padding: 1rem;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s var(--ease);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .card:hover {
+      transform: scale(1.01);
+      border-color: var(--surface2);
+      box-shadow: 0 8px 32px rgba(212, 165, 116, 0.15), 0 0 0 1px rgba(212, 165, 116, 0.2);
+    }
+
+    /* Grid Layouts */
+    .grid {
+      display: grid;
+      gap: 1rem;
+      padding: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      backdrop-filter: blur(20px);
+    }
+
+    .stat-number {
+      font-family: Playfair Display, Georgia, serif;
+      font-size: 32px;
+      font-weight: 700;
+      background: var(--accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Restaurant Cards */
+    .restaurant-card {
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 12px;
+      padding: 1rem;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s var(--ease);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .restaurant-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(212, 165, 116, 0.15), 0 0 0 1px rgba(212, 165, 116, 0.2);
+    }
+
+    .source-badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: rgba(212, 165, 116, 0.2);
+      color: var(--accent-solid);
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .restaurant-name {
+      font-family: Playfair Display, Georgia, serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      padding-right: 100px;
+    }
+
+    .restaurant-meta {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .cuisine-pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: rgba(212, 165, 116, 0.1);
+      color: var(--accent-solid);
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .ratings-display {
+      display: flex;
+      gap: 1rem;
+      font-size: 13px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .rating-mini {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .rating-mini.matt {
+      color: var(--matt);
+    }
+
+    .rating-mini.denise {
+      color: var(--denise);
+    }
+
+    .external-ratings {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      font-size: 10px;
+      color: var(--text2);
+    }
+
+    .external-badge {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--surface2);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-wishlist {
+      background: rgba(155, 163, 175, 0.15);
+      color: var(--text2);
+      border: 1px dashed var(--text2);
+    }
+
+    .status-visited {
+      background: rgba(107, 186, 122, 0.15);
+      color: var(--green);
+    }
+
+    .status-favorite {
+      background: rgba(212, 165, 116, 0.2);
+      color: var(--accent-solid);
+    }
+
+    /* Discovery Cards */
+    .discovery-card {
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 12px;
+      padding: 1rem;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s var(--ease);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .discovery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .discovery-info {
+      flex: 1;
+    }
+
+    .discovery-name {
+      font-family: Playfair Display, Georgia, serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .discovery-source {
+      font-size: 12px;
+      color: var(--accent-solid);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .discovery-date {
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 0.25rem;
+    }
+
+    .discovery-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .btn {
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.25rem;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+      font-family: Inter, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: var(--accent-solid);
+      color: var(--bg);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent2);
+      transform: scale(1.02);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--surface2);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface2);
+      border-color: var(--accent-solid);
+      color: var(--accent-solid);
+    }
+
+    .btn-small {
+      padding: 0.5rem 0.75rem;
+      font-size: 11px;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--red);
+      border: 1px solid var(--red);
+    }
+
+    /* Search & Filters */
+    .search-section {
+      padding: 1rem;
+      border-bottom: 1px solid var(--surface2);
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      color: var(--text);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: Inter, sans-serif;
+      transition: all 0.2s var(--ease);
+    }
+
+    .search-input::placeholder {
+      color: var(--text2);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-solid);
+      background: var(--surface2);
+    }
+
+    .filter-chips {
+      display: flex;
+      gap: 0.5rem;
+      padding: 1rem;
+      overflow-x: auto;
+      margin-bottom: 0.5rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .chip {
+      background: var(--surface);
+      color: var(--text2);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: 12px;
+      border: 1px solid var(--surface2);
+      transition: all 0.2s var(--ease);
+    }
+
+    .chip.active {
+      background: var(--accent-solid);
+      color: var(--bg);
+      border-color: var(--accent-solid);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: flex-end;
+      z-index: 200;
+      animation: fadeIn 0.2s var(--ease);
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 100%;
+      background: var(--surface);
+      border-radius: 16px 16px 0 0;
+      border: 1px solid var(--surface2);
+      padding: 1.5rem;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s var(--ease);
+      padding-bottom: calc(1.5rem + var(--safe-bottom));
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--surface2);
+    }
+
+    .modal-title {
+      font-family: Playfair Display, Georgia, serif;
+      font-size: 22px;
+      font-weight: 700;
+      background: var(--accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 24px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s var(--ease);
+    }
+
+    .modal-close:hover {
+      color: var(--accent-solid);
+      transform: scale(1.1);
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--surface2);
+      color: var(--text);
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: Inter, sans-serif;
+      transition: all 0.2s var(--ease);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--accent-solid);
+      background: var(--surface2);
+    }
+
+    .star-input {
+      display: flex;
+      gap: 0.5rem;
+      font-size: 24px;
+    }
+
+    .star {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.1s var(--ease);
+      color: var(--text2);
+    }
+
+    .star:hover, .star.active {
+      color: var(--accent-solid);
+      transform: scale(1.15);
+    }
+
+    .rating-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .ratings-bar {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .bar-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: right;
+      min-width: 60px;
+    }
+
+    .bar-fill {
+      height: 4px;
+      background: var(--surface2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .bar-value {
+      height: 100%;
+      background: linear-gradient(90deg, #6b9bd2, #d4789c);
+      border-radius: 2px;
+      transition: width 0.3s var(--ease);
+    }
+
+    /* Detail View */
+    .detail-hero {
+      padding: 2rem 1.5rem;
+      border-bottom: 1px solid var(--surface2);
+      margin-bottom: 1rem;
+    }
+
+    .detail-name {
+      font-family: Playfair Display, Georgia, serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      line-height: 1.1;
+    }
+
+    .detail-meta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 1rem;
+    }
+
+    .detail-section {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--surface2);
+    }
+
+    .detail-section-title {
+      font-family: Playfair Display, Georgia, serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .ratings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .rating-column {
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .rating-head {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+    }
+
+    .rating-head.matt {
+      color: var(--matt);
+    }
+
+    .rating-head.denise {
+      color: var(--denise);
+    }
+
+    .rating-stars {
+      font-size: 20px;
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .rating-notes {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.4;
+      font-style: italic;
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .timeline-item {
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 8px;
+      padding: 1rem;
+      position: relative;
+      padding-left: 1.5rem;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: 0;
+      top: 1.5rem;
+      width: 8px;
+      height: 8px;
+      background: var(--accent-solid);
+      border-radius: 50%;
+      margin-left: 8px;
+    }
+
+    .timeline-date {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-solid);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-occasion {
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-note {
+      font-size: 13px;
+      color: var(--text);
+      font-style: italic;
+      line-height: 1.4;
+    }
+
+    /* Home View */
+    .spotlight-card {
+      background: linear-gradient(135deg, rgba(212, 165, 116, 0.1) 0%, rgba(212, 165, 116, 0.05) 100%);
+      border: 1px solid rgba(212, 165, 116, 0.2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1rem;
+      cursor: pointer;
+      transition: all 0.3s var(--ease);
+    }
+
+    .spotlight-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(212, 165, 116, 0.2);
+    }
+
+    /* Map View */
+    .map-container {
+      padding: 1rem;
+      height: calc(100vh - 160px);
+      overflow-y: auto;
+    }
+
+    .neighborhood {
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+
+    .neighborhood:hover {
+      background: var(--surface2);
+      border-color: var(--accent-solid);
+    }
+
+    .neighborhood-name {
+      font-weight: 600;
+      color: var(--accent-solid);
+      margin-bottom: 0.5rem;
+    }
+
+    .neighborhood-count {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--surface2);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-solid);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .rating-inputs {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-name {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-screen" id="loginScreen">
+    <div class="login-logo">🍽️</div>
+    <div class="login-tagline">Your personal guide to dining in New York City</div>
+    <button class="login-btn" id="googleLoginBtn">Sign in with Google</button>
+  </div>
+
+  <div class="container" id="appContainer" style="display: none;">
+    <div class="header">
+      <h1>NYC Dining</h1>
+      <div class="header-subtitle" id="headerSubtitle"></div>
+    </div>
+
+    <div class="content">
+      <!-- Home View -->
+      <div class="view active" id="homeView" data-view="home">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalCount">0</div>
+            <div class="stat-label">Total Restaurants</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="favoritesCount">0</div>
+            <div class="stat-label">Favorites</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="visitedCount">0</div>
+            <div class="stat-label">Visited</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="wishlistCount">0</div>
+            <div class="stat-label">Wishlist</div>
+          </div>
+        </div>
+
+        <div id="spotlightContainer"></div>
+
+        <div style="padding: 1rem; text-align: center; color: var(--text2); font-size: 12px;">
+          <p id="discoveryCount"></p>
+        </div>
+      </div>
+
+      <!-- Collection View -->
+      <div class="view" id="collectionView" data-view="collection">
+        <div class="search-section">
+          <input type="text" class="search-input" id="searchInput" placeholder="Search restaurants...">
+        </div>
+        <div class="filter-chips">
+          <div class="chip active" data-filter="all">All</div>
+          <div class="chip" data-filter="favorite">Favorites</div>
+          <div class="chip" data-filter="visited">Visited</div>
+          <div class="chip" data-filter="wishlist">Wishlist</div>
+        </div>
+        <div class="grid" id="restaurantGrid"></div>
+      </div>
+
+      <!-- Detail View -->
+      <div class="view" id="detailView" data-view="detail">
+        <div class="detail-hero">
+          <div class="detail-name" id="detailName"></div>
+          <div class="detail-meta" id="detailMeta"></div>
+        </div>
+
+        <div id="detailRatings"></div>
+        <div id="detailExternalRatings"></div>
+        <div id="detailVisits"></div>
+
+        <div class="detail-section">
+          <button class="btn btn-primary" id="logVisitBtn" style="width: 100%; margin-bottom: 0.5rem;">Log Visit</button>
+          <button class="btn btn-secondary" id="editRestaurantBtn" style="width: 100%; margin-bottom: 0.5rem;">Edit</button>
+          <button class="btn btn-danger" id="deleteRestaurantBtn" style="width: 100%;">Delete</button>
+        </div>
+      </div>
+
+      <!-- Discover View -->
+      <div class="view" id="discoverView" data-view="discover">
+        <button class="btn btn-primary" id="addSourceBtn" style="margin: 1rem; width: calc(100% - 2rem);">+ Add Source</button>
+
+        <div class="filter-chips">
+          <div class="chip active" data-filter="all">All Sources</div>
+          <div id="sourceFilters"></div>
+        </div>
+
+        <div id="discoveryCards" class="grid"></div>
+      </div>
+
+      <!-- Map View -->
+      <div class="view" id="mapView" data-view="map">
+        <div class="map-container" id="mapContainer"></div>
+      </div>
+
+      <!-- Preferences View -->
+      <div class="view" id="preferencesView" data-view="preferences">
+        <div style="padding: 1rem;">
+          <div class="detail-section">
+            <h3 class="detail-section-title">Dining Preferences</h3>
+            <div id="preferencesContent"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item active" data-view="home">
+        <div class="nav-icon">🏠</div>
+        <div>Home</div>
+      </div>
+      <div class="nav-item" data-view="collection">
+        <div class="nav-icon">📋</div>
+        <div>Collection</div>
+      </div>
+      <div class="nav-item" data-view="discover">
+        <div class="nav-icon">✨</div>
+        <div>Discover</div>
+      </div>
+      <div class="nav-item" data-view="map">
+        <div class="nav-icon">🗺️</div>
+        <div>Map</div>
+      </div>
+      <div class="nav-item" data-view="preferences">
+        <div class="nav-icon">⚙️</div>
+        <div>Prefs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal-overlay hidden" id="addSourceModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Add Source</h2>
+        <button class="modal-close" id="closeAddSourceBtn">&times;</button>
+      </div>
+      <form id="addSourceForm">
+        <div class="form-group">
+          <label class="form-label">Source Name</label>
+          <select class="form-select" id="sourceSelect">
+            <option value="">Select a source...</option>
+            <option value="The Infatuation">The Infatuation</option>
+            <option value="Eater NY">Eater NY</option>
+            <option value="NY Times">NY Times</option>
+            <option value="Michelin Guide">Michelin Guide</option>
+            <option value="Grub Street">Grub Street</option>
+            <option value="New York Magazine">New York Magazine</option>
+            <option value="Bon Appetit">Bon Appetit</option>
+            <option value="Food & Wine">Food & Wine</option>
+            <option value="Resy">Resy</option>
+            <option value="OpenTable">OpenTable</option>
+            <option value="Friend/Personal">Friend/Personal</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Article/Source URL (Optional)</label>
+          <input type="url" class="form-input" id="sourceUrl" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Restaurant Names (one per line)</label>
+          <textarea class="form-textarea" id="restaurantNames" placeholder="Restaurant 1&#10;Restaurant 2&#10;Restaurant 3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Add Discoveries</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="addRestaurantModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="addRestaurantTitle">Add Restaurant</h2>
+        <button class="modal-close" id="closeAddRestaurantBtn">&times;</button>
+      </div>
+      <form id="addRestaurantForm">
+        <div class="form-group">
+          <label class="form-label">Restaurant Name</label>
+          <input type="text" class="form-input" id="restaurantName" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Neighborhood</label>
+          <input type="text" class="form-input" id="neighborhood">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cuisine</label>
+          <input type="text" class="form-input" id="cuisine" placeholder="Italian, French, etc. (comma-separated)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <input type="text" class="form-input" id="address">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price Range</label>
+          <select class="form-select" id="priceRange">
+            <option value="1">$ Casual</option>
+            <option value="2">$$ Moderate</option>
+            <option value="3">$$$ Upscale</option>
+            <option value="4">$$$$ Fine Dining</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Atmosphere</label>
+          <select class="form-select" id="atmosphere">
+            <option value="casual">Casual</option>
+            <option value="romantic">Romantic</option>
+            <option value="lively">Lively</option>
+            <option value="upscale">Upscale</option>
+            <option value="scene">Scene</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="status">
+            <option value="wishlist">Wishlist</option>
+            <option value="visited">Visited</option>
+            <option value="favorite">Favorite</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Matt's Rating</label>
+          <div class="star-input" id="mattRatingInput"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Denise's Rating</label>
+          <div class="star-input" id="deniseRatingInput"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Matt's Notes</label>
+          <textarea class="form-textarea" id="mattNotes"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Denise's Notes</label>
+          <textarea class="form-textarea" id="deniseNotes"></textarea>
+        </div>
+
+        <div style="background: var(--surface2); border: 1px solid var(--surface2); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
+          <h4 style="font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem;">External Ratings</h4>
+          <div class="form-group">
+            <label class="form-label">Google Rating</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" class="form-input" id="googleScore" placeholder="4.6" min="0" max="5" step="0.1" style="flex: 1;">
+              <input type="url" class="form-input" id="googleUrl" placeholder="Google URL" style="flex: 1;">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Michelin Stars</label>
+            <select class="form-select" id="michelinStars">
+              <option value="">None</option>
+              <option value="bib">Bib Gourmand</option>
+              <option value="1">1 Star</option>
+              <option value="2">2 Stars</option>
+              <option value="3">3 Stars</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Infatuation Score</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" class="form-input" id="infatuationScore" placeholder="8.5" min="0" max="10" step="0.1" style="flex: 1;">
+              <input type="url" class="form-input" id="infatuationUrl" placeholder="URL" style="flex: 1;">
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Save Restaurant</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="logVisitModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Log Visit</h2>
+        <button class="modal-close" id="closeLogVisitBtn">&times;</button>
+      </div>
+      <form id="logVisitForm">
+        <div class="form-group">
+          <label class="form-label">Visit Date</label>
+          <input type="date" class="form-input" id="visitDate" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Occasion</label>
+          <select class="form-select" id="visitOccasion">
+            <option value="date-night">Date Night</option>
+            <option value="business">Business</option>
+            <option value="group">Group</option>
+            <option value="casual">Casual</option>
+            <option value="special-occasion">Special Occasion</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dishes</label>
+          <textarea class="form-textarea" id="visitDishes" placeholder="What did you eat?"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Wine Notes</label>
+          <textarea class="form-textarea" id="visitWineNotes" placeholder="Wine pairings, observations..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Matt's Rating</label>
+          <div class="star-input" id="visitMattRatingInput"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Denise's Rating</label>
+          <div class="star-input" id="visitDeniseRatingInput"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pros</label>
+          <textarea class="form-textarea" id="visitPros" placeholder="What went well?"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cons</label>
+          <textarea class="form-textarea" id="visitCons" placeholder="Any issues?"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Save Visit</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ============ SEED DATA ============
+    const SEED_DATA = [
+      { name: "Gramercy Tavern", neighborhood: "Gramercy", cuisine: ["American", "Fine Dining"], address: "42 E 20th St", priceRange: 4, status: "favorite", atmosphere: "upscale", bestFor: ["date-night", "special-occasion"], mattRating: 5, deniseRating: 5, mattNotes: "OUTSTANDING in all ways. Best wine pairing ever — included a sake. Unique wines that were absolutely delicious.", deniseNotes: "", tags: ["great wine list", "prefixe menu"], externalRatings: { google: { score: 4.8 }, michelin: { stars: 2 } }, visits: [{ date: "2024-11-14", occasion: "date-night", dishes: ["Prix fixe menu"], wineNotes: "Best wine pairing ever, included a sake. Unique wines.", pros: ["Outstanding food", "Incredible wine pairing", "Beautiful dining room"], cons: [], wouldReturn: true, mattRating: 5, deniseRating: 5 }] },
+      { name: "Marea", neighborhood: "Midtown West", cuisine: ["Italian", "Seafood"], address: "240 Central Park S", priceRange: 4, status: "favorite", atmosphere: "scene", bestFor: ["date-night", "special-occasion"], mattRating: 5, mattNotes: "Incredible food and fun/chic vibe. Crowded late. Go back!", deniseNotes: "", tags: ["chic vibe"], externalRatings: { google: { score: 4.7 }, michelin: { stars: 1 } }, visits: [{ date: "2024-11-15", occasion: "date-night", dishes: [], wineNotes: "", pros: ["Incredible food", "Fun chic vibe"], cons: ["Crowded late"], wouldReturn: true, mattRating: 5 }] },
+      { name: "Monkey Bar", neighborhood: "Midtown East", cuisine: ["American"], address: "60 E 54th St", priceRange: 3, status: "visited", atmosphere: "lively", bestFor: ["date-night", "business"], mattRating: 4, mattNotes: "Really great dinner at the bar.", deniseNotes: "", tags: ["great bar dining"], externalRatings: { google: { score: 4.5 } }, visits: [{ date: "2024-06-09", occasion: "date-night", dishes: [], wineNotes: "", pros: ["Great bar dining experience"], cons: [], wouldReturn: true, mattRating: 4 }, { date: "2024-11-16", occasion: "date-night", dishes: [], wineNotes: "", pros: [], cons: [], wouldReturn: true }] },
+      { name: "Milo's - Hudson Yards", neighborhood: "Hudson Yards", cuisine: ["Greek", "Seafood"], address: "Hudson Yards", priceRange: 4, status: "visited", atmosphere: "upscale", bestFor: ["business", "group"], mattRating: 4, mattNotes: "Beautiful restaurant! Took Phil and his team.", deniseNotes: "", tags: ["beautiful space"], externalRatings: { google: { score: 4.6 }, michelin: { stars: 1 } }, visits: [{ date: "2024-06-10", occasion: "business", dishes: [], wineNotes: "", pros: ["Beautiful restaurant"], cons: [], wouldReturn: true, mattRating: 4 }] },
+      { name: "Bourbon Steak", neighborhood: "Midtown", cuisine: ["Steakhouse", "American"], address: "JW Marriott, Central Park South", priceRange: 3, status: "visited", atmosphere: "upscale", bestFor: ["business", "casual"], mattRating: 3, mattNotes: "Terrific! Great food — delicious burger and outstanding french fries.", deniseNotes: "", tags: ["hotel restaurant", "people watching"], externalRatings: { google: { score: 4.4 } }, visits: [{ date: "2024-11-13", occasion: "date-night", dishes: ["Burger", "French fries"], wineNotes: "", pros: ["Great food", "Outstanding french fries", "Good energy"], cons: ["Not top tier"], wouldReturn: true, mattRating: 3 }] },
+      { name: "Sarabeth's", neighborhood: "Central Park South", cuisine: ["American", "Brunch"], address: "Central Park South", priceRange: 2, status: "visited", atmosphere: "casual", bestFor: ["casual", "date-night"], mattRating: 4, mattNotes: "Great breakfast before a nice walk in the park.", deniseNotes: "", tags: ["brunch spot", "near Central Park"], externalRatings: { google: { score: 4.3 } }, visits: [{ date: "2024-11-16", occasion: "date-night", dishes: ["Brunch"], wineNotes: "", pros: ["Great breakfast", "Perfect location"], cons: [], wouldReturn: true, mattRating: 4 }] },
+      { name: "Match 65", neighborhood: "UES", cuisine: ["French", "Bistro"], address: "65th St area", priceRange: 3, status: "favorite", atmosphere: "romantic", bestFor: ["date-night"], mattRating: 5, mattNotes: "Tiny little French bistro. Fantastic! Definitely go back!", deniseNotes: "", tags: ["tiny", "charming"], externalRatings: { google: { score: 4.7 } }, visits: [{ date: "2024-11-16", occasion: "date-night", dishes: [], wineNotes: "", pros: ["Fantastic food", "Charming atmosphere"], cons: ["Very small"], wouldReturn: true, mattRating: 5 }] },
+      { name: "La Goulue", neighborhood: "UES", cuisine: ["French"], address: "Upper East Side", priceRange: 3, status: "visited", atmosphere: "scene", bestFor: ["date-night", "group"], mattRating: 4, mattNotes: "Awesome French restaurant with a club in the back.", deniseNotes: "", tags: ["club in back"], externalRatings: { google: { score: 4.4 } }, visits: [{ date: "2024-11-16", occasion: "date-night", dishes: [], wineNotes: "", pros: ["Great French food", "Fun club atmosphere"], cons: [], wouldReturn: true, mattRating: 4 }] },
+      { name: "Locanda Verde", neighborhood: "Tribeca", cuisine: ["Italian"], address: "Tribeca", priceRange: 3, status: "visited", atmosphere: "lively", bestFor: ["casual", "date-night"], visits: [{ date: "2024-11-17", occasion: "date-night", dishes: ["Lunch"], wineNotes: "", pros: [], cons: [], wouldReturn: true }] },
+      { name: "Waverley Inn", neighborhood: "West Village", cuisine: ["American"], address: "West Village", priceRange: 3, status: "visited", atmosphere: "scene", bestFor: ["group", "special-occasion"], mattNotes: "Dinner with Chock Chapple and Joan Vassos.", deniseNotes: "", visits: [{ date: "2024-11-17", occasion: "friends", dishes: [], wineNotes: "", pros: [], cons: [], wouldReturn: true }] },
+      { name: "Cafe Boulud", neighborhood: "UES", cuisine: ["French", "Fine Dining"], address: "63rd St & Park Ave", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night", "special-occasion"], tags: ["Daniel Boulud", "opened Dec 2024"], externalRatings: { michelin: { stars: 2 } } },
+      { name: "425 Restaurant", neighborhood: "Midtown East", cuisine: ["Fine Dining"], address: "55th & Park Ave", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night", "special-occasion"], tags: ["Chef Jonathan Beano", "opened Dec 2024"], externalRatings: { google: { score: 4.8 } } },
+      { name: "Quality Bistro", neighborhood: "Midtown West", cuisine: ["French", "Bistro"], address: "54th St between 6th & 7th", priceRange: 3, status: "wishlist", atmosphere: "lively", bestFor: ["casual", "date-night"], tags: ["great brunch", "bread service"], externalRatings: { google: { score: 4.5 } } },
+      { name: "Jean Georges - Tangerine", neighborhood: "Columbus Circle", cuisine: ["French", "Fine Dining"], address: "Trump Tower, Columbus Circle", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night", "special-occasion"], externalRatings: { michelin: { stars: 3 } } },
+      { name: "Avra Madison", neighborhood: "UES", cuisine: ["Greek", "Seafood"], address: "66th & Madison", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night", "group"], tags: ["pick your own fish"], externalRatings: { google: { score: 4.6 } } },
+      { name: "Benoit Restaurant", neighborhood: "Midtown West", cuisine: ["French", "Bistro"], address: "55th St between 5th & 6th", priceRange: 3, status: "wishlist", atmosphere: "romantic", bestFor: ["date-night"], tags: ["wine bar", "great chef"], externalRatings: { google: { score: 4.5 } } },
+      { name: "La Grande Brasserie", neighborhood: "Midtown West", cuisine: ["French", "Bistro"], address: "53rd St off 7th Ave", priceRange: 3, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night"], tags: ["beautiful bistro", "great wine list"], externalRatings: { google: { score: 4.4 } } },
+      { name: "Del Frisco's", neighborhood: "Midtown", cuisine: ["Steakhouse"], address: "6th Ave, Midtown", priceRange: 4, status: "wishlist", atmosphere: "lively", bestFor: ["business", "group"], externalRatings: { google: { score: 4.3 } } },
+      { name: "Quality Italian", neighborhood: "Midtown", cuisine: ["Italian"], address: "6th Ave, Midtown", priceRange: 3, status: "wishlist", atmosphere: "lively", bestFor: ["date-night", "group"], tags: ["fun vibe"], externalRatings: { google: { score: 4.6 } } },
+      { name: "Quality Meats", neighborhood: "Midtown", cuisine: ["Steakhouse"], address: "6th Ave, Midtown", priceRange: 3, status: "wishlist", atmosphere: "lively", bestFor: ["business", "group"], tags: ["fun steakhouse"], externalRatings: { google: { score: 4.5 } } },
+      { name: "Ralph Lauren Polo Restaurant", neighborhood: "UES", cuisine: ["American", "Fine Dining"], address: "Upper East Side", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["special-occasion"], tags: ["reservation only"], externalRatings: { michelin: { stars: 1 } } },
+      { name: "The Standard Grill", neighborhood: "Meatpacking", cuisine: ["American"], address: "Meatpacking District", priceRange: 3, status: "wishlist", atmosphere: "scene", bestFor: ["casual", "group"], tags: ["great for lunch", "near Whitney Museum"], externalRatings: { google: { score: 4.2 } } },
+      { name: "The Modern", neighborhood: "Midtown", cuisine: ["American", "Fine Dining"], address: "53rd St", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night", "special-occasion"], tags: ["bar dining", "near MoMA"], externalRatings: { michelin: { stars: 1 }, google: { score: 4.5 } } },
+      { name: "Eataly NYC", neighborhood: "Flatiron", cuisine: ["Italian", "Market"], address: "200 Park Ave", priceRange: 2, status: "wishlist", atmosphere: "casual", bestFor: ["casual", "group"], tags: ["50k sq ft Italian market"], externalRatings: { google: { score: 4.4 } } },
+      { name: "Trattoria Romana", neighborhood: "Central Park South", cuisine: ["Italian"], address: "7th Ave, south of CPS", priceRange: 3, status: "wishlist", atmosphere: "casual", bestFor: ["casual", "date-night"], tags: ["old school", "great staff"], externalRatings: { google: { score: 4.3 } } },
+      { name: "Jam", neighborhood: "Central Park South", cuisine: ["Bar", "Cocktails"], address: "1 Hotel", priceRange: 3, status: "visited", atmosphere: "lively", bestFor: ["casual", "date-night"], mattNotes: "Great vibe, fun spot!", deniseNotes: "", externalRatings: { google: { score: 4.2 } }, visits: [{ date: "2024-11-15", occasion: "date-night", dishes: ["Drinks"], wineNotes: "", pros: ["Great vibe"], cons: [], wouldReturn: true, mattRating: 4 }] }
+    ];
+
+    // ============ FIREBASE CONFIG ============
+    const firebaseConfig = {
+      apiKey: "AIzaSyCRgZGtJSIoNvOsAUxCbmBoBWPBoZyL3Tk",
+      authDomain: "nyc-best.firebaseapp.com",
+      projectId: "nyc-best",
+      storageBucket: "nyc-best.firebasestorage.app",
+      messagingSenderId: "727950571401",
+      appId: "1:727950571401:web:4ed9c29972be19ce739358"
+    };
+
+    // ============ GLOBAL STATE ============
+    const S = {
+      auth: null,
+      db: null,
+      user: null,
+      currentView: 'home',
+      restaurants: [],
+      discoveries: [],
+      preferences: {},
+      searchQuery: '',
+      filterStatus: 'all',
+      sortBy: 'name',
+      selectedRestaurant: null,
+      showAddModal: false,
+      editingId: null,
+    };
+
+    function set(updates) {
+      Object.assign(S, updates);
+      requestAnimationFrame(render);
+    }
+
+    // ============ FIREBASE INIT ============
+    async function initFirebase() {
+      const { initializeApp } = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js');
+      const { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js');
+      const { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+
+      window.firebaseModules = { initializeApp, getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, getFirestore, collection, getDocs, doc, setDoc, deleteDoc };
+
+      const app = initializeApp(firebaseConfig);
+      S.auth = getAuth(app);
+      S.db = getFirestore(app);
+
+      onAuthStateChanged(S.auth, async (user) => {
+        if (user) {
+          set({ user, currentView: 'home' });
+          await loadRestaurants();
+          await loadDiscoveries();
+        } else {
+          set({ user: null, currentView: 'login' });
+        }
+      });
+    }
+
+    // ============ FIRESTORE OPERATIONS ============
+    async function loadRestaurants() {
+      if (!S.user || !S.db) return;
+      const { collection, getDocs } = window.firebaseModules;
+      const ref = collection(S.db, `users/${S.user.uid}/restaurants`);
+      const snap = await getDocs(ref);
+      const restaurants = [];
+      snap.forEach(doc => restaurants.push({ id: doc.id, ...doc.data() }));
+      set({ restaurants: restaurants.length > 0 ? restaurants : SEED_DATA });
+    }
+
+    async function loadDiscoveries() {
+      if (!S.user || !S.db) return;
+      const { collection, getDocs } = window.firebaseModules;
+      const ref = collection(S.db, `users/${S.user.uid}/discoveries`);
+      const snap = await getDocs(ref);
+      const discoveries = [];
+      snap.forEach(doc => discoveries.push({ id: doc.id, ...doc.data() }));
+      set({ discoveries });
+    }
+
+    async function saveRestaurant(restaurant) {
+      if (!S.user || !S.db) return;
+      const { doc, setDoc, collection } = window.firebaseModules;
+      const ref = doc(S.db, `users/${S.user.uid}/restaurants`, restaurant.id || 'new');
+      await setDoc(ref, restaurant, { merge: true });
+      await loadRestaurants();
+    }
+
+    async function deleteRestaurant(id) {
+      if (!S.user || !S.db || !confirm("Delete this restaurant?")) return;
+      const { doc, deleteDoc } = window.firebaseModules;
+      await deleteDoc(doc(S.db, `users/${S.user.uid}/restaurants`, id));
+      await loadRestaurants();
+      set({ currentView: 'collection' });
+    }
+
+    async function saveDiscovery(discovery) {
+      if (!S.user || !S.db) return;
+      const { doc, setDoc } = window.firebaseModules;
+      const ref = doc(S.db, `users/${S.user.uid}/discoveries`, discovery.id || Date.now().toString());
+      await setDoc(ref, discovery, { merge: true });
+      await loadDiscoveries();
+    }
+
+    // ============ UI HANDLERS ============
+    window.onViewClick = (view) => {
+      set({ currentView: view });
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelector(`[data-view="${view}"]`).closest('.nav-item')?.classList.add('active');
+    };
+
+    window.onFilterClick = (e) => {
+      document.querySelectorAll('.chip').forEach(el => el.classList.remove('active'));
+      e.target.classList.add('active');
+      set({ filterStatus: e.target.dataset.filter });
+    };
+
+    window.onSourceFilterClick = (e) => {
+      document.querySelectorAll('.chip').forEach(el => el.classList.remove('active'));
+      e.target.classList.add('active');
+    };
+
+    window.onRestaurantClick = (id) => {
+      const restaurant = S.restaurants.find(r => r.id === id);
+      if (restaurant) {
+        set({ selectedRestaurant: restaurant, currentView: 'detail' });
+      }
+    };
+
+    window.onDiscoveryAction = (action, id, source) => {
+      if (action === 'add') {
+        const discovery = S.discoveries.find(d => d.id === id);
+        if (discovery) {
+          const newId = Date.now().toString();
+          saveRestaurant({
+            id: newId,
+            name: discovery.name,
+            source: { name: discovery.source.name },
+            status: 'wishlist',
+            externalRatings: {},
+          });
+          saveDiscovery({ ...discovery, status: 'added', addedAsRestaurantId: newId });
+        }
+      } else if (action === 'dismiss') {
+        const discovery = S.discoveries.find(d => d.id === id);
+        if (discovery) {
+          saveDiscovery({ ...discovery, status: 'dismissed' });
+        }
+      } else if (action === 'research') {
+        const discovery = S.discoveries.find(d => d.id === id);
+        if (discovery) {
+          window.open(`https://www.google.com/search?q="${discovery.name}" restaurant NYC`, '_blank');
+        }
+      }
+    };
+
+    window.onAddRestaurant = () => {
+      S.editingId = null;
+      document.getElementById('addRestaurantTitle').textContent = 'Add Restaurant';
+      document.getElementById('addRestaurantForm').reset();
+      clearStarInputs();
+      document.getElementById('addRestaurantModal').classList.remove('hidden');
+    };
+
+    window.onEditRestaurant = () => {
+      const r = S.selectedRestaurant;
+      if (!r) return;
+      S.editingId = r.id;
+      document.getElementById('addRestaurantTitle').textContent = 'Edit Restaurant';
+      document.getElementById('restaurantName').value = r.name || '';
+      document.getElementById('neighborhood').value = r.neighborhood || '';
+      document.getElementById('cuisine').value = (r.cuisine || []).join(', ');
+      document.getElementById('address').value = r.address || '';
+      document.getElementById('priceRange').value = r.priceRange || '1';
+      document.getElementById('atmosphere').value = r.atmosphere || 'casual';
+      document.getElementById('status').value = r.status || 'wishlist';
+      document.getElementById('mattNotes').value = r.mattNotes || '';
+      document.getElementById('deniseNotes').value = r.deniseNotes || '';
+      updateStarDisplay('mattRatingInput', r.mattRating || 0);
+      updateStarDisplay('deniseRatingInput', r.deniseRating || 0);
+      populateExternalRatings(r.externalRatings || {});
+      document.getElementById('addRestaurantModal').classList.remove('hidden');
+    };
+
+    window.onLogVisit = () => {
+      const r = S.selectedRestaurant;
+      if (!r) return;
+      document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('logVisitForm').reset();
+      clearStarInputs();
+      document.getElementById('logVisitModal').classList.remove('hidden');
+    };
+
+    window.onDeleteRestaurant = () => {
+      deleteRestaurant(S.selectedRestaurant.id);
+    };
+
+    // ============ FORM HANDLERS ============
+    document.addEventListener('submit', async (e) => {
+      if (e.target.id === 'addSourceForm') {
+        e.preventDefault();
+        const sourceName = document.getElementById('sourceSelect').value || document.getElementById('sourceSelect').placeholder;
+        const sourceUrl = document.getElementById('sourceUrl').value;
+        const names = document.getElementById('restaurantNames').value.split('\n').filter(n => n.trim());
+
+        for (const name of names) {
+          const discovery = {
+            id: Date.now().toString() + Math.random(),
+            name: name.trim(),
+            source: { name: sourceName, url: sourceUrl },
+            dateFound: new Date().toISOString().split('T')[0],
+            status: 'new',
+          };
+          await saveDiscovery(discovery);
+        }
+
+        document.getElementById('addSourceModal').classList.add('hidden');
+        document.getElementById('addSourceForm').reset();
+        set({ currentView: 'discover' });
+      }
+
+      if (e.target.id === 'addRestaurantForm') {
+        e.preventDefault();
+        const restaurant = {
+          id: S.editingId || Date.now().toString(),
+          name: document.getElementById('restaurantName').value,
+          neighborhood: document.getElementById('neighborhood').value,
+          cuisine: document.getElementById('cuisine').value.split(',').map(c => c.trim()).filter(c => c),
+          address: document.getElementById('address').value,
+          priceRange: parseInt(document.getElementById('priceRange').value),
+          atmosphere: document.getElementById('atmosphere').value,
+          status: document.getElementById('status').value,
+          mattRating: getRating('mattRatingInput'),
+          deniseRating: getRating('deniseRatingInput'),
+          mattNotes: document.getElementById('mattNotes').value,
+          deniseNotes: document.getElementById('deniseNotes').value,
+          externalRatings: getExternalRatings(),
+          visits: S.editingId ? (S.restaurants.find(r => r.id === S.editingId)?.visits || []) : [],
+        };
+        await saveRestaurant(restaurant);
+        document.getElementById('addRestaurantModal').classList.add('hidden');
+        set({ currentView: 'collection' });
+      }
+
+      if (e.target.id === 'logVisitForm') {
+        e.preventDefault();
+        const r = S.selectedRestaurant;
+        if (!r) return;
+        const visit = {
+          date: document.getElementById('visitDate').value,
+          occasion: document.getElementById('visitOccasion').value,
+          dishes: document.getElementById('visitDishes').value.split('\n').filter(d => d.trim()),
+          wineNotes: document.getElementById('visitWineNotes').value,
+          mattRating: getRating('visitMattRatingInput'),
+          deniseRating: getRating('visitDeniseRatingInput'),
+          pros: document.getElementById('visitPros').value.split('\n').filter(p => p.trim()),
+          cons: document.getElementById('visitCons').value.split('\n').filter(c => c.trim()),
+          wouldReturn: true,
+        };
+        const updated = { ...r, visits: [...(r.visits || []), visit] };
+        await saveRestaurant(updated);
+        document.getElementById('logVisitModal').classList.add('hidden');
+        set({ selectedRestaurant: updated });
+      }
+    });
+
+    // ============ STAR INPUT LOGIC ============
+    function createStarInput(containerId, onChange) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement('span');
+        star.className = 'star';
+        star.textContent = '★';
+        star.onclick = () => {
+          updateStarDisplay(containerId, i);
+          onChange?.(i);
+        };
+        container.appendChild(star);
+      }
+    }
+
+    function updateStarDisplay(containerId, rating) {
+      const container = document.getElementById(containerId);
+      const stars = container.querySelectorAll('.star');
+      stars.forEach((star, i) => {
+        star.classList.toggle('active', i < rating);
+      });
+    }
+
+    function getRating(containerId) {
+      const container = document.getElementById(containerId);
+      return container.querySelectorAll('.star.active').length;
+    }
+
+    function clearStarInputs() {
+      createStarInput('mattRatingInput');
+      createStarInput('deniseRatingInput');
+      createStarInput('visitMattRatingInput');
+      createStarInput('visitDeniseRatingInput');
+    }
+
+    function populateExternalRatings(ratings) {
+      document.getElementById('googleScore').value = ratings.google?.score || '';
+      document.getElementById('googleUrl').value = ratings.google?.url || '';
+      document.getElementById('michelinStars').value = ratings.michelin?.stars || '';
+      document.getElementById('infatuationScore').value = ratings.infatuation?.score || '';
+      document.getElementById('infatuationUrl').value = ratings.infatuation?.url || '';
+    }
+
+    function getExternalRatings() {
+      const ratings = {};
+      const googleScore = parseFloat(document.getElementById('googleScore').value);
+      if (googleScore) ratings.google = { score: googleScore, url: document.getElementById('googleUrl').value };
+      const michelin = document.getElementById('michelinStars').value;
+      if (michelin) ratings.michelin = { stars: michelin };
+      const infatuation = parseFloat(document.getElementById('infatuationScore').value);
+      if (infatuation) ratings.infatuation = { score: infatuation, url: document.getElementById('infatuationUrl').value };
+      return ratings;
+    }
+
+    // ============ MODAL HANDLERS ============
+    document.getElementById('closeAddSourceBtn').onclick = () => document.getElementById('addSourceModal').classList.add('hidden');
+    document.getElementById('closeAddRestaurantBtn').onclick = () => document.getElementById('addRestaurantModal').classList.add('hidden');
+    document.getElementById('closeLogVisitBtn').onclick = () => document.getElementById('logVisitModal').classList.add('hidden');
+
+    document.getElementById('addSourceBtn').onclick = () => document.getElementById('addSourceModal').classList.remove('hidden');
+
+    document.getElementById('searchInput').oninput = (e) => set({ searchQuery: e.target.value.toLowerCase() });
+
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('chip')) {
+        if (e.target.dataset.filter) onFilterClick(e);
+      }
+      if (e.target.classList.contains('nav-item')) {
+        const view = e.target.dataset.view;
+        if (view) onViewClick(view);
+      }
+      if (e.target.classList.contains('restaurant-card')) {
+        const id = e.target.closest('[data-id]')?.dataset.id;
+        if (id) onRestaurantClick(id);
+      }
+    });
+
+    // ============ GOOGLE LOGIN ============
+    document.getElementById('googleLoginBtn').onclick = async () => {
+      const { GoogleAuthProvider, signInWithPopup } = window.firebaseModules;
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(S.auth, provider);
+      } catch (err) {
+        console.error('Login error:', err);
+      }
+    };
+
+    // ============ RENDER ============
+    function render() {
+      renderViews();
+      renderStats();
+      renderRestaurantGrid();
+      renderDetail();
+      renderDiscoveries();
+      renderMap();
+      renderPreferences();
+    }
+
+    function renderViews() {
+      document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+      const activeView = document.querySelector(`[data-view="${S.currentView}"]`);
+      if (activeView) activeView.classList.add('active');
+
+      if (S.user) {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('appContainer').style.display = 'flex';
+      } else {
+        document.getElementById('loginScreen').classList.remove('hidden');
+        document.getElementById('appContainer').style.display = 'none';
+      }
+    }
+
+    function renderStats() {
+      const total = S.restaurants.length;
+      const favorites = S.restaurants.filter(r => r.status === 'favorite').length;
+      const visited = S.restaurants.filter(r => r.status === 'visited').length;
+      const wishlist = S.restaurants.filter(r => r.status === 'wishlist').length;
+
+      document.getElementById('totalCount').textContent = total;
+      document.getElementById('favoritesCount').textContent = favorites;
+      document.getElementById('visitedCount').textContent = visited;
+      document.getElementById('wishlistCount').textContent = wishlist;
+
+      const newDiscoveries = S.discoveries.filter(d => d.status === 'new').length;
+      document.getElementById('discoveryCount').textContent = newDiscoveries > 0 ? `${newDiscoveries} new discoveries waiting` : 'No new discoveries';
+    }
+
+    function renderRestaurantGrid() {
+      let filtered = S.restaurants;
+
+      if (S.filterStatus !== 'all') {
+        filtered = filtered.filter(r => r.status === S.filterStatus);
+      }
+
+      if (S.searchQuery) {
+        filtered = filtered.filter(r => r.name.toLowerCase().includes(S.searchQuery) || (r.neighborhood || '').toLowerCase().includes(S.searchQuery));
+      }
+
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+      const grid = document.getElementById('restaurantGrid');
+      grid.innerHTML = filtered.map(r => `
+        <div class="restaurant-card" data-id="${r.id}">
+          ${r.source?.name ? `<div class="source-badge">${r.source.name}</div>` : ''}
+          <div class="restaurant-name">${r.name}</div>
+          <div class="restaurant-meta">
+            <span>${r.neighborhood || 'N/A'}</span>
+            <span>${'$'.repeat(r.priceRange || 1)}</span>
+          </div>
+          <div class="cuisine-pills">${(r.cuisine || []).map(c => `<span class="pill">${c}</span>`).join('')}</div>
+          <div class="ratings-display">
+            ${r.mattRating ? `<span class="rating-mini matt">M: ${'★'.repeat(r.mattRating)}${'☆'.repeat(5-r.mattRating)}</span>` : ''}
+            ${r.deniseRating ? `<span class="rating-mini denise">D: ${'★'.repeat(r.deniseRating)}${'☆'.repeat(5-r.deniseRating)}</span>` : ''}
+          </div>
+          ${Object.keys(r.externalRatings || {}).length > 0 ? `
+            <div class="external-ratings">
+              ${r.externalRatings.google?.score ? `<span class="external-badge">G ${r.externalRatings.google.score}</span>` : ''}
+              ${r.externalRatings.michelin?.stars ? `<span class="external-badge">⭐ ${r.externalRatings.michelin.stars}</span>` : ''}
+              ${r.externalRatings.infatuation?.score ? `<span class="external-badge">I ${r.externalRatings.infatuation.score}</span>` : ''}
+            </div>
+          ` : ''}
+          <div style="margin-top: 0.75rem;">
+            <span class="status-badge ${`status-${r.status}`}">${r.status}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDetail() {
+      const r = S.selectedRestaurant;
+      if (!r) return;
+
+      document.getElementById('detailName').textContent = r.name;
+      document.getElementById('detailMeta').innerHTML = `
+        <span>${r.neighborhood}</span>
+        <span>${'$'.repeat(r.priceRange || 1)}</span>
+        <span>${(r.cuisine || []).join(', ')}</span>
+      `;
+
+      let ratingsHtml = '<div class="detail-section">';
+      ratingsHtml += '<h3 class="detail-section-title">Ratings</h3>';
+      ratingsHtml += '<div class="ratings-grid">';
+
+      if (r.mattRating || r.mattNotes) {
+        ratingsHtml += `
+          <div class="rating-column">
+            <div class="rating-head matt">Matt</div>
+            ${r.mattRating ? `<div class="rating-stars">${'★'.repeat(r.mattRating)}${'☆'.repeat(5-r.mattRating)}</div>` : ''}
+            ${r.mattNotes ? `<div class="rating-notes">"${r.mattNotes}"</div>` : ''}
+          </div>
+        `;
+      }
+
+      if (r.deniseRating || r.deniseNotes) {
+        ratingsHtml += `
+          <div class="rating-column">
+            <div class="rating-head denise">Denise</div>
+            ${r.deniseRating ? `<div class="rating-stars">${'★'.repeat(r.deniseRating)}${'☆'.repeat(5-r.deniseRating)}</div>` : ''}
+            ${r.deniseNotes ? `<div class="rating-notes">"${r.deniseNotes}"</div>` : ''}
+          </div>
+        `;
+      }
+
+      ratingsHtml += '</div></div>';
+      document.getElementById('detailRatings').innerHTML = ratingsHtml;
+
+      let externalHtml = '';
+      if (Object.keys(r.externalRatings || {}).length > 0) {
+        externalHtml = '<div class="detail-section"><h3 class="detail-section-title">External Ratings</h3>';
+        if (r.externalRatings.google?.score) externalHtml += `<div style="margin-bottom: 0.5rem;"><strong>Google:</strong> ${r.externalRatings.google.score}/5</div>`;
+        if (r.externalRatings.michelin?.stars) externalHtml += `<div style="margin-bottom: 0.5rem;"><strong>Michelin:</strong> ${'★'.repeat(r.externalRatings.michelin.stars === 'bib' ? 0 : parseInt(r.externalRatings.michelin.stars))} ${r.externalRatings.michelin.stars === 'bib' ? 'Bib' : ''}</div>`;
+        if (r.externalRatings.infatuation?.score) externalHtml += `<div style="margin-bottom: 0.5rem;"><strong>Infatuation:</strong> ${r.externalRatings.infatuation.score}/10</div>`;
+        externalHtml += '</div>';
+      }
+      document.getElementById('detailExternalRatings').innerHTML = externalHtml;
+
+      let visitsHtml = '';
+      if ((r.visits || []).length > 0) {
+        visitsHtml = '<div class="detail-section"><h3 class="detail-section-title">Visit History</h3><div class="timeline">';
+        r.visits.forEach(v => {
+          visitsHtml += `
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-date">${v.date}</div>
+              <div class="timeline-occasion">${v.occasion}</div>
+              ${v.mattRating ? `<div style="font-size: 12px; margin-bottom: 0.5rem;">M: ${'★'.repeat(v.mattRating)}${'☆'.repeat(5-v.mattRating)}</div>` : ''}
+              ${v.deniseRating ? `<div style="font-size: 12px; margin-bottom: 0.5rem;">D: ${'★'.repeat(v.deniseRating)}${'☆'.repeat(5-v.deniseRating)}</div>` : ''}
+              ${v.wineNotes ? `<div class="timeline-note">Wine: ${v.wineNotes}</div>` : ''}
+            </div>
+          `;
+        });
+        visitsHtml += '</div></div>';
+      }
+      document.getElementById('detailVisits').innerHTML = visitsHtml;
+    }
+
+    function renderDiscoveries() {
+      const active = (S.discoveries || []).filter(d => d.status === 'new' || d.status === 'added');
+      const container = document.getElementById('discoveryCards');
+      const sources = [...new Set(active.map(d => d.source?.name))];
+
+      let sourceFilters = sources.map(s => `<div class="chip" data-filter="${s}">${s}</div>`).join('');
+      document.getElementById('sourceFilters').innerHTML = sourceFilters;
+
+      container.innerHTML = active.map(d => `
+        <div class="discovery-card">
+          <div class="discovery-header">
+            <div class="discovery-info">
+              <div class="discovery-name">${d.name}</div>
+              <div class="discovery-source">${d.source?.name || 'Unknown'}</div>
+              <div class="discovery-date">Found: ${d.dateFound}</div>
+            </div>
+          </div>
+          <div class="discovery-actions">
+            <button class="btn btn-primary btn-small" onclick="onDiscoveryAction('add', '${d.id}')">Add to List</button>
+            <button class="btn btn-secondary btn-small" onclick="onDiscoveryAction('research', '${d.id}')">Research</button>
+            <button class="btn btn-danger btn-small" onclick="onDiscoveryAction('dismiss', '${d.id}')">Dismiss</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderMap() {
+      const byNeighborhood = {};
+      S.restaurants.forEach(r => {
+        const n = r.neighborhood || 'Other';
+        if (!byNeighborhood[n]) byNeighborhood[n] = [];
+        byNeighborhood[n].push(r);
+      });
+
+      const container = document.getElementById('mapContainer');
+      container.innerHTML = Object.entries(byNeighborhood).map(([name, restaurants]) => `
+        <div class="neighborhood">
+          <div class="neighborhood-name">${name}</div>
+          <div class="neighborhood-count">${restaurants.length} restaurants</div>
+          <div style="margin-top: 0.5rem; font-size: 11px; color: var(--text2);">
+            ${restaurants.map(r => r.name).join(', ')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderPreferences() {
+      const pref = calculatePreferences();
+      const html = `
+        <h4 style="margin-bottom: 1rem; color: var(--text2); font-size: 12px;">Based on your dining patterns:</h4>
+        ${Object.entries(pref).map(([key, val]) => `
+          <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="font-size: 13px; font-weight: 600; text-transform: capitalize;">${key.replace(/([A-Z])/g, ' $1')}</span>
+              <span style="font-size: 13px; color: var(--text2);">${(val * 100).toFixed(0)}%</span>
+            </div>
+            <div class="bar-fill"><div class="bar-value" style="width: ${val * 100}%"></div></div>
+          </div>
+        `).join('')}
+      `;
+      document.getElementById('preferencesContent').innerHTML = html;
+    }
+
+    function calculatePreferences() {
+      const restaurants = S.restaurants.filter(r => r.status !== 'skip');
+      if (restaurants.length === 0) return {};
+
+      const prefs = {
+        upscale: 0, romantic: 0, lively: 0, casual: 0, scene: 0,
+        dateNight: 0, business: 0, special: 0,
+      };
+
+      restaurants.forEach(r => {
+        if (r.atmosphere) prefs[r.atmosphere] = (prefs[r.atmosphere] || 0) + 1;
+        (r.bestFor || []).forEach(bf => {
+          if (bf === 'date-night') prefs.dateNight++;
+          else if (bf === 'business') prefs.business++;
+          else if (bf === 'special-occasion') prefs.special++;
+        });
+      });
+
+      const total = Object.values(prefs).reduce((a, b) => a + b, 1);
+      Object.keys(prefs).forEach(k => prefs[k] = Math.min(prefs[k] / total, 1));
+      return prefs;
+    }
+
+    // ============ INIT ============
+    clearStarInputs();
+    initFirebase();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>
