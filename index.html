@@ -12,7 +12,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js"></script>
@@ -23,11 +23,11 @@
 
   <style>
     :root {
-      --bg: #08090d;
-      --surface: rgba(255, 255, 255, 0.04);
-      --surface2: rgba(255, 255, 255, 0.08);
-      --text: #f5f3f0;
-      --text2: #9ca3af;
+      --bg: #0a0b0f;
+      --surface: rgba(255, 255, 255, 0.05);
+      --surface2: rgba(255, 255, 255, 0.09);
+      --text: #f5f3ef;
+      --text2: #a8a29e;
       --accent: linear-gradient(135deg, #f7c948, #fde68a);
       --accent-solid: #f7c948;
       --accent2: #d4a72c;
@@ -37,6 +37,7 @@
       --red: #ef4444;
       --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
       --safe-bottom: max(1rem, env(safe-area-inset-bottom));
+      --serif: 'Playfair Display', Georgia, serif;
     }
 
     * {
@@ -52,7 +53,7 @@
       color: var(--text);
       font-family: Inter, -apple-system, sans-serif;
       font-size: 16px;
-      line-height: 1.5;
+      line-height: 1.6;
       overflow: hidden;
     }
 
@@ -70,18 +71,18 @@
 
     .header {
       padding: 1.5rem 1.5rem 1rem;
-      border-bottom: none;
-      backdrop-filter: none;
-      background: transparent;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(20px);
+      background: rgba(10,11,15,0.7);
       z-index: 100;
       position: relative;
     }
 
     .header h1 {
-      font-family: DM Sans, -apple-system, sans-serif;
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: -1px;
+      font-family: var(--serif);
+      font-size: 32px;
+      font-weight: 500;
+      letter-spacing: -0.5px;
       color: #fff;
       margin-bottom: 0;
       text-shadow: 0 2px 20px rgba(0,0,0,0.5);
@@ -89,6 +90,7 @@
 
     .header h1 span {
       color: #f7c948;
+      font-style: italic;
     }
 
     .header-subtitle {
@@ -101,6 +103,8 @@
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
       padding-bottom: calc(80px + var(--safe-bottom));
+      position: relative;
+      z-index: 1;
     }
 
     .view {
@@ -112,9 +116,9 @@
       display: block;
     }
 
-    /* Non-home views get opaque dark background so text is readable over video */
+    /* Non-home views get fully opaque dark background — no video bleed */
     .view:not(#homeView) {
-      background: var(--bg);
+      background: #0a0b0f;
       min-height: 100%;
       position: relative;
       z-index: 2;
@@ -182,18 +186,19 @@
     }
 
     .login-logo {
-      font-family: DM Sans, -apple-system, sans-serif;
+      font-family: var(--serif);
       font-size: 56px;
-      font-weight: 700;
+      font-weight: 500;
       margin-bottom: 0.5rem;
       color: #fff;
-      letter-spacing: -2px;
+      letter-spacing: -1px;
       line-height: 1.05;
       text-shadow: 0 2px 40px rgba(0,0,0,0.5);
     }
 
     .login-logo span {
       color: #f7c948;
+      font-style: italic;
     }
 
     .login-tagline {
@@ -215,7 +220,7 @@
       background: rgba(255,255,255,0.95);
       color: #111;
       border: none;
-      border-radius: 0;
+      border-radius: 6px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
@@ -248,8 +253,8 @@
       min-height: 100%;
       transform: translate(-50%, -50%);
       object-fit: cover;
-      opacity: 0.45;
-      filter: brightness(0.8) saturate(0.7);
+      opacity: 0.3;
+      filter: brightness(0.6) saturate(0.5) sepia(0.15);
     }
 
     .app-video-bg::after {
@@ -258,12 +263,11 @@
       top: 0; left: 0; right: 0; bottom: 0;
       background: linear-gradient(
         180deg,
-        rgba(0,0,0,0.6) 0%,
-        rgba(0,0,0,0.4) 20%,
-        rgba(0,0,0,0.35) 40%,
-        rgba(0,0,0,0.35) 60%,
-        rgba(0,0,0,0.4) 80%,
-        rgba(0,0,0,0.7) 100%
+        rgba(10,11,15,0.75) 0%,
+        rgba(10,11,15,0.45) 30%,
+        rgba(10,11,15,0.35) 50%,
+        rgba(10,11,15,0.45) 70%,
+        rgba(10,11,15,0.85) 100%
       );
     }
 
@@ -273,11 +277,11 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: calc(56px + var(--safe-bottom));
+      height: calc(60px + var(--safe-bottom));
       padding: 0 0 var(--safe-bottom) 0;
-      border-top: none;
-      backdrop-filter: blur(20px);
-      background: rgba(0, 0, 0, 0.3);
+      border-top: 1px solid rgba(247,201,72,0.08);
+      backdrop-filter: blur(30px);
+      background: rgba(10,11,15,0.75);
       display: flex;
       justify-content: space-around;
       z-index: 100;
@@ -316,13 +320,13 @@
     }
 
     .nav-icon {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
     }
 
     .nav-icon svg {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       fill: none;
       stroke: currentColor;
       stroke-width: 1.5;
@@ -336,17 +340,18 @@
 
     /* Glass Cards */
     .card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 2px;
-      padding: 1.25rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(247,201,72,0.08);
+      border-radius: 8px;
+      padding: 1.5rem;
       backdrop-filter: blur(20px);
       transition: all 0.4s var(--ease);
     }
 
     .card:hover {
-      background: rgba(255,255,255,0.05);
-      border-color: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(247,201,72,0.15);
+      box-shadow: 0 4px 20px rgba(247,201,72,0.06);
     }
 
     /* Grid Layouts */
@@ -366,18 +371,18 @@
     }
 
     .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--surface2);
-      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(247,201,72,0.08);
+      border-radius: 10px;
       padding: 1.5rem;
       text-align: center;
       backdrop-filter: blur(20px);
     }
 
     .stat-number {
-      font-family: DM Sans, -apple-system, sans-serif;
-      font-size: 32px;
-      font-weight: 700;
+      font-family: var(--serif);
+      font-size: 34px;
+      font-weight: 500;
       background: var(--accent);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -395,10 +400,10 @@
 
     /* Restaurant Cards */
     .restaurant-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 2px;
-      padding: 1.25rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(247,201,72,0.08);
+      border-radius: 8px;
+      padding: 1.5rem;
       backdrop-filter: blur(20px);
       transition: all 0.4s var(--ease);
       cursor: pointer;
@@ -410,9 +415,10 @@
     }
 
     .restaurant-card:hover {
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(247,201,72,0.18);
       transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 2px 12px rgba(247,201,72,0.06);
     }
 
     .restaurant-card * {
@@ -479,12 +485,12 @@
     }
 
     .restaurant-name {
-      font-family: DM Sans, -apple-system, sans-serif;
-      font-size: 20px;
-      font-weight: 600;
+      font-family: var(--serif);
+      font-size: 21px;
+      font-weight: 500;
       color: #fff;
       line-height: 1.2;
-      letter-spacing: -0.3px;
+      letter-spacing: 0px;
     }
 
     .restaurant-meta {
@@ -586,10 +592,10 @@
 
     /* Discovery Cards */
     .discovery-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 2px;
-      padding: 1.25rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(247,201,72,0.08);
+      border-radius: 8px;
+      padding: 1.5rem;
       backdrop-filter: blur(20px);
       transition: all 0.4s var(--ease);
       display: flex;
@@ -609,9 +615,9 @@
     }
 
     .discovery-name {
-      font-family: DM Sans, -apple-system, sans-serif;
-      font-size: 18px;
-      font-weight: 700;
+      font-family: var(--serif);
+      font-size: 19px;
+      font-weight: 500;
       color: var(--text);
       margin-bottom: 0.25rem;
     }
@@ -636,10 +642,10 @@
       flex-wrap: wrap;
     }
 
-    /* Buttons — sharp, editorial */
+    /* Buttons — editorial with subtle rounding */
     .btn {
       border: none;
-      border-radius: 0;
+      border-radius: 4px;
       padding: 0.75rem 1.25rem;
       font-size: 11px;
       font-weight: 600;
@@ -727,7 +733,7 @@
       background: transparent;
       color: rgba(255,255,255,0.4);
       padding: 0.4rem 0.75rem;
-      border-radius: 0;
+      border-radius: 4px;
       cursor: pointer;
       white-space: nowrap;
       font-size: 11px;
@@ -769,10 +775,10 @@
     .modal {
       width: 100%;
       max-width: 100%;
-      background: rgba(20, 22, 28, 0.97);
-      border-radius: 0;
+      background: rgba(16, 18, 24, 0.97);
+      border-radius: 16px 16px 0 0;
       border: none;
-      border-top: 1px solid rgba(255,255,255,0.06);
+      border-top: 1px solid rgba(247,201,72,0.1);
       padding: 1.5rem;
       max-height: 90vh;
       overflow-y: auto;
@@ -791,9 +797,9 @@
     }
 
     .modal-title {
-      font-family: DM Sans, -apple-system, sans-serif;
-      font-size: 22px;
-      font-weight: 700;
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 500;
       color: #fff;
     }
 
@@ -959,9 +965,9 @@
     }
 
     .detail-name {
-      font-family: DM Sans, -apple-system, sans-serif;
-      font-size: 32px;
-      font-weight: 700;
+      font-family: var(--serif);
+      font-size: 34px;
+      font-weight: 500;
       color: var(--text);
       margin-bottom: 0.5rem;
       line-height: 1.1;
@@ -982,13 +988,13 @@
     }
 
     .detail-section-title {
-      font-family: DM Sans, -apple-system, sans-serif;
-      font-size: 16px;
-      font-weight: 700;
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 500;
       color: var(--text);
       margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      text-transform: none;
+      letter-spacing: 0.3px;
     }
 
     .ratings-grid {
@@ -1082,11 +1088,99 @@
       line-height: 1.4;
     }
 
-    /* Home View */
-    .spotlight-card {
-      background: linear-gradient(135deg, rgba(212, 165, 116, 0.1) 0%, rgba(212, 165, 116, 0.05) 100%);
-      border: 1px solid rgba(212, 165, 116, 0.2);
+    /* Home View — Ambient Hero */
+    .home-hero {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: calc(100vh - 160px);
+      padding: 0 1.5rem 2rem;
+      position: relative;
+    }
+
+    .home-hero-content {
+      backdrop-filter: blur(30px);
+      background: rgba(10,11,15,0.55);
+      border: 1px solid rgba(247,201,72,0.1);
       border-radius: 12px;
+      padding: 2rem;
+    }
+
+    .home-tagline {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 400;
+      font-style: italic;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.3;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.3px;
+    }
+
+    .home-stats-row {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .home-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .home-stat-number {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--accent-solid);
+      line-height: 1;
+    }
+
+    .home-stat-label {
+      font-size: 10px;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 0.25rem;
+    }
+
+    .home-pick {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 1.25rem;
+      cursor: pointer;
+      transition: opacity 0.3s;
+    }
+
+    .home-pick:hover {
+      opacity: 0.8;
+    }
+
+    .home-pick-label {
+      font-size: 10px;
+      color: var(--accent-solid);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .home-pick-name {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+
+    .home-pick-meta {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .spotlight-card {
+      background: linear-gradient(135deg, rgba(247,201,72,0.08) 0%, rgba(247,201,72,0.03) 100%);
+      border: 1px solid rgba(247,201,72,0.15);
+      border-radius: 10px;
       padding: 1.5rem;
       margin: 1rem;
       cursor: pointer;
@@ -1095,7 +1189,7 @@
 
     .spotlight-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 32px rgba(212, 165, 116, 0.2);
+      box-shadow: 0 8px 32px rgba(247,201,72,0.12);
     }
 
     /* Map View */
@@ -1106,22 +1200,25 @@
     }
 
     .neighborhood {
-      background: var(--surface);
-      border: 1px solid var(--surface2);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(247,201,72,0.08);
       border-radius: 8px;
-      padding: 1rem;
+      padding: 1.25rem;
       margin-bottom: 1rem;
       cursor: pointer;
       transition: all 0.2s var(--ease);
     }
 
     .neighborhood:hover {
-      background: var(--surface2);
-      border-color: var(--accent-solid);
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(247,201,72,0.2);
+      box-shadow: 0 4px 16px rgba(247,201,72,0.06);
     }
 
     .neighborhood-name {
-      font-weight: 600;
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 17px;
       color: var(--accent-solid);
       margin-bottom: 0.5rem;
     }
@@ -1193,7 +1290,7 @@
     </div>
 
     <div class="content">
-      <!-- Home View — clean, just video -->
+      <!-- Home View — Ambient Hero -->
       <div class="view active" id="homeView" data-view="home">
         <!-- Hidden elements kept for JS compatibility -->
         <div id="heroRecommendation" style="display: none;">
@@ -1201,9 +1298,36 @@
           <div id="heroCuisine"></div><div id="heroReason"></div><div id="heroRatings"></div>
         </div>
         <div style="display:none;">
-          <span id="totalCount">0</span><span id="favoritesCount">0</span>
-          <span id="visitedCount">0</span><span id="wishlistCount">0</span>
           <div id="spotlightContainer"></div><p id="discoveryCount"></p>
+        </div>
+
+        <div class="home-hero">
+          <div class="home-hero-content">
+            <div class="home-tagline">Your personal guide<br>to the city.</div>
+            <div class="home-stats-row">
+              <div class="home-stat">
+                <span class="home-stat-number" id="totalCount">0</span>
+                <span class="home-stat-label">Restaurants</span>
+              </div>
+              <div class="home-stat">
+                <span class="home-stat-number" id="favoritesCount">0</span>
+                <span class="home-stat-label">Favorites</span>
+              </div>
+              <div class="home-stat">
+                <span class="home-stat-number" id="visitedCount">0</span>
+                <span class="home-stat-label">Visited</span>
+              </div>
+              <div class="home-stat">
+                <span class="home-stat-number" id="wishlistCount">0</span>
+                <span class="home-stat-label">Wishlist</span>
+              </div>
+            </div>
+            <div class="home-pick" id="homePick" onclick="showTonightsPick()">
+              <div class="home-pick-label">Tonight's Pick</div>
+              <div class="home-pick-name" id="homePickName">Loading...</div>
+              <div class="home-pick-meta" id="homePickMeta"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1967,9 +2091,35 @@
       const newDiscoveries = S.discoveries.filter(d => d.status === 'new').length;
       document.getElementById('discoveryCount').textContent = newDiscoveries > 0 ? `${newDiscoveries} new discoveries waiting — check Discover` : '';
 
-      // Hero recommendation — disabled for now (home is video-only)
+      // Hero recommendation — disabled (using ambient hero instead)
       const heroEl = document.getElementById('heroRecommendation');
       if (heroEl) heroEl.style.display = 'none';
+
+      // Tonight's Pick — random favorite or visited restaurant
+      const picks = S.restaurants.filter(r => r.status === 'favorite' || r.status === 'visited');
+      if (picks.length > 0) {
+        const pick = picks[Math.floor(Math.random() * picks.length)];
+        S.tonightsPick = pick;
+        document.getElementById('homePickName').textContent = pick.name;
+        const meta = [pick.cuisine?.join(', '), pick.neighborhood, pick.priceRange ? '$'.repeat(pick.priceRange) : ''].filter(Boolean).join(' · ');
+        document.getElementById('homePickMeta').textContent = meta;
+      } else if (S.restaurants.length > 0) {
+        const pick = S.restaurants[Math.floor(Math.random() * S.restaurants.length)];
+        S.tonightsPick = pick;
+        document.getElementById('homePickName').textContent = pick.name;
+        document.getElementById('homePickMeta').textContent = pick.neighborhood || 'Explore something new';
+      } else {
+        document.getElementById('homePickName').textContent = 'Add your first restaurant';
+        document.getElementById('homePickMeta').textContent = 'Tap Collection to get started';
+      }
+    }
+
+    function showTonightsPick() {
+      if (S.tonightsPick) {
+        showDetail(S.tonightsPick);
+      } else {
+        switchView('collection');
+      }
     }
 
     function renderRestaurantGrid() {
