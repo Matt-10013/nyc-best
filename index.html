@@ -1601,6 +1601,7 @@
           set({ user, currentView: 'home' });
           await loadRestaurants();
           await loadDiscoveries();
+          await loadDiningPrefs();
         } else {
           set({ user: null, currentView: 'login' });
         }
@@ -2158,6 +2159,54 @@
       Object.keys(prefs).forEach(k => prefs[k] = Math.min(prefs[k] / total, 1));
       return prefs;
     }
+
+    // ============ DINING PREFERENCES (SAVE/LOAD) ============
+    let prefSaveTimeout = null;
+
+    async function loadDiningPrefs() {
+      if (!S.user || !S.db) return;
+      try {
+        const { doc } = window.firebaseModules;
+        const { getDoc } = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+        const ref = doc(S.db, `users/${S.user.uid}/settings`, 'diningPrefs');
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          document.getElementById('mattPrefsInput').value = data.matt || '';
+          document.getElementById('denisePrefsInput').value = data.denise || '';
+        }
+      } catch (e) { console.log('loadDiningPrefs error:', e); }
+    }
+
+    async function saveDiningPrefs() {
+      if (!S.user || !S.db) return;
+      try {
+        const { doc, setDoc } = window.firebaseModules;
+        const ref = doc(S.db, `users/${S.user.uid}/settings`, 'diningPrefs');
+        await setDoc(ref, {
+          matt: document.getElementById('mattPrefsInput').value,
+          denise: document.getElementById('denisePrefsInput').value,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      } catch (e) { console.log('saveDiningPrefs error:', e); }
+    }
+
+    function setupPrefAutoSave(inputId, savedMsgId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      input.addEventListener('input', () => {
+        clearTimeout(prefSaveTimeout);
+        prefSaveTimeout = setTimeout(async () => {
+          await saveDiningPrefs();
+          const msg = document.getElementById(savedMsgId);
+          msg.style.display = 'block';
+          setTimeout(() => msg.style.display = 'none', 2000);
+        }, 1000);
+      });
+    }
+
+    setupPrefAutoSave('mattPrefsInput', 'mattPrefsSaved');
+    setupPrefAutoSave('denisePrefsInput', 'denisePrefsSaved');
 
     // ============ VIDEO SPEED ============
     const loginVid = document.getElementById('loginVideo');
