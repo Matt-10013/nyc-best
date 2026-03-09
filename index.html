@@ -320,7 +320,16 @@
     }
     .detail-back svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.5; }
     .detail-header { padding: 0 1.5rem 1.5rem; }
+    .detail-header-row { display: flex; justify-content: space-between; align-items: flex-start; }
     .detail-header h2 { font-family: var(--serif); font-size: 32px; font-weight: 400; color: var(--ink); }
+    .detail-edit-btn {
+      border: 1px solid var(--stone); background: none; border-radius: 8px;
+      padding: 6px 12px; font-family: var(--mono); font-size: 11px;
+      color: var(--slate); cursor: pointer; letter-spacing: 0.5px;
+      display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; flex-shrink: 0; margin-top: 6px;
+    }
+    .detail-edit-btn:active { background: var(--linen); }
+    .detail-edit-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.5; }
     .detail-meta { font-family: var(--mono); font-size: 11px; color: var(--slate); letter-spacing: 0.5px; margin-top: 4px; }
 
     .detail-ratings { display: flex; gap: 1rem; padding: 0 1.5rem; margin-bottom: 1.5rem; }
@@ -435,6 +444,12 @@
     <!-- RESTAURANTS -->
     <div class="view" id="restaurantsView" style="display:none;">
       <div class="page-header"><h2>Restaurants</h2></div>
+      <div style="padding:0 1.5rem 0.75rem;">
+        <div style="position:relative;">
+          <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--slate);fill:none;stroke-width:1.5;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="restaurantSearch" placeholder="Search name, neighborhood, cuisine..." style="width:100%;padding:10px 12px 10px 36px;border-radius:10px;border:1px solid var(--stone);font-family:var(--sans);font-size:14px;background:white;color:var(--ink);outline:none;" oninput="filterRestaurants()">
+        </div>
+      </div>
       <div class="pill-tabs" id="restaurantTabs">
         <button class="pill active" data-list="for-you">For You</button>
         <button class="pill" data-list="favorites">Favorites</button>
@@ -529,14 +544,23 @@
         <option value="recommended">Recommended to Us</option>
       </select>
     </div>
-    <div id="addSourceGroup" style="display:none;">
-      <div class="input-group">
-        <label>Recommended By</label>
-        <input type="text" id="addSourceName" placeholder="e.g., David Ness, The Infatuation">
-      </div>
-    </div>
     <div id="addFeedbackSection">
       <div class="divider" style="margin:1rem 0;border-top:1px solid var(--stone);opacity:0.3;"></div>
+      <div style="display:flex;gap:0.75rem;margin-bottom:0.75rem;">
+        <div class="input-group" style="flex:1;margin-bottom:0;">
+          <label>Date</label>
+          <input type="date" id="addVisitDate">
+        </div>
+        <div class="input-group" style="flex:1;margin-bottom:0;">
+          <label>Meal</label>
+          <select id="addMeal">
+            <option value="dinner">Dinner</option>
+            <option value="lunch">Lunch</option>
+            <option value="brunch">Brunch</option>
+            <option value="drinks">Drinks</option>
+          </select>
+        </div>
+      </div>
       <div style="display:flex;gap:1rem;">
         <div style="flex:1">
           <label style="font-size:12px;color:var(--slate);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">Matt</label>
@@ -549,9 +573,103 @@
           <textarea id="addDeniseNotes" placeholder="Notes..." style="width:100%;min-height:50px;border-radius:10px;border:1px solid var(--stone);padding:10px;font-family:var(--sans);font-size:13px;resize:none;background:white;color:var(--ink);"></textarea>
         </div>
       </div>
+      <div class="divider" style="margin:1rem 0;border-top:1px solid var(--stone);opacity:0.3;"></div>
+      <div class="input-group" style="margin-bottom:0.75rem;">
+        <label>Would Return?</label>
+        <select id="addWouldReturn" style="width:100%;">
+          <option value="yes">Yes</option>
+          <option value="maybe">Maybe</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      <div class="input-group" style="margin-bottom:0.75rem;">
+        <label>Standout Dishes</label>
+        <input type="text" id="addStandoutDishes" placeholder="e.g., Truffle pasta, Wagyu tartare">
+      </div>
+      <div class="input-group" style="margin-bottom:0;">
+        <label>Who Recommended It?</label>
+        <input type="text" id="addRecommendedBy" placeholder="e.g., David Ness, The Infatuation">
+      </div>
     </div>
     <div id="addEnrichStatus" style="display:none;text-align:center;padding:0.5rem 0;font-family:var(--mono);font-size:11px;color:var(--champagne);"></div>
     <button class="btn btn-primary" style="width:100%;margin-top:0.75rem;" onclick="saveRestaurant()">Save Restaurant</button>
+  </div>
+</div>
+
+<!-- EDIT RESTAURANT MODAL -->
+<div class="modal-overlay hidden" id="editRestaurantModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit Restaurant</h3>
+      <button class="modal-close" onclick="closeModal('editRestaurantModal')">&times;</button>
+    </div>
+    <div class="input-group">
+      <label>Restaurant Name</label>
+      <input type="text" id="editName">
+    </div>
+    <div style="display:flex;gap:0.75rem;margin-bottom:0.75rem;">
+      <div class="input-group" style="flex:1;margin-bottom:0;">
+        <label>Status</label>
+        <select id="editStatus">
+          <option value="visited">Been There</option>
+          <option value="wishlist">Want to Try</option>
+          <option value="recommended">Recommended to Us</option>
+        </select>
+      </div>
+      <div class="input-group" style="flex:1;margin-bottom:0;">
+        <label>Would Return?</label>
+        <select id="editWouldReturn">
+          <option value="yes">Yes</option>
+          <option value="maybe">Maybe</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+    </div>
+    <div class="divider" style="margin:0.75rem 0;border-top:1px solid var(--stone);opacity:0.3;"></div>
+    <div style="display:flex;gap:0.75rem;margin-bottom:0.75rem;">
+      <div class="input-group" style="flex:1;margin-bottom:0;">
+        <label>Neighborhood</label>
+        <input type="text" id="editNeighborhood" placeholder="e.g., West Village">
+      </div>
+      <div class="input-group" style="flex:1;margin-bottom:0;">
+        <label>Price</label>
+        <select id="editPrice">
+          <option value="1">$</option>
+          <option value="2">$$</option>
+          <option value="3">$$$</option>
+          <option value="4">$$$$</option>
+        </select>
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Cuisine</label>
+      <input type="text" id="editCuisine" placeholder="e.g., Italian, Seafood">
+    </div>
+    <div class="input-group">
+      <label>Address</label>
+      <input type="text" id="editAddress">
+    </div>
+    <div class="divider" style="margin:0.75rem 0;border-top:1px solid var(--stone);opacity:0.3;"></div>
+    <div class="input-group">
+      <label>Standout Dishes</label>
+      <input type="text" id="editStandoutDishes" placeholder="e.g., Truffle pasta, Wagyu tartare">
+    </div>
+    <div class="input-group">
+      <label>Who Recommended It?</label>
+      <input type="text" id="editRecommendedBy" placeholder="e.g., David Ness, The Infatuation">
+    </div>
+    <div class="input-group">
+      <label>Best For</label>
+      <input type="text" id="editBestFor" placeholder="e.g., Date night, Special occasion">
+    </div>
+    <div class="input-group">
+      <label>Tags</label>
+      <input type="text" id="editTags" placeholder="e.g., Michelin, outdoor seating, trendy">
+    </div>
+    <div style="display:flex;gap:0.75rem;margin-top:0.75rem;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="deleteRestaurant()">Delete</button>
+      <button class="btn btn-primary" style="flex:2;" onclick="saveEditRestaurant()">Save Changes</button>
+    </div>
   </div>
 </div>
 
@@ -843,9 +961,22 @@
     return ratings.length ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length) : 0;
   }
 
+  window.filterRestaurants = () => { renderRestaurantList(); };
+
+  function matchesSearch(r, q) {
+    if (!q) return true;
+    const haystack = [
+      r.name, r.neighborhood, (r.cuisine || []).join(' '), (r.tags || []).join(' '),
+      (r.bestFor || []).join(' '), r.address, r.standoutDishes,
+      r.source?.name, (r.trustedSourceEndorsements || []).map(e => e.sourceName).join(' '),
+    ].filter(Boolean).join(' ').toLowerCase();
+    return q.split(/\s+/).every(term => haystack.includes(term));
+  }
+
   function renderRestaurantList() {
     const container = document.getElementById('restaurantList');
     const list = S.currentList;
+    const searchQ = (document.getElementById('restaurantSearch')?.value || '').trim().toLowerCase();
     let filtered = [];
 
     if (list === 'for-you') {
@@ -853,8 +984,8 @@
       return;
     } else if (list === 'favorites') {
       filtered = S.restaurants.filter(r => {
-        const mr = r.mattRating || avgRating(r, 'matt');
-        const dr = r.deniseRating || avgRating(r, 'denise');
+        const mr = avgRating(r, 'matt') || r.mattRating || 0;
+        const dr = avgRating(r, 'denise') || r.deniseRating || 0;
         return mr >= 4 && dr >= 4;
       });
     } else if (list === 'been-there') {
@@ -865,15 +996,24 @@
       filtered = S.restaurants.filter(r => r.status === 'recommended');
     }
 
+    // Apply search filter
+    if (searchQ) {
+      filtered = filtered.filter(r => matchesSearch(r, searchQ));
+    }
+
     if (filtered.length === 0) {
-      const msgs = {
-        favorites: { t: 'No favorites yet', m: 'Restaurants you and Denise both rate 4+ appear here.' },
-        'been-there': { t: 'No visits logged', m: 'Add a restaurant and log your first visit.' },
-        'want-to-try': { t: 'Nothing on the list', m: 'Add restaurants you want to try.' },
-        recommended: { t: 'No recommendations yet', m: 'Add restaurants others have recommended.' },
-      };
-      const em = msgs[list] || { t: 'Nothing here', m: '' };
-      container.innerHTML = `<div class="empty-state"><h3>${em.t}</h3><p>${em.m}</p></div>`;
+      if (searchQ) {
+        container.innerHTML = `<div class="empty-state"><h3>No matches</h3><p>Try a different search term.</p></div>`;
+      } else {
+        const msgs = {
+          favorites: { t: 'No favorites yet', m: 'Restaurants you and Denise both rate 4+ appear here.' },
+          'been-there': { t: 'No visits logged', m: 'Add a restaurant and log your first visit.' },
+          'want-to-try': { t: 'Nothing on the list', m: 'Add restaurants you want to try.' },
+          recommended: { t: 'No recommendations yet', m: 'Add restaurants others have recommended.' },
+        };
+        const em = msgs[list] || { t: 'Nothing here', m: '' };
+        container.innerHTML = `<div class="empty-state"><h3>${em.t}</h3><p>${em.m}</p></div>`;
+      }
       return;
     }
 
@@ -881,8 +1021,8 @@
     container.innerHTML = filtered.map(r => {
       const cuisine = (r.cuisine || []).join(', ');
       const price = '$'.repeat(r.priceRange || 2);
-      const mr = r.mattRating || avgRating(r, 'matt');
-      const dr = r.deniseRating || avgRating(r, 'denise');
+      const mr = avgRating(r, 'matt') || r.mattRating || 0;
+      const dr = avgRating(r, 'denise') || r.deniseRating || 0;
       const ratingStr = mr ? `M:${mr}` + (dr ? ` D:${dr}` : '') : '';
       const source = r.source && r.source.name ? `<span class="source-tag">${esc(r.source.name)}</span>` : '';
       return `<div class="restaurant-card" onclick="openDetail('${esc(r.id)}')">
@@ -899,8 +1039,12 @@
 
     const cuisine = (r.cuisine || []).join(', ');
     const price = '$'.repeat(r.priceRange || 2);
-    const mr = r.mattRating || avgRating(r, 'matt');
-    const dr = r.deniseRating || avgRating(r, 'denise');
+    // Pull ratings from visits (most recent) — fall back to top-level
+    const latestVisit = r.visits && r.visits.length > 0 ? r.visits[r.visits.length - 1] : null;
+    const mr = avgRating(r, 'matt') || r.mattRating || 0;
+    const dr = avgRating(r, 'denise') || r.deniseRating || 0;
+    const mattNotes = latestVisit?.mattNotes || r.mattNotes || '';
+    const deniseNotes = latestVisit?.deniseNotes || r.deniseNotes || '';
 
     let visitsHtml = '';
     if (r.visits && r.visits.length > 0) {
@@ -909,6 +1053,7 @@
         ${v.mattRating ? `<div class="visit-notes"><strong>Matt ${v.mattRating}/5</strong>${v.mattNotes ? ' \u2014 ' + esc(v.mattNotes) : ''}</div>` : ''}
         ${v.deniseRating ? `<div class="visit-notes"><strong>Denise ${v.deniseRating}/5</strong>${v.deniseNotes ? ' \u2014 ' + esc(v.deniseNotes) : ''}</div>` : ''}
         ${v.dishes && v.dishes.length ? `<div class="visit-notes">Dishes: ${esc(v.dishes.join(', '))}</div>` : ''}
+        ${v.wouldReturn && v.wouldReturn !== 'yes' ? `<div class="visit-notes">Would return: ${esc(v.wouldReturn)}</div>` : ''}
         ${v.wineNotes ? `<div class="visit-notes">Wine: ${esc(v.wineNotes)}</div>` : ''}
         ${v.pros && v.pros.length ? `<div class="visit-notes" style="color:var(--champagne)">+ ${esc(v.pros.join(', '))}</div>` : ''}
         ${v.cons && v.cons.length ? `<div class="visit-notes" style="color:#b55">- ${esc(v.cons.join(', '))}</div>` : ''}
@@ -918,19 +1063,28 @@
     const endorsements = (r.trustedSourceEndorsements || []).map(e => `<span class="source-tag">${esc(e.sourceName)}</span>`).join('');
     const tags = (r.tags || []).map(t => `<span class="source-tag">${esc(t)}</span>`).join('');
     const bestFor = (r.bestFor || []).map(b => `<span class="source-tag">${esc(b)}</span>`).join('');
+    const wouldReturn = r.wouldReturn || (latestVisit?.wouldReturn) || '';
+    const standoutDishes = r.standoutDishes || '';
 
     document.getElementById('detailContent').innerHTML = `
       <button class="detail-back" onclick="closeDetail()">
         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
       <div class="detail-header">
-        <h2>${esc(r.name)}</h2>
+        <div class="detail-header-row">
+          <h2>${esc(r.name)}</h2>
+          <button class="detail-edit-btn" onclick="openEditRestaurant('${esc(r.id)}')">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit</button>
+        </div>
         <div class="detail-meta">${esc([r.neighborhood, cuisine, price, r.address].filter(Boolean).join(' \u00b7 '))}</div>
+        ${wouldReturn ? `<div style="margin-top:6px;font-family:var(--mono);font-size:11px;color:${wouldReturn === 'yes' ? 'var(--champagne)' : wouldReturn === 'no' ? '#b55' : 'var(--slate)'};">Would return: ${esc(wouldReturn)}</div>` : ''}
+        ${standoutDishes ? `<div style="margin-top:4px;font-family:var(--sans);font-size:13px;color:var(--slate);"><strong style="font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--slate);font-weight:400;">Standout dishes</strong><br>${esc(standoutDishes)}</div>` : ''}
       </div>
       <div class="detail-ratings">
-        <div class="detail-rating-box"><div class="who">Matt</div><div class="score">${mr || '\u2014'}</div>${r.mattNotes ? `<div class="notes">${esc(r.mattNotes)}</div>` : ''}</div>
-        <div class="detail-rating-box"><div class="who">Denise</div><div class="score">${dr || '\u2014'}</div>${r.deniseNotes ? `<div class="notes">${esc(r.deniseNotes)}</div>` : ''}</div>
+        <div class="detail-rating-box"><div class="who">Matt</div><div class="score">${mr || '\u2014'}</div>${mattNotes ? `<div class="notes">${esc(mattNotes)}</div>` : ''}</div>
+        <div class="detail-rating-box"><div class="who">Denise</div><div class="score">${dr || '\u2014'}</div>${deniseNotes ? `<div class="notes">${esc(deniseNotes)}</div>` : ''}</div>
       </div>
-      ${endorsements ? `<div class="detail-section"><h4>Trusted Source Endorsements</h4><div>${endorsements}</div></div>` : ''}
+      ${endorsements ? `<div class="detail-section"><h4>Recommended By</h4><div>${endorsements}</div></div>` : ''}
       ${tags ? `<div class="detail-section"><h4>Tags</h4><div>${tags}</div></div>` : ''}
       ${bestFor ? `<div class="detail-section"><h4>Best For</h4><div>${bestFor}</div></div>` : ''}
       <div class="detail-section">
@@ -956,23 +1110,98 @@
     document.getElementById('addFab').classList.remove('hidden');
   };
 
+  // ============ EDIT RESTAURANT ============
+  window.openEditRestaurant = (id) => {
+    const r = S.restaurants.find(x => x.id === id);
+    if (!r) return;
+    S.selectedRestaurant = r;
+    document.getElementById('editRestaurantModal').classList.remove('hidden');
+    document.getElementById('editName').value = r.name || '';
+    document.getElementById('editStatus').value = r.status || 'visited';
+    document.getElementById('editWouldReturn').value = r.wouldReturn || 'yes';
+    document.getElementById('editNeighborhood').value = r.neighborhood || '';
+    document.getElementById('editPrice').value = String(r.priceRange || 2);
+    document.getElementById('editCuisine').value = (r.cuisine || []).join(', ');
+    document.getElementById('editAddress').value = r.address || '';
+    document.getElementById('editStandoutDishes').value = r.standoutDishes || '';
+    document.getElementById('editRecommendedBy').value = (r.trustedSourceEndorsements || []).map(e => e.sourceName).join(', ') || (r.source?.name || '');
+    document.getElementById('editBestFor').value = (r.bestFor || []).join(', ');
+    document.getElementById('editTags').value = (r.tags || []).join(', ');
+  };
+
+  window.saveEditRestaurant = async () => {
+    const r = S.selectedRestaurant;
+    if (!r) return;
+
+    const cuisineStr = document.getElementById('editCuisine').value.trim();
+    const bestForStr = document.getElementById('editBestFor').value.trim();
+    const tagsStr = document.getElementById('editTags').value.trim();
+    const recByStr = document.getElementById('editRecommendedBy').value.trim();
+
+    const updates = {
+      name: document.getElementById('editName').value.trim() || r.name,
+      status: document.getElementById('editStatus').value,
+      wouldReturn: document.getElementById('editWouldReturn').value,
+      neighborhood: document.getElementById('editNeighborhood').value.trim(),
+      priceRange: parseInt(document.getElementById('editPrice').value) || 2,
+      cuisine: cuisineStr ? cuisineStr.split(',').map(s => s.trim()).filter(Boolean) : [],
+      address: document.getElementById('editAddress').value.trim(),
+      standoutDishes: document.getElementById('editStandoutDishes').value.trim(),
+      bestFor: bestForStr ? bestForStr.split(',').map(s => s.trim()).filter(Boolean) : [],
+      tags: tagsStr ? tagsStr.split(',').map(s => s.trim()).filter(Boolean) : [],
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (recByStr) {
+      const sources = recByStr.split(',').map(s => s.trim()).filter(Boolean);
+      updates.source = { type: 'person', name: sources[0] };
+      updates.trustedSourceEndorsements = sources.map(s => ({ sourceName: s, sourceType: 'person' }));
+    } else {
+      updates.source = null;
+      updates.trustedSourceEndorsements = [];
+    }
+
+    try {
+      await updateDoc(doc(db, 'restaurants', r.id), updates);
+      await loadRestaurants();
+      closeModal('editRestaurantModal');
+      // Re-open detail to reflect changes
+      openDetail(r.id);
+    } catch (e) { console.error('Edit restaurant:', e); alert('Error saving changes.'); }
+  };
+
+  window.deleteRestaurant = async () => {
+    const r = S.selectedRestaurant;
+    if (!r) return;
+    if (!confirm(`Delete "${r.name}"? This cannot be undone.`)) return;
+    try {
+      await deleteDoc(doc(db, 'restaurants', r.id));
+      await loadRestaurants();
+      closeModal('editRestaurantModal');
+      closeDetail();
+      renderRestaurantList();
+    } catch (e) { console.error('Delete restaurant:', e); alert('Error deleting.'); }
+  };
+
   // ============ ADD RESTAURANT ============
   window.openAddRestaurantModal = () => {
     document.getElementById('addRestaurantModal').classList.remove('hidden');
     document.getElementById('addName').value = '';
-    document.getElementById('addSourceName').value = '';
     document.getElementById('addMattNotes').value = '';
     document.getElementById('addDeniseNotes').value = '';
     document.getElementById('addStatus').value = 'visited';
-    document.getElementById('addSourceGroup').style.display = 'none';
     document.getElementById('addFeedbackSection').style.display = 'block';
+    document.getElementById('addVisitDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('addMeal').value = 'dinner';
+    document.getElementById('addWouldReturn').value = 'yes';
+    document.getElementById('addStandoutDishes').value = '';
+    document.getElementById('addRecommendedBy').value = '';
     document.getElementById('addEnrichStatus').style.display = 'none';
     initStars('addMattRating', 0);
     initStars('addDeniseRating', 0);
   };
 
   document.getElementById('addStatus').addEventListener('change', (e) => {
-    document.getElementById('addSourceGroup').style.display = e.target.value === 'recommended' ? 'block' : 'none';
     // Hide feedback section for wishlist/recommended (no visit yet)
     document.getElementById('addFeedbackSection').style.display = e.target.value === 'visited' ? 'block' : 'none';
   });
@@ -987,6 +1216,10 @@
     const mattNotes = document.getElementById('addMattNotes').value.trim();
     const deniseNotes = document.getElementById('addDeniseNotes').value.trim();
 
+    const wouldReturn = document.getElementById('addWouldReturn')?.value || 'yes';
+    const standoutDishes = document.getElementById('addStandoutDishes')?.value.trim();
+    const recommendedBy = document.getElementById('addRecommendedBy')?.value.trim();
+
     const data = {
       name,
       neighborhood: '', cuisine: [], priceRange: 0, address: '',
@@ -998,19 +1231,26 @@
       createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
     };
 
+    if (recommendedBy) {
+      data.source = { type: 'person', name: recommendedBy };
+      data.trustedSourceEndorsements = [{ sourceName: recommendedBy, sourceType: 'person' }];
+    }
+
     // Add a visit entry if status is visited and ratings exist
+    const visitDate = document.getElementById('addVisitDate')?.value || new Date().toISOString().split('T')[0];
+    const meal = document.getElementById('addMeal')?.value || 'dinner';
     if (status === 'visited' && (mattRating || deniseRating)) {
+      const dishes = standoutDishes ? standoutDishes.split(',').map(d => d.trim()).filter(Boolean) : [];
       data.visits.push({
-        date: new Date().toISOString().split('T')[0],
-        occasion: '', mattRating, deniseRating, mattNotes, deniseNotes,
-        dishes: [], wineNotes: '', pros: [], cons: [], wouldReturn: 'yes',
+        date: visitDate,
+        occasion: meal, mattRating, deniseRating, mattNotes, deniseNotes,
+        dishes, wineNotes: '', pros: [], cons: [], wouldReturn,
       });
     }
 
-    if (status === 'recommended') {
-      const sn = document.getElementById('addSourceName').value.trim();
-      if (sn) { data.source = { type: 'person', name: sn }; data.trustedSourceEndorsements = [{ sourceName: sn, sourceType: 'person' }]; }
-    }
+    // Store standout dishes and wouldReturn at top level too for easy access
+    if (standoutDishes) data.standoutDishes = standoutDishes;
+    data.wouldReturn = wouldReturn;
 
     const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
