@@ -1,20 +1,20 @@
 {
-  "name": "NYC Dining Companion",
-  "short_name": "NYC Dining",
-  "description": "Personal restaurant discovery and tracking for NYC",
+  "name": "Table",
+  "short_name": "Table",
+  "description": "Personal dining concierge for Manhattan",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f1117",
-  "theme_color": "#0f1117",
+  "background_color": "#F7F5F1",
+  "theme_color": "#F7F5F1",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%230f1117'/><text x='96' y='120' text-anchor='middle' font-size='100'>🍽</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%23F7F5F1'/><text x='96' y='130' text-anchor='middle' font-family='Georgia,serif' font-size='90' font-style='italic' fill='%23C8A96E'>T</text></svg>",
       "sizes": "192x192",
       "type": "image/svg+xml"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230f1117'/><text x='256' y='320' text-anchor='middle' font-size='280'>🍽</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%23F7F5F1'/><text x='256' y='350' text-anchor='middle' font-family='Georgia,serif' font-size='240' font-style='italic' fill='%23C8A96E'>T</text></svg>",
       "sizes": "512x512",
       "type": "image/svg+xml"
     }

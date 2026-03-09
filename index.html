@@ -3,2375 +3,1122 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#08090d">
+  <meta name="theme-color" content="#F7F5F1">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="NYC Dining">
-  <title>NYC Dining Companion</title>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Table">
+  <title>Table</title>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=iA+Writer+Mono:wght@400&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #0a0b0f;
-      --surface: rgba(255, 255, 255, 0.05);
-      --surface2: rgba(255, 255, 255, 0.09);
-      --text: #f5f3ef;
-      --text2: #a8a29e;
-      --accent: linear-gradient(135deg, #f7c948, #fde68a);
-      --accent-solid: #f7c948;
-      --accent2: #d4a72c;
-      --matt: #6b9bd2;
-      --denise: #d4789c;
-      --green: #6bba7a;
-      --red: #ef4444;
+      --bone: #F7F5F1;
+      --linen: #EDE8E0;
+      --stone: #C4BDB2;
+      --slate: #888178;
+      --ink: #1A1A1A;
+      --champagne: #C8A96E;
+      --glass: rgba(240, 239, 237, 0.72);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'DM Sans', -apple-system, sans-serif;
+      --mono: 'iA Writer Mono', 'SF Mono', monospace;
       --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
-      --safe-bottom: max(1rem, env(safe-area-inset-bottom));
-      --serif: 'Playfair Display', Georgia, serif;
+      --safe-bottom: max(0.5rem, env(safe-area-inset-bottom));
+      --nav-height: 64px;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      width: 100%;
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Inter, -apple-system, sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
-      overflow: hidden;
+      width: 100%; height: 100%;
+      background: var(--bone); color: var(--ink);
+      font-family: var(--sans); font-size: 15px; line-height: 1.55;
+      -webkit-font-smoothing: antialiased; overflow: hidden;
     }
 
-    .container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      display: flex;
-      flex-direction: column;
-      background: transparent;
-      z-index: 1;
-    }
-
-    .header {
-      padding: 1.5rem 1.5rem 1rem;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      backdrop-filter: blur(20px);
-      background: rgba(10,11,15,0.7);
-      z-index: 100;
-      position: relative;
-    }
-
-    .header h1 {
-      font-family: var(--serif);
-      font-size: 32px;
-      font-weight: 500;
-      letter-spacing: -0.5px;
-      color: #fff;
-      margin-bottom: 0;
-      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
-    }
-
-    .header h1 span {
-      color: #f7c948;
-      font-style: italic;
-    }
-
-    .header-subtitle {
-      display: none;
-    }
-
-    .content {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
+    /* Layout */
+    .app { position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; }
+    .app-content {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
-      padding-bottom: calc(80px + var(--safe-bottom));
-      position: relative;
-      z-index: 1;
+      padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px);
     }
 
-    .view {
-      display: none;
-      animation: fadeIn 0.3s var(--ease);
-    }
+    /* Views */
+    .view { display: none; animation: fadeIn 0.25s var(--ease); }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    .view.active {
-      display: block;
-    }
-
-    /* Non-home views get fully opaque dark background — no video bleed */
-    .view:not(#homeView) {
-      background: #0a0b0f;
-      min-height: 100%;
-      position: relative;
-      z-index: 2;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    /* Login Screen — Aesop-inspired video hero */
+    /* Login */
     .login-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      background: #000;
-      z-index: 300;
-      padding: 0;
-      text-align: center;
-      overflow: hidden;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: var(--bone); z-index: 500; text-align: center; padding: 2rem;
     }
-
-    .login-video-bg {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      min-width: 100%;
-      min-height: 100%;
-      transform: translate(-50%, -50%);
-      object-fit: cover;
-      z-index: 0;
-      opacity: 0.85;
-    }
-
-    .login-screen::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(
-        180deg,
-        rgba(0,0,0,0.0) 0%,
-        rgba(0,0,0,0.0) 40%,
-        rgba(0,0,0,0.15) 65%,
-        rgba(0,0,0,0.8) 100%
-      );
-      z-index: 1;
-    }
-
-    .login-content {
-      position: relative;
-      z-index: 2;
-      padding: 0 2rem calc(3rem + env(safe-area-inset-bottom));
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .login-screen.hidden {
-      display: none;
-    }
-
-    .login-logo {
-      font-family: var(--serif);
-      font-size: 56px;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      color: #fff;
-      letter-spacing: -1px;
-      line-height: 1.05;
-      text-shadow: 0 2px 40px rgba(0,0,0,0.5);
-    }
-
-    .login-logo span {
-      color: #f7c948;
-      font-style: italic;
-    }
-
-    .login-tagline {
-      font-size: 14px;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 2.5rem;
-      max-width: 300px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.6;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      font-weight: 400;
-    }
-
+    .login-screen h1 { font-family: var(--serif); font-size: 56px; font-weight: 400; letter-spacing: -1px; color: var(--ink); margin-bottom: 0.25rem; }
+    .login-screen h1 em { font-style: italic; color: var(--champagne); }
+    .login-subtitle { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--slate); margin-bottom: 3rem; }
     .login-btn {
-      width: 100%;
-      padding: 1rem 2rem;
-      background: rgba(255,255,255,0.95);
-      color: #111;
-      border: none;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s var(--ease);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      font-family: Inter, sans-serif;
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 32px; border-radius: 50px;
+      background: var(--ink); color: var(--bone);
+      font-family: var(--sans); font-size: 14px; font-weight: 500;
+      border: none; cursor: pointer; transition: all 0.2s var(--ease);
     }
+    .login-btn:hover { background: #333; transform: translateY(-1px); }
+    .login-btn svg { width: 18px; height: 18px; }
+    .login-screen.hidden { display: none; }
 
-    .login-btn:hover {
-      background: #fff;
-      transform: none;
-      box-shadow: 0 4px 30px rgba(255,255,255,0.15);
-    }
-
-    /* App background — ambient video */
-    .app-video-bg {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      z-index: 0;
-      overflow: hidden;
-      background: #000;
-    }
-
-    .app-video-bg video {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      min-width: 100%;
-      min-height: 100%;
-      transform: translate(-50%, -50%);
-      object-fit: cover;
-      opacity: 0.3;
-      filter: brightness(0.6) saturate(0.5) sepia(0.15);
-    }
-
-    .app-video-bg::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(
-        180deg,
-        rgba(10,11,15,0.75) 0%,
-        rgba(10,11,15,0.45) 30%,
-        rgba(10,11,15,0.35) 50%,
-        rgba(10,11,15,0.45) 70%,
-        rgba(10,11,15,0.85) 100%
-      );
-    }
-
-    /* Bottom Navigation */
+    /* Bottom Nav */
     .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: calc(60px + var(--safe-bottom));
-      padding: 0 0 var(--safe-bottom) 0;
-      border-top: 1px solid rgba(247,201,72,0.08);
-      backdrop-filter: blur(30px);
-      background: rgba(10,11,15,0.75);
-      display: flex;
-      justify-content: space-around;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: calc(var(--nav-height) + var(--safe-bottom));
+      padding-bottom: var(--safe-bottom);
+      display: flex; align-items: center; justify-content: space-around;
+      background: rgba(247, 245, 241, 0.88);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(196,189,178,0.4);
       z-index: 100;
     }
+    .nav-tab {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 8px 20px; border: none; background: none; cursor: pointer;
+      color: var(--slate); transition: color 0.2s var(--ease);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nav-tab.active { color: var(--champagne); }
+    .nav-tab svg { width: 22px; height: 22px; stroke-width: 1.5; fill: none; stroke: currentColor; }
+    .nav-tab span { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; }
 
-    .nav-item {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.2rem;
-      cursor: pointer;
-      color: rgba(255,255,255,0.3);
-      transition: all 0.3s var(--ease);
-      position: relative;
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 500;
+    /* Page Header */
+    .page-header { padding: 2rem 1.5rem 1rem; }
+    .page-header h2 { font-family: var(--serif); font-size: 32px; font-weight: 400; letter-spacing: -0.5px; color: var(--ink); }
+    .page-header p { font-size: 13px; color: var(--slate); margin-top: 4px; }
+
+    /* Cards */
+    .card { background: var(--linen); border-radius: 12px; padding: 1.25rem; margin: 0 1.5rem 0.75rem; transition: transform 0.15s var(--ease); }
+    .card:active { transform: scale(0.985); }
+
+    .glass-card {
+      background: var(--glass);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(196, 189, 178, 0.3);
+      border-radius: 16px; padding: 1.5rem;
     }
 
-    .nav-item.active {
-      color: var(--accent-solid);
-    }
-
-    .nav-item.active::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 24px;
-      height: 2px;
-      background: var(--accent-solid);
-    }
-
-    .nav-icon {
-      width: 22px;
-      height: 22px;
-    }
-
-    .nav-icon svg {
-      width: 22px;
-      height: 22px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .nav-item * {
-      pointer-events: none;
-    }
-
-    /* Glass Cards */
-    .card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(247,201,72,0.08);
-      border-radius: 8px;
-      padding: 1.5rem;
-      backdrop-filter: blur(20px);
-      transition: all 0.4s var(--ease);
-    }
-
-    .card:hover {
-      background: rgba(255,255,255,0.08);
-      border-color: rgba(247,201,72,0.15);
-      box-shadow: 0 4px 20px rgba(247,201,72,0.06);
-    }
-
-    /* Grid Layouts */
-    .grid {
-      display: grid;
-      gap: 1rem;
-      padding: 1rem;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      padding: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .stat-card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(247,201,72,0.08);
-      border-radius: 10px;
-      padding: 1.5rem;
-      text-align: center;
-      backdrop-filter: blur(20px);
-    }
-
-    .stat-number {
-      font-family: var(--serif);
-      font-size: 34px;
-      font-weight: 500;
-      background: var(--accent);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      line-height: 1;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: var(--text2);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    /* Restaurant Cards */
-    .restaurant-card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(247,201,72,0.08);
-      border-radius: 8px;
-      padding: 1.5rem;
-      backdrop-filter: blur(20px);
-      transition: all 0.4s var(--ease);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .restaurant-card:hover {
-      background: rgba(255,255,255,0.09);
-      border-color: rgba(247,201,72,0.18);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 2px 12px rgba(247,201,72,0.06);
-    }
-
-    .restaurant-card * {
-      pointer-events: none;
-    }
-
-    /* Detail action buttons row */
-    .detail-actions-row {
-      display: flex;
-      gap: 0.5rem;
-      padding: 1rem 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .detail-actions-row .btn {
-      flex: 1;
-      min-width: 0;
-      text-align: center;
-      font-size: 12px;
-      padding: 0.6rem 0.75rem;
-    }
-
-    .detail-back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      margin: 1rem 1.5rem 0;
-      cursor: pointer;
-      color: var(--accent-solid);
-      font-size: 13px;
-      font-weight: 500;
-      background: none;
-      border: none;
-      transition: opacity 0.2s;
-    }
-
-    .detail-back-btn:hover {
-      opacity: 0.7;
-    }
-
-    .detail-back-btn svg {
-      width: 16px;
-      height: 16px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .source-badge {
-      position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      background: transparent;
-      color: rgba(255,255,255,0.3);
-      padding: 0;
-      border-radius: 0;
-      font-size: 9px;
-      font-weight: 400;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .restaurant-name {
-      font-family: var(--serif);
-      font-size: 21px;
-      font-weight: 500;
-      color: #fff;
-      line-height: 1.2;
-      letter-spacing: 0px;
-    }
-
-    .restaurant-meta {
-      display: flex;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-      font-size: 11px;
-      color: rgba(255,255,255,0.3);
-      letter-spacing: 0.5px;
-    }
-
-    .cuisine-pills {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
+    /* Pill Tabs */
+    .pill-tabs { display: flex; gap: 6px; padding: 0 1.5rem; margin-bottom: 1rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .pill-tabs::-webkit-scrollbar { display: none; }
     .pill {
-      background: transparent;
-      color: rgba(255,255,255,0.4);
-      padding: 0.2rem 0;
-      border-radius: 0;
-      font-size: 10px;
-      font-weight: 400;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      flex-shrink: 0; padding: 7px 16px; border-radius: 50px;
+      border: 1px solid var(--stone); background: transparent;
+      font-family: var(--sans); font-size: 12px; font-weight: 500;
+      color: var(--slate); cursor: pointer; transition: all 0.15s var(--ease);
+      -webkit-tap-highlight-color: transparent;
     }
+    .pill.active { background: var(--ink); color: var(--bone); border-color: var(--ink); }
 
-    .pill + .pill::before {
-      content: '·';
-      margin-right: 0.5rem;
-      color: rgba(255,255,255,0.2);
-    }
-
-    .ratings-display {
-      display: flex;
-      gap: 1rem;
-      font-size: 13px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .rating-mini {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .rating-mini.matt {
-      color: var(--matt);
-    }
-
-    .rating-mini.denise {
-      color: var(--denise);
-    }
-
-    .external-ratings {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      font-size: 10px;
-      color: var(--text2);
-    }
-
-    .external-badge {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 0.25rem 0.5rem;
-      border-radius: 6px;
-      border: 1px solid var(--surface2);
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 0.2rem 0.5rem;
-      border-radius: 0;
-      font-size: 9px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .status-wishlist {
-      background: transparent;
-      color: rgba(255,255,255,0.3);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .status-visited {
-      background: transparent;
-      color: var(--green);
-      border: 1px solid rgba(107, 186, 122, 0.3);
-    }
-
-    .status-favorite {
-      background: transparent;
-      color: var(--accent-solid);
-      border: 1px solid rgba(212, 165, 116, 0.3);
-    }
-
-    /* Discovery Cards */
-    .discovery-card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(247,201,72,0.08);
-      border-radius: 8px;
-      padding: 1.5rem;
-      backdrop-filter: blur(20px);
-      transition: all 0.4s var(--ease);
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .discovery-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1rem;
-    }
-
-    .discovery-info {
-      flex: 1;
-    }
-
-    .discovery-name {
-      font-family: var(--serif);
-      font-size: 19px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 0.25rem;
-    }
-
-    .discovery-source {
-      font-size: 12px;
-      color: var(--accent-solid);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 600;
-    }
-
-    .discovery-date {
-      font-size: 11px;
-      color: var(--text2);
-      margin-top: 0.25rem;
-    }
-
-    .discovery-actions {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    /* Buttons — editorial with subtle rounding */
+    /* Buttons */
     .btn {
-      border: none;
-      border-radius: 4px;
-      padding: 0.75rem 1.25rem;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s var(--ease);
-      font-family: Inter, sans-serif;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 24px; border-radius: 50px;
+      font-family: var(--sans); font-size: 13px; font-weight: 500;
+      border: none; cursor: pointer; transition: all 0.15s var(--ease);
     }
+    .btn-primary { background: var(--ink); color: var(--bone); }
+    .btn-primary:hover { background: #333; }
+    .btn-secondary { background: var(--linen); color: var(--ink); border: 1px solid var(--stone); }
+    .btn-accent { background: var(--champagne); color: white; }
 
-    .btn-primary {
-      background: rgba(255,255,255,0.9);
-      color: #111;
+    /* Forms */
+    .input-group { margin-bottom: 1rem; }
+    .input-group label { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--slate); margin-bottom: 6px; }
+    .input-group input, .input-group textarea, .input-group select {
+      width: 100%; padding: 12px 14px; border-radius: 10px;
+      border: 1px solid var(--stone); background: white;
+      font-family: var(--sans); font-size: 14px; color: var(--ink);
+      outline: none; transition: border-color 0.15s var(--ease); -webkit-appearance: none;
     }
+    .input-group input:focus, .input-group textarea:focus, .input-group select:focus { border-color: var(--champagne); }
+    .input-group textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
 
-    .btn-primary:hover {
-      background: #fff;
-    }
+    /* Rating Stars */
+    .rating-input { display: flex; gap: 4px; }
+    .rating-star { width: 28px; height: 28px; cursor: pointer; color: var(--stone); transition: color 0.1s; }
+    .rating-star.filled { color: var(--champagne); }
 
-    .btn-secondary {
-      background: transparent;
-      color: rgba(255,255,255,0.7);
-      border: 1px solid rgba(255,255,255,0.15);
-    }
+    .divider { height: 1px; background: var(--stone); opacity: 0.3; margin: 1.5rem 1.5rem; }
 
-    .btn-secondary:hover {
-      border-color: rgba(255,255,255,0.4);
-      color: #fff;
-    }
+    /* Empty State */
+    .empty-state { text-align: center; padding: 3rem 2rem; }
+    .empty-state h3 { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink); margin-bottom: 6px; }
+    .empty-state p { font-size: 13px; color: var(--slate); margin-bottom: 1.5rem; }
 
-    .btn-small {
-      padding: 0.5rem 0.75rem;
-      font-size: 10px;
+    /* FAB */
+    .fab {
+      position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 20px);
+      right: 1.5rem; width: 52px; height: 52px; border-radius: 50%;
+      background: var(--ink); color: var(--bone);
+      display: flex; align-items: center; justify-content: center;
+      border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      z-index: 50; transition: transform 0.15s var(--ease);
     }
-
-    .btn-danger {
-      background: transparent;
-      color: var(--red);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .btn-danger:hover {
-      border-color: var(--red);
-    }
-
-    /* Search & Filters */
-    .search-section {
-      padding: 1rem;
-      border-bottom: 1px solid var(--surface2);
-    }
-
-    .search-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      color: var(--text);
-      padding: 0.75rem 0;
-      border-radius: 0;
-      font-size: 14px;
-      font-family: Inter, sans-serif;
-      transition: all 0.3s var(--ease);
-    }
-
-    .search-input::placeholder {
-      color: rgba(255,255,255,0.25);
-      font-style: italic;
-    }
-
-    .search-input:focus {
-      outline: none;
-      border-color: rgba(255,255,255,0.3);
-    }
-
-    .filter-chips {
-      display: flex;
-      gap: 0.5rem;
-      padding: 1rem;
-      overflow-x: auto;
-      margin-bottom: 0.5rem;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .chip {
-      background: transparent;
-      color: rgba(255,255,255,0.4);
-      padding: 0.4rem 0.75rem;
-      border-radius: 4px;
-      cursor: pointer;
-      white-space: nowrap;
-      font-size: 11px;
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: all 0.3s var(--ease);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .chip.active {
-      background: transparent;
-      color: #fff;
-      border-color: #fff;
-    }
+    .fab:active { transform: scale(0.92); }
+    .fab svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .fab.hidden { display: none; }
 
     /* Modal */
     .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: flex-end;
-      z-index: 200;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(26, 26, 26, 0.35);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      z-index: 200; display: flex; align-items: flex-end; justify-content: center;
       animation: fadeIn 0.2s var(--ease);
     }
-
-    .modal-overlay.hidden {
-      display: none;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-
+    .modal-overlay.hidden { display: none; }
     .modal {
-      width: 100%;
-      max-width: 100%;
-      background: rgba(16, 18, 24, 0.97);
-      border-radius: 16px 16px 0 0;
-      border: none;
-      border-top: 1px solid rgba(247,201,72,0.1);
-      padding: 1.5rem;
-      max-height: 90vh;
-      overflow-y: auto;
+      background: var(--bone); border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 500px; max-height: 90vh;
+      overflow-y: auto; padding: 1.5rem;
       animation: slideUp 0.3s var(--ease);
-      padding-bottom: calc(1.5rem + var(--safe-bottom));
-      backdrop-filter: blur(40px);
     }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--surface2);
-    }
-
-    .modal-title {
-      font-family: var(--serif);
-      font-size: 24px;
-      font-weight: 500;
-      color: #fff;
-    }
-
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .modal-header h3 { font-family: var(--serif); font-size: 24px; font-weight: 500; }
     .modal-close {
-      background: none;
-      border: none;
-      color: var(--text2);
-      cursor: pointer;
-      font-size: 24px;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s var(--ease);
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--linen); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--slate); font-size: 18px;
     }
 
-    .modal-close:hover {
-      color: var(--accent-solid);
-      transform: scale(1.1);
+    /* Home View */
+    #homeView {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: calc(100vh - var(--nav-height) - var(--safe-bottom));
+      text-align: center; padding: 2rem;
     }
+    #homeView h1 { font-family: var(--serif); font-size: 52px; font-weight: 400; letter-spacing: -1px; color: var(--ink); margin-bottom: 0.25rem; }
+    #homeView h1 em { font-style: italic; color: var(--champagne); }
+    .home-tagline { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--slate); margin-bottom: 2.5rem; }
+    .home-cta {
+      font-family: var(--serif); font-size: 18px; font-style: italic;
+      color: var(--champagne); cursor: pointer;
+      border: none; background: none; transition: opacity 0.15s;
+    }
+    .home-cta:hover { opacity: 0.75; }
 
-    /* Forms */
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
+    /* Reservation / Concierge */
+    .concierge-container { padding: 2rem 1.5rem; display: flex; flex-direction: column; min-height: calc(100vh - var(--nav-height) - var(--safe-bottom)); }
+    .concierge-header { text-align: center; margin-bottom: 2rem; }
+    .concierge-header h2 { font-family: var(--serif); font-size: 28px; font-weight: 400; color: var(--ink); }
+    .concierge-header p { font-size: 13px; color: var(--slate); margin-top: 4px; }
 
-    .form-label {
-      display: block;
-      font-size: 10px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.35);
-      margin-bottom: 0.4rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+    .concierge-input-wrap { position: relative; margin-bottom: 1.5rem; }
+    .concierge-input {
+      width: 100%; padding: 18px 52px 18px 20px;
+      border-radius: 16px; border: 1px solid var(--stone);
+      background: white; font-family: var(--sans); font-size: 15px;
+      color: var(--ink); outline: none; line-height: 1.5;
+      resize: none; min-height: 56px; max-height: 140px;
+      transition: border-color 0.15s var(--ease);
     }
+    .concierge-input:focus { border-color: var(--champagne); }
+    .concierge-input::placeholder { color: var(--stone); font-style: italic; }
 
-    .form-input, .form-select, .form-textarea {
-      width: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      color: var(--text);
-      padding: 0.75rem 0;
-      border-radius: 0;
-      font-size: 14px;
-      font-family: Inter, sans-serif;
-      transition: all 0.3s var(--ease);
+    .voice-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--linen); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--slate); transition: all 0.15s var(--ease);
     }
+    .voice-btn.listening { background: var(--champagne); color: white; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { transform: translateY(-50%) scale(1); } 50% { transform: translateY(-50%) scale(1.08); } }
+    .voice-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
 
-    .form-textarea {
-      resize: vertical;
-      min-height: 100px;
+    .concierge-suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2rem; }
+    .suggestion-chip {
+      padding: 8px 16px; border-radius: 50px;
+      background: var(--linen); border: none;
+      font-family: var(--mono); font-size: 11px; color: var(--slate);
+      cursor: pointer; transition: all 0.15s var(--ease);
     }
+    .suggestion-chip:hover { background: var(--stone); color: var(--ink); }
 
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      outline: none;
-      border-color: rgba(255,255,255,0.4);
-      background: transparent;
-    }
+    .concierge-results { flex: 1; }
+    .concierge-status { text-align: center; padding: 2rem; font-family: var(--serif); font-size: 16px; font-style: italic; color: var(--slate); }
 
-    .form-select {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 0.75rem;
+    .result-card {
+      background: var(--glass);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(196, 189, 178, 0.3);
+      border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem;
+      cursor: pointer; transition: transform 0.15s var(--ease);
     }
+    .result-card:active { transform: scale(0.985); }
+    .result-rank { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--champagne); margin-bottom: 4px; }
+    .result-name { font-family: var(--serif); font-size: 22px; font-weight: 500; color: var(--ink); }
+    .result-meta { font-family: var(--mono); font-size: 11px; color: var(--slate); margin-top: 2px; }
+    .result-reasoning { font-size: 13px; color: var(--slate); margin-top: 8px; line-height: 1.5; display: none; }
+    .result-card.expanded .result-reasoning { display: block; }
+    .result-availability { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+    .time-slot { padding: 6px 14px; border-radius: 50px; background: var(--champagne); color: white; font-family: var(--mono); font-size: 11px; font-weight: 500; cursor: pointer; border: none; }
+    .time-slot.placeholder { background: var(--linen); color: var(--slate); }
 
-    .star-input {
-      display: flex;
-      gap: 0.5rem;
-      font-size: 24px;
+    /* Restaurant Cards */
+    .restaurant-card {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      background: var(--linen); border-radius: 12px;
+      padding: 1rem 1.25rem; margin: 0 1.5rem 0.5rem;
+      cursor: pointer; transition: transform 0.15s var(--ease);
     }
-
-    .star {
-      cursor: pointer;
-      user-select: none;
-      transition: all 0.1s var(--ease);
-      color: var(--text2);
-    }
-
-    .star:hover, .star.active {
-      color: var(--accent-solid);
-      transform: scale(1.15);
-    }
-
-    .rating-inputs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .ratings-bar {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 0.75rem;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .bar-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text2);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      text-align: right;
-      min-width: 60px;
-    }
-
-    .pref-textarea {
-      width: 100%;
-      min-height: 100px;
-      background: var(--surface);
-      border: 1px solid var(--surface2);
-      border-radius: 0;
-      color: var(--text);
-      font-family: Inter, -apple-system, sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
-      padding: 1rem;
-      resize: vertical;
-      transition: border-color 0.2s;
-    }
-
-    .pref-textarea:focus {
-      outline: none;
-      border-color: var(--accent-solid);
-    }
-
-    .pref-textarea::placeholder {
-      color: var(--text2);
-      opacity: 0.6;
-    }
-
-    .pref-saved-msg {
-      font-size: 11px;
-      color: var(--accent-solid);
-      margin-top: 0.5rem;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .bar-fill {
-      height: 4px;
-      background: var(--surface2);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .bar-value {
-      height: 100%;
-      background: linear-gradient(90deg, #6b9bd2, #d4789c);
-      border-radius: 2px;
-      transition: width 0.3s var(--ease);
-    }
+    .restaurant-card:active { transform: scale(0.985); }
+    .r-name { font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--ink); }
+    .r-meta { font-family: var(--mono); font-size: 11px; color: var(--slate); margin-top: 2px; }
+    .r-rating { font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--champagne); white-space: nowrap; }
 
     /* Detail View */
-    .detail-hero {
-      padding: 2rem 1.5rem;
-      border-bottom: 1px solid var(--surface2);
-      margin-bottom: 1rem;
+    .detail-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 1rem 1.5rem; border: none; background: none;
+      font-family: var(--sans); font-size: 13px; color: var(--slate); cursor: pointer;
+    }
+    .detail-back svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+    .detail-header { padding: 0 1.5rem 1.5rem; }
+    .detail-header h2 { font-family: var(--serif); font-size: 32px; font-weight: 400; color: var(--ink); }
+    .detail-meta { font-family: var(--mono); font-size: 11px; color: var(--slate); letter-spacing: 0.5px; margin-top: 4px; }
+
+    .detail-ratings { display: flex; gap: 1rem; padding: 0 1.5rem; margin-bottom: 1.5rem; }
+    .detail-rating-box { flex: 1; background: var(--linen); border-radius: 10px; padding: 1rem; text-align: center; }
+    .detail-rating-box .who { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--slate); margin-bottom: 4px; }
+    .detail-rating-box .score { font-family: var(--serif); font-size: 28px; color: var(--champagne); }
+    .detail-rating-box .notes { font-size: 12px; color: var(--slate); margin-top: 6px; font-style: italic; line-height: 1.4; }
+
+    .detail-section { padding: 0 1.5rem; margin-bottom: 1.5rem; }
+    .detail-section h4 { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--slate); margin-bottom: 8px; }
+
+    .visit-entry { background: var(--linen); border-radius: 10px; padding: 1rem; margin-bottom: 0.5rem; }
+    .visit-date { font-family: var(--mono); font-size: 11px; color: var(--champagne); }
+    .visit-notes { font-size: 13px; color: var(--slate); margin-top: 4px; line-height: 1.45; }
+
+    .source-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 50px;
+      background: rgba(200, 169, 110, 0.12);
+      font-family: var(--mono); font-size: 10px; color: var(--champagne); margin: 2px;
     }
 
-    .detail-name {
-      font-family: var(--serif);
-      font-size: 34px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 0.5rem;
-      line-height: 1.1;
+    /* Settings */
+    .settings-section { padding: 0 1.5rem; margin-bottom: 2rem; }
+    .settings-section h3 { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--ink); margin-bottom: 1rem; }
+
+    .settings-card { background: var(--linen); border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem; }
+    .settings-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .settings-card-header h4 { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--slate); }
+    .edit-link { font-size: 12px; color: var(--champagne); cursor: pointer; border: none; background: none; font-family: var(--sans); }
+
+    .pref-text { font-size: 13px; color: var(--ink); line-height: 1.5; font-style: italic; }
+    .pref-empty { font-size: 13px; color: var(--stone); font-style: italic; }
+
+    .source-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(196, 189, 178, 0.3); }
+    .source-item:last-child { border-bottom: none; }
+    .source-name { font-size: 14px; font-weight: 500; color: var(--ink); }
+    .source-type { font-family: var(--mono); font-size: 10px; color: var(--slate); letter-spacing: 0.5px; }
+    .source-handle { font-size: 12px; color: var(--champagne); }
+    .source-delete {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: transparent; border: none; cursor: pointer;
+      color: var(--stone); display: flex; align-items: center; justify-content: center;
+    }
+    .source-delete:hover { color: #c44; background: rgba(204,68,68,0.06); }
+
+    .sign-out-btn {
+      display: block; width: 100%; padding: 12px;
+      border-radius: 10px; border: 1px solid var(--stone);
+      background: transparent; font-family: var(--sans); font-size: 13px;
+      color: var(--slate); cursor: pointer; text-align: center; margin-top: 2rem;
     }
 
-    .detail-meta {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      font-size: 13px;
-      color: var(--text2);
-      margin-bottom: 1rem;
-    }
-
-    .detail-section {
-      padding: 1.5rem;
-      border-bottom: 1px solid var(--surface2);
-    }
-
-    .detail-section-title {
-      font-family: var(--serif);
-      font-size: 17px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 1rem;
-      text-transform: none;
-      letter-spacing: 0.3px;
-    }
-
-    .ratings-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .rating-column {
-      background: var(--surface);
-      border: 1px solid var(--surface2);
-      border-radius: 8px;
-      padding: 1rem;
-    }
-
-    .rating-head {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 0.75rem;
-    }
-
-    .rating-head.matt {
-      color: var(--matt);
-    }
-
-    .rating-head.denise {
-      color: var(--denise);
-    }
-
-    .rating-stars {
-      font-size: 20px;
-      display: flex;
-      gap: 0.25rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .rating-notes {
-      font-size: 12px;
-      color: var(--text2);
-      line-height: 1.4;
-      font-style: italic;
-    }
-
-    .timeline {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .timeline-item {
-      background: var(--surface);
-      border: 1px solid var(--surface2);
-      border-radius: 8px;
-      padding: 1rem;
-      position: relative;
-      padding-left: 1.5rem;
-    }
-
-    .timeline-dot {
-      position: absolute;
-      left: 0;
-      top: 1.5rem;
-      width: 8px;
-      height: 8px;
-      background: var(--accent-solid);
-      border-radius: 50%;
-      margin-left: 8px;
-    }
-
-    .timeline-date {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--accent-solid);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 0.5rem;
-    }
-
-    .timeline-occasion {
-      font-size: 12px;
-      color: var(--text2);
-      margin-bottom: 0.5rem;
-    }
-
-    .timeline-note {
-      font-size: 13px;
-      color: var(--text);
-      font-style: italic;
-      line-height: 1.4;
-    }
-
-    /* Home View — Ambient Hero */
-    .home-hero {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      min-height: calc(100vh - 160px);
-      padding: 0 1.5rem 2rem;
-      position: relative;
-    }
-
-    .home-hero-content {
-      backdrop-filter: blur(30px);
-      background: rgba(10,11,15,0.55);
-      border: 1px solid rgba(247,201,72,0.1);
-      border-radius: 12px;
-      padding: 2rem;
-    }
-
-    .home-tagline {
-      font-family: var(--serif);
-      font-size: 28px;
-      font-weight: 400;
-      font-style: italic;
-      color: rgba(255,255,255,0.7);
-      line-height: 1.3;
-      margin-bottom: 1.5rem;
-      letter-spacing: -0.3px;
-    }
-
-    .home-stats-row {
-      display: flex;
-      gap: 2rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .home-stat {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .home-stat-number {
-      font-family: var(--serif);
-      font-size: 28px;
-      font-weight: 500;
-      color: var(--accent-solid);
-      line-height: 1;
-    }
-
-    .home-stat-label {
-      font-size: 10px;
-      color: var(--text2);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 0.25rem;
-    }
-
-    .home-pick {
-      border-top: 1px solid rgba(255,255,255,0.08);
-      padding-top: 1.25rem;
-      cursor: pointer;
-      transition: opacity 0.3s;
-    }
-
-    .home-pick:hover {
-      opacity: 0.8;
-    }
-
-    .home-pick-label {
-      font-size: 10px;
-      color: var(--accent-solid);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .home-pick-name {
-      font-family: var(--serif);
-      font-size: 22px;
-      font-weight: 500;
-      color: #fff;
-      margin-bottom: 0.25rem;
-    }
-
-    .home-pick-meta {
-      font-size: 12px;
-      color: var(--text2);
-    }
-
-    .spotlight-card {
-      background: linear-gradient(135deg, rgba(247,201,72,0.08) 0%, rgba(247,201,72,0.03) 100%);
-      border: 1px solid rgba(247,201,72,0.15);
-      border-radius: 10px;
-      padding: 1.5rem;
-      margin: 1rem;
-      cursor: pointer;
-      transition: all 0.3s var(--ease);
-    }
-
-    .spotlight-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 32px rgba(247,201,72,0.12);
-    }
-
-    /* Map View */
-    .map-container {
-      padding: 1rem;
-      height: calc(100vh - 160px);
-      overflow-y: auto;
-    }
-
-    .neighborhood {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(247,201,72,0.08);
-      border-radius: 8px;
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-      cursor: pointer;
-      transition: all 0.2s var(--ease);
-    }
-
-    .neighborhood:hover {
-      background: rgba(255,255,255,0.09);
-      border-color: rgba(247,201,72,0.2);
-      box-shadow: 0 4px 16px rgba(247,201,72,0.06);
-    }
-
-    .neighborhood-name {
-      font-family: var(--serif);
-      font-weight: 500;
-      font-size: 17px;
-      color: var(--accent-solid);
-      margin-bottom: 0.5rem;
-    }
-
-    .neighborhood-count {
-      font-size: 12px;
-      color: var(--text2);
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--surface2);
-      border-radius: 3px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--accent-solid);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .rating-inputs {
-        grid-template-columns: 1fr;
-      }
-
-      .detail-name {
-        font-size: 24px;
-      }
-    }
+    @media (min-width: 500px) { .modal { border-radius: 20px; margin-bottom: 2rem; max-width: 480px; } }
   </style>
 </head>
 <body>
+
+<div class="app">
+  <!-- LOGIN -->
   <div class="login-screen" id="loginScreen">
-    <video class="login-video-bg" id="loginVideo" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1200&q=80">
-      <source src="https://videos.pexels.com/video-files/5834550/5834550-hd_1920_1080_24fps.mp4" type="video/mp4">
-    </video>
-    <div class="login-content">
-      <div class="login-logo">NYC<br><span>Dining</span></div>
-      <div class="login-tagline">Your personal guide to the city</div>
-      <button class="login-btn" id="googleLoginBtn">Sign in with Google</button>
-    </div>
+    <h1><em>Table</em></h1>
+    <p class="login-subtitle">Manhattan dining, for two</p>
+    <button class="login-btn" onclick="signIn()">
+      <svg viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Sign in with Google
+    </button>
   </div>
 
-  <div class="container" id="appContainer" style="display: none;">
-    <div class="app-video-bg">
-      <video autoplay muted loop playsinline>
-        <source src="https://videos.pexels.com/video-files/32458596/13843680_1080_1920_30fps.mp4" type="video/mp4">
-      </video>
-    </div>
-    <div class="header">
-      <h1>NYC <span>Dining</span></h1>
-      <div class="header-subtitle" id="headerSubtitle"></div>
+  <!-- MAIN CONTENT -->
+  <div class="app-content" id="appContent">
+    <!-- HOME -->
+    <div class="view active" id="homeView">
+      <h1><em>Table</em></h1>
+      <p class="home-tagline">Manhattan dining, for two</p>
+      <button class="home-cta" onclick="switchTab('reservation')">Find a table tonight</button>
     </div>
 
-    <div class="content">
-      <!-- Home View — Ambient Hero -->
-      <div class="view active" id="homeView" data-view="home">
-        <!-- Hidden elements kept for JS compatibility -->
-        <div id="heroRecommendation" style="display: none;">
-          <div id="heroCard"><div id="heroName"></div><div id="heroMeta"></div></div>
-          <div id="heroCuisine"></div><div id="heroReason"></div><div id="heroRatings"></div>
+    <!-- RESERVATION -->
+    <div class="view" id="reservationView">
+      <div class="concierge-container">
+        <div class="concierge-header">
+          <h2>Find a Table</h2>
+          <p>Describe what you're looking for</p>
         </div>
-        <div style="display:none;">
-          <div id="spotlightContainer"></div><p id="discoveryCount"></p>
+        <div class="concierge-input-wrap">
+          <textarea class="concierge-input" id="conciergeInput"
+            placeholder="Quiet spot in the West Village, good wine, table for two at 8..."
+            rows="1" oninput="autoResize(this)"></textarea>
+          <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
+            <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </button>
         </div>
-
-        <div class="home-hero">
-          <div class="home-hero-content">
-            <div class="home-tagline">Your personal guide<br>to the city.</div>
-            <div class="home-stats-row">
-              <div class="home-stat">
-                <span class="home-stat-number" id="totalCount">0</span>
-                <span class="home-stat-label">Restaurants</span>
-              </div>
-              <div class="home-stat">
-                <span class="home-stat-number" id="favoritesCount">0</span>
-                <span class="home-stat-label">Favorites</span>
-              </div>
-              <div class="home-stat">
-                <span class="home-stat-number" id="visitedCount">0</span>
-                <span class="home-stat-label">Visited</span>
-              </div>
-              <div class="home-stat">
-                <span class="home-stat-number" id="wishlistCount">0</span>
-                <span class="home-stat-label">Wishlist</span>
-              </div>
-            </div>
-            <div class="home-pick" id="homePick" onclick="showTonightsPick()">
-              <div class="home-pick-label">Tonight's Pick</div>
-              <div class="home-pick-name" id="homePickName">Loading...</div>
-              <div class="home-pick-meta" id="homePickMeta"></div>
-            </div>
+        <div class="concierge-suggestions">
+          <button class="suggestion-chip" onclick="fillSuggestion('Quiet dinner for two tonight')">Quiet tonight</button>
+          <button class="suggestion-chip" onclick="fillSuggestion('Something new in Midtown, upscale Italian')">New in Midtown</button>
+          <button class="suggestion-chip" onclick="fillSuggestion('Date night, West Village, natural wine')">West Village date</button>
+          <button class="suggestion-chip" onclick="fillSuggestion('Business dinner, impressive, 4 people')">Business dinner</button>
+        </div>
+        <div class="concierge-results" id="conciergeResults">
+          <div class="concierge-status" id="conciergeStatus">
+            <em>Your concierge is ready.</em><br>
+            <span style="font-family:var(--mono);font-size:11px;font-style:normal;color:var(--stone);">AI integration coming in Phase 2</span>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Collection View -->
-      <div class="view" id="collectionView" data-view="collection">
-        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 1rem 1rem 0;">
-          <div class="search-section" style="flex: 1; margin: 0; padding: 0;">
-            <input type="text" class="search-input" id="searchInput" placeholder="Search restaurants...">
-          </div>
-          <button class="btn btn-primary" onclick="onAddRestaurant()" style="white-space: nowrap; padding: 0.6rem 1rem; font-size: 13px;">+ Add</button>
-        </div>
-        <div class="filter-chips">
-          <div class="chip active" data-filter="all">All</div>
-          <div class="chip" data-filter="favorite">Favorites</div>
-          <div class="chip" data-filter="visited">Visited</div>
-          <div class="chip" data-filter="wishlist">Wishlist</div>
-        </div>
-        <div class="grid" id="restaurantGrid"></div>
+    <!-- RESTAURANTS -->
+    <div class="view" id="restaurantsView">
+      <div class="page-header"><h2>Restaurants</h2></div>
+      <div class="pill-tabs" id="restaurantTabs">
+        <button class="pill active" data-list="for-you">For You</button>
+        <button class="pill" data-list="favorites">Favorites</button>
+        <button class="pill" data-list="been-there">Been There</button>
+        <button class="pill" data-list="want-to-try">Want to Try</button>
+        <button class="pill" data-list="recommended">Recommended</button>
       </div>
+      <div id="restaurantList"></div>
+    </div>
 
-      <!-- Detail View -->
-      <div class="view" id="detailView" data-view="detail">
-        <button class="detail-back-btn" id="detailBackBtn">
-          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-          Back
+    <!-- DETAIL -->
+    <div class="view" id="detailView">
+      <div id="detailContent"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="view" id="settingsView">
+      <div class="page-header"><h2>Settings</h2></div>
+      <div class="settings-section">
+        <h3>Preferences</h3>
+        <div class="settings-card" id="mattPrefCard">
+          <div class="settings-card-header">
+            <h4>Matt</h4>
+            <button class="edit-link" onclick="openPrefModal('matt')">Edit</button>
+          </div>
+          <div id="mattPrefDisplay"><p class="pref-empty">Tap edit to add your preferences</p></div>
+        </div>
+        <div class="settings-card" id="denisePrefCard">
+          <div class="settings-card-header">
+            <h4>Denise</h4>
+            <button class="edit-link" onclick="openPrefModal('denise')">Edit</button>
+          </div>
+          <div id="denisePrefDisplay"><p class="pref-empty">Tap edit to add your preferences</p></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3>Trusted Sources</h3>
+        <div id="sourcesList"></div>
+        <button class="btn btn-secondary" style="width:100%;margin-top:0.75rem;" onclick="openSourceModal()">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Source
         </button>
-        <div class="detail-hero">
-          <div class="detail-name" id="detailName"></div>
-          <div class="detail-meta" id="detailMeta"></div>
-          <div id="detailAddress" style="font-size: 12px; color: var(--text2); margin-top: 0.5rem;"></div>
-        </div>
-
-        <div class="detail-actions-row" id="detailActionsRow">
-          <button class="btn btn-primary" id="detailWebsiteBtn" style="display:none;">Website</button>
-          <button class="btn btn-primary" id="detailResyBtn" onclick="window.open('https://resy.com/cities/ny?query=' + encodeURIComponent(S.selectedRestaurant?.name || ''), '_blank')">Resy</button>
-          <button class="btn btn-primary" id="detailOpenTableBtn" onclick="window.open('https://www.opentable.com/s?term=' + encodeURIComponent(S.selectedRestaurant?.name || '') + '&metroId=8', '_blank')">OpenTable</button>
-          <button class="btn btn-secondary" id="detailGoogleBtn" onclick="window.open('https://www.google.com/search?q=' + encodeURIComponent((S.selectedRestaurant?.name || '') + ' NYC restaurant'), '_blank')">Google It</button>
-        </div>
-
-        <div id="detailRatings"></div>
-        <div id="detailExternalRatings"></div>
-        <div id="detailVisits"></div>
-
-        <div class="detail-section" style="padding: 1rem 1.5rem;">
-          <button class="btn btn-primary" id="logVisitBtn" style="width: 100%; margin-bottom: 0.5rem;">Log Visit</button>
-          <button class="btn btn-secondary" id="editRestaurantBtn" style="width: 100%; margin-bottom: 0.5rem;">Edit</button>
-          <button class="btn btn-danger" id="deleteRestaurantBtn" style="width: 100%;">Delete</button>
-        </div>
       </div>
-
-      <!-- Discover View -->
-      <div class="view" id="discoverView" data-view="discover">
-        <button class="btn btn-primary" id="addSourceBtn" style="margin: 1rem; width: calc(100% - 2rem);">+ Add Source</button>
-
-        <div class="filter-chips">
-          <div class="chip active" data-filter="all">All Sources</div>
-          <div id="sourceFilters"></div>
-        </div>
-
-        <div id="discoveryCards" class="grid"></div>
-      </div>
-
-      <!-- Map View -->
-      <div class="view" id="mapView" data-view="map">
-        <div class="map-container" id="mapContainer"></div>
-      </div>
-
-      <!-- Preferences View -->
-      <div class="view" id="preferencesView" data-view="preferences">
-        <div style="padding: 1rem;">
-          <!-- Personal Dining Preferences -->
-          <div class="detail-section" style="margin-bottom: 2rem;">
-            <h3 class="detail-section-title" style="display: flex; align-items: center; gap: 0.5rem;">
-              <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--matt); display: inline-block;"></span>
-              Matt's Preferences
-            </h3>
-            <textarea id="mattPrefsInput" class="pref-textarea" placeholder="What do you look for in a great restaurant? Favorite cuisines, vibes, neighborhoods, deal-breakers..."></textarea>
-            <div id="mattPrefsSaved" class="pref-saved-msg" style="display: none;">Saved</div>
-          </div>
-
-          <div class="detail-section" style="margin-bottom: 2rem;">
-            <h3 class="detail-section-title" style="display: flex; align-items: center; gap: 0.5rem;">
-              <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--denise); display: inline-block;"></span>
-              Denise's Preferences
-            </h3>
-            <textarea id="denisePrefsInput" class="pref-textarea" placeholder="What does Denise look for? Cuisines, ambiance, must-haves, no-gos..."></textarea>
-            <div id="denisePrefsSaved" class="pref-saved-msg" style="display: none;">Saved</div>
-          </div>
-
-          <div style="border-top: 1px solid var(--surface2); padding-top: 1.5rem;">
-            <div class="detail-section">
-              <h3 class="detail-section-title">Dining Patterns</h3>
-              <div id="preferencesContent"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-      <div class="nav-item active" data-view="home">
-        <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-        <div>Home</div>
-      </div>
-      <div class="nav-item" data-view="collection">
-        <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/><circle cx="12" cy="4" r="1"/></svg></div>
-        <div>Collection</div>
-      </div>
-      <div class="nav-item" data-view="discover">
-        <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
-        <div>Discover</div>
-      </div>
-      <div class="nav-item" data-view="map">
-        <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-        <div>Map</div>
-      </div>
-      <div class="nav-item" data-view="preferences">
-        <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div>Prefs</div>
+      <div class="settings-section">
+        <button class="sign-out-btn" onclick="signOutUser()">Sign Out</button>
       </div>
     </div>
   </div>
 
-  <!-- Modals -->
-  <div class="modal-overlay hidden" id="addSourceModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 class="modal-title">Add Source</h2>
-        <button class="modal-close" id="closeAddSourceBtn">&times;</button>
-      </div>
-      <form id="addSourceForm">
-        <div class="form-group">
-          <label class="form-label">Source Name</label>
-          <select class="form-select" id="sourceSelect">
-            <option value="">Select a source...</option>
-            <option value="The Infatuation">The Infatuation</option>
-            <option value="Eater NY">Eater NY</option>
-            <option value="NY Times">NY Times</option>
-            <option value="Michelin Guide">Michelin Guide</option>
-            <option value="Grub Street">Grub Street</option>
-            <option value="New York Magazine">New York Magazine</option>
-            <option value="Bon Appetit">Bon Appetit</option>
-            <option value="Food & Wine">Food & Wine</option>
-            <option value="Resy">Resy</option>
-            <option value="OpenTable">OpenTable</option>
-            <option value="Friend/Personal">Friend/Personal</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Article/Source URL (Optional)</label>
-          <input type="url" class="form-input" id="sourceUrl" placeholder="https://...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Restaurant Names (one per line)</label>
-          <textarea class="form-textarea" id="restaurantNames" placeholder="Restaurant 1&#10;Restaurant 2&#10;Restaurant 3"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Add Discoveries</button>
-      </form>
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-tab" data-tab="reservation" onclick="switchTab('reservation')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Reserve</span>
+    </button>
+    <button class="nav-tab active" data-tab="home" onclick="switchTab('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <span>Table</span>
+    </button>
+    <button class="nav-tab" data-tab="restaurants" onclick="switchTab('restaurants')">
+      <svg viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+      <span>Restaurants</span>
+    </button>
+    <button class="nav-tab" data-tab="settings" onclick="switchTab('settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <!-- FAB -->
+  <button class="fab hidden" id="addFab" onclick="openAddRestaurantModal()">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+</div>
+
+<!-- ADD RESTAURANT MODAL -->
+<div class="modal-overlay hidden" id="addRestaurantModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Restaurant</h3>
+      <button class="modal-close" onclick="closeModal('addRestaurantModal')">&times;</button>
     </div>
-  </div>
-
-  <div class="modal-overlay hidden" id="addRestaurantModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 class="modal-title" id="addRestaurantTitle">Add Restaurant</h2>
-        <button class="modal-close" id="closeAddRestaurantBtn">&times;</button>
-      </div>
-      <form id="addRestaurantForm">
-        <div class="form-group">
-          <label class="form-label">Restaurant Name</label>
-          <input type="text" class="form-input" id="restaurantName" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Neighborhood</label>
-          <input type="text" class="form-input" id="neighborhood">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Cuisine</label>
-          <input type="text" class="form-input" id="cuisine" placeholder="Italian, French, etc. (comma-separated)">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Address</label>
-          <input type="text" class="form-input" id="address">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Website</label>
-          <input type="url" class="form-input" id="restaurantWebsite" placeholder="https://...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Price Range</label>
-          <select class="form-select" id="priceRange">
-            <option value="1">$ Casual</option>
-            <option value="2">$$ Moderate</option>
-            <option value="3">$$$ Upscale</option>
-            <option value="4">$$$$ Fine Dining</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Atmosphere</label>
-          <select class="form-select" id="atmosphere">
-            <option value="casual">Casual</option>
-            <option value="romantic">Romantic</option>
-            <option value="lively">Lively</option>
-            <option value="upscale">Upscale</option>
-            <option value="scene">Scene</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Status</label>
-          <select class="form-select" id="status">
-            <option value="wishlist">Wishlist</option>
-            <option value="visited">Visited</option>
-            <option value="favorite">Favorite</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Matt's Rating</label>
-          <div class="star-input" id="mattRatingInput"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Denise's Rating</label>
-          <div class="star-input" id="deniseRatingInput"></div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Matt's Notes</label>
-          <textarea class="form-textarea" id="mattNotes"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Denise's Notes</label>
-          <textarea class="form-textarea" id="deniseNotes"></textarea>
-        </div>
-
-        <div style="background: var(--surface2); border: 1px solid var(--surface2); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
-          <h4 style="font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem;">External Ratings</h4>
-          <div class="form-group">
-            <label class="form-label">Google Rating</label>
-            <div style="display: flex; gap: 0.5rem;">
-              <input type="number" class="form-input" id="googleScore" placeholder="4.6" min="0" max="5" step="0.1" style="flex: 1;">
-              <input type="url" class="form-input" id="googleUrl" placeholder="Google URL" style="flex: 1;">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Michelin Stars</label>
-            <select class="form-select" id="michelinStars">
-              <option value="">None</option>
-              <option value="bib">Bib Gourmand</option>
-              <option value="1">1 Star</option>
-              <option value="2">2 Stars</option>
-              <option value="3">3 Stars</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Infatuation Score</label>
-            <div style="display: flex; gap: 0.5rem;">
-              <input type="number" class="form-input" id="infatuationScore" placeholder="8.5" min="0" max="10" step="0.1" style="flex: 1;">
-              <input type="url" class="form-input" id="infatuationUrl" placeholder="URL" style="flex: 1;">
-            </div>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Save Restaurant</button>
-      </form>
+    <div class="input-group">
+      <label>Restaurant Name</label>
+      <input type="text" id="addName" placeholder="e.g., Gramercy Tavern">
     </div>
-  </div>
-
-  <div class="modal-overlay hidden" id="logVisitModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 class="modal-title">Log Visit</h2>
-        <button class="modal-close" id="closeLogVisitBtn">&times;</button>
-      </div>
-      <form id="logVisitForm">
-        <div class="form-group">
-          <label class="form-label">Visit Date</label>
-          <input type="date" class="form-input" id="visitDate" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Occasion</label>
-          <select class="form-select" id="visitOccasion">
-            <option value="date-night">Date Night</option>
-            <option value="business">Business</option>
-            <option value="group">Group</option>
-            <option value="casual">Casual</option>
-            <option value="special-occasion">Special Occasion</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Dishes</label>
-          <textarea class="form-textarea" id="visitDishes" placeholder="What did you eat?"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Wine Notes</label>
-          <textarea class="form-textarea" id="visitWineNotes" placeholder="Wine pairings, observations..."></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Matt's Rating</label>
-          <div class="star-input" id="visitMattRatingInput"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Denise's Rating</label>
-          <div class="star-input" id="visitDeniseRatingInput"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Pros</label>
-          <textarea class="form-textarea" id="visitPros" placeholder="What went well?"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Cons</label>
-          <textarea class="form-textarea" id="visitCons" placeholder="Any issues?"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Save Visit</button>
-      </form>
+    <div class="input-group">
+      <label>Neighborhood</label>
+      <input type="text" id="addNeighborhood" placeholder="e.g., West Village">
     </div>
+    <div style="display:flex;gap:0.75rem;">
+      <div class="input-group" style="flex:1">
+        <label>Cuisine</label>
+        <input type="text" id="addCuisine" placeholder="e.g., French, Italian">
+      </div>
+      <div class="input-group" style="flex:0.5">
+        <label>Price (1-4)</label>
+        <select id="addPrice"><option value="1">$</option><option value="2" selected>$$</option><option value="3">$$$</option><option value="4">$$$$</option></select>
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Status</label>
+      <select id="addStatus">
+        <option value="visited">Been There</option>
+        <option value="wishlist">Want to Try</option>
+        <option value="recommended">Recommended to Us</option>
+      </select>
+    </div>
+    <div id="addSourceGroup" style="display:none;">
+      <div class="input-group">
+        <label>Recommended By</label>
+        <input type="text" id="addSourceName" placeholder="e.g., David Ness, The Infatuation">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Address</label>
+      <input type="text" id="addAddress" placeholder="Optional">
+    </div>
+    <div class="input-group">
+      <label>Best For</label>
+      <input type="text" id="addBestFor" placeholder="e.g., date-night, business, casual">
+    </div>
+    <div class="input-group">
+      <label>Tags</label>
+      <input type="text" id="addTags" placeholder="e.g., great wine list, romantic">
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:0.5rem;" onclick="saveRestaurant()">Save Restaurant</button>
   </div>
+</div>
 
-  <script>
-    // ============ SEED DATA ============
-    const SEED_DATA = [
-      { name: "Gramercy Tavern", neighborhood: "Gramercy", cuisine: ["American", "Fine Dining"], address: "42 E 20th St", priceRange: 4, status: "favorite", atmosphere: "upscale", bestFor: ["date-night", "special-occasion"], mattRating: 5, deniseRating: 5, mattNotes: "OUTSTANDING in all ways. Best wine pairing ever — included a sake. Unique wines that were absolutely delicious.", deniseNotes: "", tags: ["great wine list", "prefixe menu"], externalRatings: { google: { score: 4.8 }, michelin: { stars: 2 } }, visits: [{ date: "2024-11-14", occasion: "date-night", dishes: ["Prix fixe menu"], wineNotes: "Best wine pairing ever, included a sake. Unique wines.", pros: ["Outstanding food", "Incredible wine pairing", "Beautiful dining room"], cons: [], wouldReturn: true, mattRating: 5, deniseRating: 5 }] },
-      { name: "Marea", neighborhood: "Midtown West", cuisine: ["Italian", "Seafood"], address: "240 Central Park S", priceRange: 4, status: "favorite", atmosphere: "scene", bestFor: ["date-night", "special-occasion"], mattRating: 5, mattNotes: "Incredible food and fun/chic vibe. Crowded late. Go back!", deniseNotes: "", tags: ["chic vibe"], externalRatings: { google: { score: 4.7 }, michelin: { stars: 1 } }, visits: [{ date: "2024-11-15", occasion: "date-night", dishes: [], wineNotes: "", pros: ["Incredible food", "Fun chic vibe"], cons: ["Crowded late"], wouldReturn: true, mattRating: 5 }] },
-      { name: "Monkey Bar", neighborhood: "Midtown East", cuisine: ["American"], address: "60 E 54th St", priceRange: 3, status: "visited", atmosphere: "lively", bestFor: ["date-night", "business"], mattRating: 4, mattNotes: "Really great dinner at the bar.", deniseNotes: "", tags: ["great bar dining"], externalRatings: { google: { score: 4.5 } }, visits: [{ date: "2024-06-09", occasion: "date-night", dishes: [], wineNotes: "", pros: ["Great bar dining experience"], cons: [], wouldReturn: true, mattRating: 4 }, { date: "2024-11-16", occasion: "date-night", dishes: [], wineNotes: "", pros: [], cons: [], wouldReturn: true }] },
-      { name: "Milo's - Hudson Yards", neighborhood: "Hudson Yards", cuisine: ["Greek", "Seafood"], address: "Hudson Yards", priceRange: 4, status: "visited", atmosphere: "upscale", bestFor: ["business", "group"], mattRating: 4, mattNotes: "Beautiful restaurant! Took Phil and his team.", deniseNotes: "", tags: ["beautiful space"], externalRatings: { google: { score: 4.6 }, michelin: { stars: 1 } }, visits: [{ date: "2024-06-10", occasion: "business", dishes: [], wineNotes: "", pros: ["Beautiful restaurant"], cons: [], wouldReturn: true, mattRating: 4 }] },
-      { name: "Bourbon Steak", neighborhood: "Midtown", cuisine: ["Steakhouse", "American"], address: "JW Marriott, Central Park South", priceRange: 3, status: "visited", atmosphere: "upscale", bestFor: ["business", "casual"], mattRating: 3, mattNotes: "Terrific! Great food — delicious burger and outstanding french fries.", deniseNotes: "", tags: ["hotel restaurant", "people watching"], externalRatings: { google: { score: 4.4 } }, visits: [{ date: "2024-11-13", occasion: "date-night", dishes: ["Burger", "French fries"], wineNotes: "", pros: ["Great food", "Outstanding french fries", "Good energy"], cons: ["Not top tier"], wouldReturn: true, mattRating: 3 }] },
-      { name: "Sarabeth's", neighborhood: "Central Park South", cuisine: ["American", "Brunch"], address: "Central Park South", priceRange: 2, status: "visited", atmosphere: "casual", bestFor: ["casual", "date-night"], mattRating: 4, mattNotes: "Great breakfast before a nice walk in the park.", deniseNotes: "", tags: ["brunch spot", "near Central Park"], externalRatings: { google: { score: 4.3 } }, visits: [{ date: "2024-11-16", occasion: "date-night", dishes: ["Brunch"], wineNotes: "", pros: ["Great breakfast", "Perfect location"], cons: [], wouldReturn: true, mattRating: 4 }] },
-      { name: "Match 65", neighborhood: "UES", cuisine: ["French", "Bistro"], address: "65th St area", priceRange: 3, status: "favorite", atmosphere: "romantic", bestFor: ["date-night"], mattRating: 5, mattNotes: "Tiny little French bistro. Fantastic! Definitely go back!", deniseNotes: "", tags: ["tiny", "charming"], externalRatings: { google: { score: 4.7 } }, visits: [{ date: "2024-11-16", occasion: "date-night", dishes: [], wineNotes: "", pros: ["Fantastic food", "Charming atmosphere"], cons: ["Very small"], wouldReturn: true, mattRating: 5 }] },
-      { name: "La Goulue", neighborhood: "UES", cuisine: ["French"], address: "Upper East Side", priceRange: 3, status: "visited", atmosphere: "scene", bestFor: ["date-night", "group"], mattRating: 4, mattNotes: "Awesome French restaurant with a club in the back.", deniseNotes: "", tags: ["club in back"], externalRatings: { google: { score: 4.4 } }, visits: [{ date: "2024-11-16", occasion: "date-night", dishes: [], wineNotes: "", pros: ["Great French food", "Fun club atmosphere"], cons: [], wouldReturn: true, mattRating: 4 }] },
-      { name: "Locanda Verde", neighborhood: "Tribeca", cuisine: ["Italian"], address: "Tribeca", priceRange: 3, status: "visited", atmosphere: "lively", bestFor: ["casual", "date-night"], visits: [{ date: "2024-11-17", occasion: "date-night", dishes: ["Lunch"], wineNotes: "", pros: [], cons: [], wouldReturn: true }] },
-      { name: "Waverley Inn", neighborhood: "West Village", cuisine: ["American"], address: "West Village", priceRange: 3, status: "visited", atmosphere: "scene", bestFor: ["group", "special-occasion"], mattNotes: "Dinner with Chock Chapple and Joan Vassos.", deniseNotes: "", visits: [{ date: "2024-11-17", occasion: "friends", dishes: [], wineNotes: "", pros: [], cons: [], wouldReturn: true }] },
-      { name: "Cafe Boulud", neighborhood: "UES", cuisine: ["French", "Fine Dining"], address: "63rd St & Park Ave", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night", "special-occasion"], tags: ["Daniel Boulud", "opened Dec 2024"], externalRatings: { michelin: { stars: 2 } } },
-      { name: "425 Restaurant", neighborhood: "Midtown East", cuisine: ["Fine Dining"], address: "55th & Park Ave", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night", "special-occasion"], tags: ["Chef Jonathan Beano", "opened Dec 2024"], externalRatings: { google: { score: 4.8 } } },
-      { name: "Quality Bistro", neighborhood: "Midtown West", cuisine: ["French", "Bistro"], address: "54th St between 6th & 7th", priceRange: 3, status: "wishlist", atmosphere: "lively", bestFor: ["casual", "date-night"], tags: ["great brunch", "bread service"], externalRatings: { google: { score: 4.5 } } },
-      { name: "Jean Georges - Tangerine", neighborhood: "Columbus Circle", cuisine: ["French", "Fine Dining"], address: "Trump Tower, Columbus Circle", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night", "special-occasion"], externalRatings: { michelin: { stars: 3 } } },
-      { name: "Avra Madison", neighborhood: "UES", cuisine: ["Greek", "Seafood"], address: "66th & Madison", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night", "group"], tags: ["pick your own fish"], externalRatings: { google: { score: 4.6 } } },
-      { name: "Benoit Restaurant", neighborhood: "Midtown West", cuisine: ["French", "Bistro"], address: "55th St between 5th & 6th", priceRange: 3, status: "wishlist", atmosphere: "romantic", bestFor: ["date-night"], tags: ["wine bar", "great chef"], externalRatings: { google: { score: 4.5 } } },
-      { name: "La Grande Brasserie", neighborhood: "Midtown West", cuisine: ["French", "Bistro"], address: "53rd St off 7th Ave", priceRange: 3, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night"], tags: ["beautiful bistro", "great wine list"], externalRatings: { google: { score: 4.4 } } },
-      { name: "Del Frisco's", neighborhood: "Midtown", cuisine: ["Steakhouse"], address: "6th Ave, Midtown", priceRange: 4, status: "wishlist", atmosphere: "lively", bestFor: ["business", "group"], externalRatings: { google: { score: 4.3 } } },
-      { name: "Quality Italian", neighborhood: "Midtown", cuisine: ["Italian"], address: "6th Ave, Midtown", priceRange: 3, status: "wishlist", atmosphere: "lively", bestFor: ["date-night", "group"], tags: ["fun vibe"], externalRatings: { google: { score: 4.6 } } },
-      { name: "Quality Meats", neighborhood: "Midtown", cuisine: ["Steakhouse"], address: "6th Ave, Midtown", priceRange: 3, status: "wishlist", atmosphere: "lively", bestFor: ["business", "group"], tags: ["fun steakhouse"], externalRatings: { google: { score: 4.5 } } },
-      { name: "Ralph Lauren Polo Restaurant", neighborhood: "UES", cuisine: ["American", "Fine Dining"], address: "Upper East Side", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["special-occasion"], tags: ["reservation only"], externalRatings: { michelin: { stars: 1 } } },
-      { name: "The Standard Grill", neighborhood: "Meatpacking", cuisine: ["American"], address: "Meatpacking District", priceRange: 3, status: "wishlist", atmosphere: "scene", bestFor: ["casual", "group"], tags: ["great for lunch", "near Whitney Museum"], externalRatings: { google: { score: 4.2 } } },
-      { name: "The Modern", neighborhood: "Midtown", cuisine: ["American", "Fine Dining"], address: "53rd St", priceRange: 4, status: "wishlist", atmosphere: "upscale", bestFor: ["date-night", "special-occasion"], tags: ["bar dining", "near MoMA"], externalRatings: { michelin: { stars: 1 }, google: { score: 4.5 } } },
-      { name: "Eataly NYC", neighborhood: "Flatiron", cuisine: ["Italian", "Market"], address: "200 Park Ave", priceRange: 2, status: "wishlist", atmosphere: "casual", bestFor: ["casual", "group"], tags: ["50k sq ft Italian market"], externalRatings: { google: { score: 4.4 } } },
-      { name: "Trattoria Romana", neighborhood: "Central Park South", cuisine: ["Italian"], address: "7th Ave, south of CPS", priceRange: 3, status: "wishlist", atmosphere: "casual", bestFor: ["casual", "date-night"], tags: ["old school", "great staff"], externalRatings: { google: { score: 4.3 } } },
-      { name: "Jam", neighborhood: "Central Park South", cuisine: ["Bar", "Cocktails"], address: "1 Hotel", priceRange: 3, status: "visited", atmosphere: "lively", bestFor: ["casual", "date-night"], mattNotes: "Great vibe, fun spot!", deniseNotes: "", externalRatings: { google: { score: 4.2 } }, visits: [{ date: "2024-11-15", occasion: "date-night", dishes: ["Drinks"], wineNotes: "", pros: ["Great vibe"], cons: [], wouldReturn: true, mattRating: 4 }] }
-    ];
+<!-- LOG VISIT MODAL -->
+<div class="modal-overlay hidden" id="logVisitModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Log Visit</h3>
+      <button class="modal-close" onclick="closeModal('logVisitModal')">&times;</button>
+    </div>
+    <div id="logVisitName" style="font-family:var(--serif);font-size:20px;margin-bottom:1rem;"></div>
+    <div class="input-group">
+      <label>Date</label>
+      <input type="date" id="visitDate">
+    </div>
+    <div class="input-group">
+      <label>Occasion</label>
+      <select id="visitOccasion">
+        <option value="date-night">Date Night</option>
+        <option value="business">Business</option>
+        <option value="friends">Friends</option>
+        <option value="special-occasion">Special Occasion</option>
+        <option value="casual">Casual</option>
+      </select>
+    </div>
+    <div class="divider" style="margin:1rem 0;"></div>
+    <div style="display:flex;gap:1rem;">
+      <div style="flex:1">
+        <div class="input-group">
+          <label>Matt's Rating</label>
+          <div class="rating-input" id="visitMattRating" data-rating="0"></div>
+        </div>
+        <div class="input-group">
+          <label>Matt's Notes</label>
+          <textarea id="visitMattNotes" placeholder="What did you think?"></textarea>
+        </div>
+      </div>
+      <div style="flex:1">
+        <div class="input-group">
+          <label>Denise's Rating</label>
+          <div class="rating-input" id="visitDeniseRating" data-rating="0"></div>
+        </div>
+        <div class="input-group">
+          <label>Denise's Notes</label>
+          <textarea id="visitDeniseNotes" placeholder="What did you think?"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Dishes</label>
+      <input type="text" id="visitDishes" placeholder="e.g., Tuna tartare, Filet mignon">
+    </div>
+    <div class="input-group">
+      <label>Wine / Cocktail Notes</label>
+      <textarea id="visitWine" placeholder="Optional" style="min-height:50px;"></textarea>
+    </div>
+    <div style="display:flex;gap:0.75rem;">
+      <div class="input-group" style="flex:1">
+        <label>Pros</label>
+        <input type="text" id="visitPros" placeholder="e.g., great service">
+      </div>
+      <div class="input-group" style="flex:1">
+        <label>Cons</label>
+        <input type="text" id="visitCons" placeholder="e.g., loud, slow">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Would Return?</label>
+      <select id="visitReturn"><option value="yes">Yes</option><option value="maybe">Maybe</option><option value="no">No</option></select>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:0.5rem;" onclick="saveVisit()">Save Visit</button>
+  </div>
+</div>
 
-    // ============ FIREBASE CONFIG ============
-    const firebaseConfig = {
-      apiKey: "AIzaSyCRgZGtJSIoNvOsAUxCbmBoBWPBoZyL3Tk",
-      authDomain: "nyc-best.firebaseapp.com",
-      projectId: "nyc-best",
-      storageBucket: "nyc-best.firebasestorage.app",
-      messagingSenderId: "727950571401",
-      appId: "1:727950571401:web:4ed9c29972be19ce739358"
-    };
+<!-- PREFERENCE MODAL -->
+<div class="modal-overlay hidden" id="prefModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="prefModalTitle">Preferences</h3>
+      <button class="modal-close" onclick="closeModal('prefModal')">&times;</button>
+    </div>
+    <div class="input-group">
+      <label>General Tastes</label>
+      <textarea id="prefTastes" placeholder="What kind of dining do you love? Cuisines, atmospheres, styles..."></textarea>
+    </div>
+    <div class="input-group">
+      <label>Current Cravings</label>
+      <textarea id="prefCravings" placeholder="What are you in the mood for lately?"></textarea>
+    </div>
+    <div class="input-group">
+      <label>Dealbreakers</label>
+      <textarea id="prefDealbreakers" placeholder="What do you want to avoid?"></textarea>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:0.5rem;" onclick="savePreferences()">Save Preferences</button>
+  </div>
+</div>
 
-    // ============ GLOBAL STATE ============
-    const S = {
-      auth: null,
-      db: null,
-      user: null,
-      currentView: 'home',
-      restaurants: [],
-      discoveries: [],
-      preferences: {},
-      searchQuery: '',
-      filterStatus: 'all',
-      sortBy: 'name',
-      selectedRestaurant: null,
-      showAddModal: false,
-      editingId: null,
-    };
+<!-- SOURCE MODAL -->
+<div class="modal-overlay hidden" id="sourceModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add Trusted Source</h3>
+      <button class="modal-close" onclick="closeModal('sourceModal')">&times;</button>
+    </div>
+    <div class="input-group">
+      <label>Name</label>
+      <input type="text" id="sourceName" placeholder="e.g., The Infatuation, Pete Wells">
+    </div>
+    <div class="input-group">
+      <label>Type</label>
+      <select id="sourceType"><option value="publication">Publication</option><option value="individual">Individual</option></select>
+    </div>
+    <div class="input-group">
+      <label>Handle / URL</label>
+      <input type="text" id="sourceHandle" placeholder="e.g., @infatuation, https://...">
+    </div>
+    <div class="input-group">
+      <label>Notes</label>
+      <textarea id="sourceNotes" placeholder="e.g., Great for upscale Italian picks" style="min-height:50px;"></textarea>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:0.5rem;" onclick="saveSource()">Save Source</button>
+  </div>
+</div>
 
-    function set(updates) {
-      Object.assign(S, updates);
-      requestAnimationFrame(render);
+<script type="module">
+  // ============ FIREBASE ============
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js';
+  import { getFirestore, collection, getDocs, doc, getDoc, setDoc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js';
+
+  const app = initializeApp({
+    apiKey: "AIzaSyCRgZGtJSIoNvOsAUxCbmBoBWPBoZyL3Tk",
+    authDomain: "nyc-best.firebaseapp.com",
+    projectId: "nyc-best",
+    storageBucket: "nyc-best.firebasestorage.app",
+    messagingSenderId: "727950571401",
+    appId: "1:727950571401:web:4ed9c29972be19ce739358"
+  });
+
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  // ============ STATE ============
+  const S = {
+    user: null,
+    currentTab: 'home',
+    currentList: 'for-you',
+    restaurants: [],
+    trustedSources: [],
+    preferences: { matt: null, denise: null },
+    selectedRestaurant: null,
+    editingPrefPerson: null,
+    voiceListening: false,
+    recognition: null,
+  };
+
+  // ============ AUTH ============
+  window.signIn = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
+        await signInWithRedirect(auth, provider);
+      } else { console.error('Auth error:', e); }
     }
+  };
 
-    // ============ FIREBASE INIT ============
-    async function initFirebase() {
-      const { initializeApp } = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js');
-      const { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js');
-      const { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+  window.signOutUser = async () => {
+    await signOut(auth);
+    S.user = null;
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('bottomNav').style.display = 'none';
+  };
 
-      window.firebaseModules = { initializeApp, getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, getFirestore, collection, getDocs, doc, setDoc, deleteDoc };
+  getRedirectResult(auth).catch(() => {});
 
-      const app = initializeApp(firebaseConfig);
-      S.auth = getAuth(app);
-      S.db = getFirestore(app);
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      S.user = user;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('bottomNav').style.display = 'flex';
+      await loadAllData();
+      renderCurrentView();
+    } else {
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('bottomNav').style.display = 'none';
+    }
+  });
 
-      onAuthStateChanged(S.auth, async (user) => {
-        if (user) {
-          set({ user, currentView: 'home' });
-          await loadRestaurants();
-          await loadDiscoveries();
-          await loadDiningPrefs();
-        } else {
-          set({ user: null, currentView: 'login' });
-        }
+  // ============ DATA LOADING ============
+  async function loadAllData() {
+    await Promise.all([loadRestaurants(), loadSources(), loadPreferences()]);
+  }
+
+  async function loadRestaurants() {
+    try {
+      const snap = await getDocs(collection(db, 'restaurants'));
+      S.restaurants = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (e) { console.error('Load restaurants:', e); }
+  }
+
+  async function loadSources() {
+    try {
+      const snap = await getDocs(collection(db, 'trustedSources'));
+      S.trustedSources = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (e) { console.error('Load sources:', e); }
+  }
+
+  async function loadPreferences() {
+    try {
+      const mattDoc = await getDoc(doc(db, 'preferences', 'matt'));
+      const deniseDoc = await getDoc(doc(db, 'preferences', 'denise'));
+      S.preferences.matt = mattDoc.exists() ? mattDoc.data() : null;
+      S.preferences.denise = deniseDoc.exists() ? deniseDoc.data() : null;
+    } catch (e) { console.error('Load prefs:', e); }
+  }
+
+  // ============ NAVIGATION ============
+  window.switchTab = (tab) => {
+    S.currentTab = tab;
+    document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+    const navEl = document.querySelector(`[data-tab="${tab}"]`);
+    if (navEl) navEl.classList.add('active');
+
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const viewMap = { home: 'homeView', reservation: 'reservationView', restaurants: 'restaurantsView', settings: 'settingsView' };
+    const el = document.getElementById(viewMap[tab]);
+    if (el) el.classList.add('active');
+
+    document.getElementById('addFab').classList.toggle('hidden', tab !== 'restaurants');
+    renderCurrentView();
+    document.getElementById('appContent').scrollTop = 0;
+  };
+
+  function renderCurrentView() {
+    if (S.currentTab === 'restaurants') renderRestaurantList();
+    if (S.currentTab === 'settings') renderSettings();
+  }
+
+  // ============ RESTAURANT LIST ============
+  function avgRating(r, who) {
+    if (!r.visits || r.visits.length === 0) return 0;
+    const key = who === 'matt' ? 'mattRating' : 'deniseRating';
+    const ratings = r.visits.map(v => v[key]).filter(Boolean);
+    return ratings.length ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length) : 0;
+  }
+
+  function renderRestaurantList() {
+    const container = document.getElementById('restaurantList');
+    const list = S.currentList;
+    let filtered = [];
+
+    if (list === 'for-you') {
+      container.innerHTML = `<div class="empty-state"><h3>Your concierge is learning</h3><p>As you log visits and set preferences, personalized recommendations will appear here.</p></div>`;
+      return;
+    } else if (list === 'favorites') {
+      filtered = S.restaurants.filter(r => {
+        const mr = r.mattRating || avgRating(r, 'matt');
+        const dr = r.deniseRating || avgRating(r, 'denise');
+        return mr >= 4 && dr >= 4;
       });
+    } else if (list === 'been-there') {
+      filtered = S.restaurants.filter(r => r.status === 'visited' || r.status === 'favorite' || (r.visits && r.visits.length > 0));
+    } else if (list === 'want-to-try') {
+      filtered = S.restaurants.filter(r => r.status === 'wishlist');
+    } else if (list === 'recommended') {
+      filtered = S.restaurants.filter(r => r.status === 'recommended');
     }
 
-    // ============ FIRESTORE OPERATIONS ============
-    async function loadRestaurants() {
-      if (!S.user || !S.db) return;
-      const { collection, getDocs } = window.firebaseModules;
-      const ref = collection(S.db, `users/${S.user.uid}/restaurants`);
-      const snap = await getDocs(ref);
-      const restaurants = [];
-      snap.forEach(doc => restaurants.push({ id: doc.id, ...doc.data() }));
-      set({ restaurants: restaurants.length > 0 ? restaurants : SEED_DATA });
-    }
-
-    async function loadDiscoveries() {
-      if (!S.user || !S.db) return;
-      const { collection, getDocs } = window.firebaseModules;
-      const ref = collection(S.db, `users/${S.user.uid}/discoveries`);
-      const snap = await getDocs(ref);
-      const discoveries = [];
-      snap.forEach(doc => discoveries.push({ id: doc.id, ...doc.data() }));
-      set({ discoveries });
-    }
-
-    async function saveRestaurant(restaurant) {
-      if (!S.user || !S.db) return;
-      const { doc, setDoc, collection } = window.firebaseModules;
-      const ref = doc(S.db, `users/${S.user.uid}/restaurants`, restaurant.id || 'new');
-      await setDoc(ref, restaurant, { merge: true });
-      await loadRestaurants();
-    }
-
-    async function deleteRestaurant(id) {
-      if (!S.user || !S.db || !confirm("Delete this restaurant?")) return;
-      const { doc, deleteDoc } = window.firebaseModules;
-      await deleteDoc(doc(S.db, `users/${S.user.uid}/restaurants`, id));
-      await loadRestaurants();
-      set({ currentView: 'collection' });
-    }
-
-    async function saveDiscovery(discovery) {
-      if (!S.user || !S.db) return;
-      const { doc, setDoc } = window.firebaseModules;
-      const ref = doc(S.db, `users/${S.user.uid}/discoveries`, discovery.id || Date.now().toString());
-      await setDoc(ref, discovery, { merge: true });
-      await loadDiscoveries();
-    }
-
-    // ============ UI HANDLERS ============
-    window.onViewClick = (view) => {
-      set({ currentView: view });
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      document.querySelector(`[data-view="${view}"]`).closest('.nav-item')?.classList.add('active');
-    };
-
-    window.onFilterClick = (e) => {
-      document.querySelectorAll('.chip').forEach(el => el.classList.remove('active'));
-      e.target.classList.add('active');
-      set({ filterStatus: e.target.dataset.filter });
-    };
-
-    window.onSourceFilterClick = (e) => {
-      document.querySelectorAll('.chip').forEach(el => el.classList.remove('active'));
-      e.target.classList.add('active');
-    };
-
-    window.onRestaurantClick = (id) => {
-      const restaurant = S.restaurants.find(r => r.id === id);
-      if (restaurant) {
-        set({ selectedRestaurant: restaurant, currentView: 'detail' });
-      }
-    };
-
-    window.onDiscoveryAction = (action, id, source) => {
-      if (action === 'add') {
-        const discovery = S.discoveries.find(d => d.id === id);
-        if (discovery) {
-          const newId = Date.now().toString();
-          saveRestaurant({
-            id: newId,
-            name: discovery.name,
-            source: { name: discovery.source.name },
-            status: 'wishlist',
-            externalRatings: {},
-          });
-          saveDiscovery({ ...discovery, status: 'added', addedAsRestaurantId: newId });
-        }
-      } else if (action === 'dismiss') {
-        const discovery = S.discoveries.find(d => d.id === id);
-        if (discovery) {
-          saveDiscovery({ ...discovery, status: 'dismissed' });
-        }
-      } else if (action === 'research') {
-        const discovery = S.discoveries.find(d => d.id === id);
-        if (discovery) {
-          window.open(`https://www.google.com/search?q="${discovery.name}" restaurant NYC`, '_blank');
-        }
-      }
-    };
-
-    window.onAddRestaurant = () => {
-      S.editingId = null;
-      document.getElementById('addRestaurantTitle').textContent = 'Add Restaurant';
-      document.getElementById('addRestaurantForm').reset();
-      clearStarInputs();
-      document.getElementById('addRestaurantModal').classList.remove('hidden');
-    };
-
-    window.onEditRestaurant = () => {
-      const r = S.selectedRestaurant;
-      if (!r) return;
-      S.editingId = r.id;
-      document.getElementById('addRestaurantTitle').textContent = 'Edit Restaurant';
-      document.getElementById('restaurantName').value = r.name || '';
-      document.getElementById('neighborhood').value = r.neighborhood || '';
-      document.getElementById('cuisine').value = (r.cuisine || []).join(', ');
-      document.getElementById('address').value = r.address || '';
-      document.getElementById('restaurantWebsite').value = r.website || r.externalLinks?.website || '';
-      document.getElementById('priceRange').value = r.priceRange || '1';
-      document.getElementById('atmosphere').value = r.atmosphere || 'casual';
-      document.getElementById('status').value = r.status || 'wishlist';
-      document.getElementById('mattNotes').value = r.mattNotes || '';
-      document.getElementById('deniseNotes').value = r.deniseNotes || '';
-      updateStarDisplay('mattRatingInput', r.mattRating || 0);
-      updateStarDisplay('deniseRatingInput', r.deniseRating || 0);
-      populateExternalRatings(r.externalRatings || {});
-      document.getElementById('addRestaurantModal').classList.remove('hidden');
-    };
-
-    window.onLogVisit = () => {
-      const r = S.selectedRestaurant;
-      if (!r) return;
-      document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
-      document.getElementById('logVisitForm').reset();
-      clearStarInputs();
-      document.getElementById('logVisitModal').classList.remove('hidden');
-    };
-
-    window.onDeleteRestaurant = () => {
-      deleteRestaurant(S.selectedRestaurant.id);
-    };
-
-    // ============ FORM HANDLERS ============
-    document.addEventListener('submit', async (e) => {
-      if (e.target.id === 'addSourceForm') {
-        e.preventDefault();
-        const sourceName = document.getElementById('sourceSelect').value || document.getElementById('sourceSelect').placeholder;
-        const sourceUrl = document.getElementById('sourceUrl').value;
-        const names = document.getElementById('restaurantNames').value.split('\n').filter(n => n.trim());
-
-        for (const name of names) {
-          const discovery = {
-            id: Date.now().toString() + Math.random(),
-            name: name.trim(),
-            source: { name: sourceName, url: sourceUrl },
-            dateFound: new Date().toISOString().split('T')[0],
-            status: 'new',
-          };
-          await saveDiscovery(discovery);
-        }
-
-        document.getElementById('addSourceModal').classList.add('hidden');
-        document.getElementById('addSourceForm').reset();
-        set({ currentView: 'discover' });
-      }
-
-      if (e.target.id === 'addRestaurantForm') {
-        e.preventDefault();
-        const restaurant = {
-          id: S.editingId || Date.now().toString(),
-          name: document.getElementById('restaurantName').value,
-          neighborhood: document.getElementById('neighborhood').value,
-          cuisine: document.getElementById('cuisine').value.split(',').map(c => c.trim()).filter(c => c),
-          address: document.getElementById('address').value,
-          website: document.getElementById('restaurantWebsite').value || '',
-          externalLinks: { website: document.getElementById('restaurantWebsite').value || '' },
-          priceRange: parseInt(document.getElementById('priceRange').value),
-          atmosphere: document.getElementById('atmosphere').value,
-          status: document.getElementById('status').value,
-          mattRating: getRating('mattRatingInput'),
-          deniseRating: getRating('deniseRatingInput'),
-          mattNotes: document.getElementById('mattNotes').value,
-          deniseNotes: document.getElementById('deniseNotes').value,
-          externalRatings: getExternalRatings(),
-          visits: S.editingId ? (S.restaurants.find(r => r.id === S.editingId)?.visits || []) : [],
-        };
-        await saveRestaurant(restaurant);
-        document.getElementById('addRestaurantModal').classList.add('hidden');
-        set({ currentView: 'collection' });
-      }
-
-      if (e.target.id === 'logVisitForm') {
-        e.preventDefault();
-        const r = S.selectedRestaurant;
-        if (!r) return;
-        const visit = {
-          date: document.getElementById('visitDate').value,
-          occasion: document.getElementById('visitOccasion').value,
-          dishes: document.getElementById('visitDishes').value.split('\n').filter(d => d.trim()),
-          wineNotes: document.getElementById('visitWineNotes').value,
-          mattRating: getRating('visitMattRatingInput'),
-          deniseRating: getRating('visitDeniseRatingInput'),
-          pros: document.getElementById('visitPros').value.split('\n').filter(p => p.trim()),
-          cons: document.getElementById('visitCons').value.split('\n').filter(c => c.trim()),
-          wouldReturn: true,
-        };
-        const updated = { ...r, visits: [...(r.visits || []), visit] };
-        await saveRestaurant(updated);
-        document.getElementById('logVisitModal').classList.add('hidden');
-        set({ selectedRestaurant: updated });
-      }
-    });
-
-    // ============ STAR INPUT LOGIC ============
-    function createStarInput(containerId, onChange) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
-      for (let i = 1; i <= 5; i++) {
-        const star = document.createElement('span');
-        star.className = 'star';
-        star.textContent = '★';
-        star.onclick = () => {
-          updateStarDisplay(containerId, i);
-          onChange?.(i);
-        };
-        container.appendChild(star);
-      }
-    }
-
-    function updateStarDisplay(containerId, rating) {
-      const container = document.getElementById(containerId);
-      const stars = container.querySelectorAll('.star');
-      stars.forEach((star, i) => {
-        star.classList.toggle('active', i < rating);
-      });
-    }
-
-    function getRating(containerId) {
-      const container = document.getElementById(containerId);
-      return container.querySelectorAll('.star.active').length;
-    }
-
-    function clearStarInputs() {
-      createStarInput('mattRatingInput');
-      createStarInput('deniseRatingInput');
-      createStarInput('visitMattRatingInput');
-      createStarInput('visitDeniseRatingInput');
-    }
-
-    function populateExternalRatings(ratings) {
-      document.getElementById('googleScore').value = ratings.google?.score || '';
-      document.getElementById('googleUrl').value = ratings.google?.url || '';
-      document.getElementById('michelinStars').value = ratings.michelin?.stars || '';
-      document.getElementById('infatuationScore').value = ratings.infatuation?.score || '';
-      document.getElementById('infatuationUrl').value = ratings.infatuation?.url || '';
-    }
-
-    function getExternalRatings() {
-      const ratings = {};
-      const googleScore = parseFloat(document.getElementById('googleScore').value);
-      if (googleScore) ratings.google = { score: googleScore, url: document.getElementById('googleUrl').value };
-      const michelin = document.getElementById('michelinStars').value;
-      if (michelin) ratings.michelin = { stars: michelin };
-      const infatuation = parseFloat(document.getElementById('infatuationScore').value);
-      if (infatuation) ratings.infatuation = { score: infatuation, url: document.getElementById('infatuationUrl').value };
-      return ratings;
-    }
-
-    // ============ MODAL HANDLERS ============
-    document.getElementById('closeAddSourceBtn').onclick = () => document.getElementById('addSourceModal').classList.add('hidden');
-    document.getElementById('closeAddRestaurantBtn').onclick = () => document.getElementById('addRestaurantModal').classList.add('hidden');
-    document.getElementById('closeLogVisitBtn').onclick = () => document.getElementById('logVisitModal').classList.add('hidden');
-
-    document.getElementById('addSourceBtn').onclick = () => document.getElementById('addSourceModal').classList.remove('hidden');
-
-    document.getElementById('detailBackBtn').onclick = () => set({ currentView: 'collection', selectedRestaurant: null });
-    document.getElementById('logVisitBtn').onclick = () => onLogVisit();
-    document.getElementById('editRestaurantBtn').onclick = () => onEditRestaurant();
-    document.getElementById('deleteRestaurantBtn').onclick = () => { if (confirm('Delete this restaurant?')) onDeleteRestaurant(); };
-
-    document.getElementById('searchInput').oninput = (e) => set({ searchQuery: e.target.value.toLowerCase() });
-
-    document.addEventListener('click', (e) => {
-      if (e.target.classList.contains('chip')) {
-        if (e.target.dataset.filter) onFilterClick(e);
-      }
-      const navItem = e.target.closest('.nav-item');
-      if (navItem) {
-        const view = navItem.dataset.view;
-        if (view) onViewClick(view);
-      }
-      const card = e.target.closest('.restaurant-card');
-      if (card) {
-        const id = card.dataset.id;
-        if (id) onRestaurantClick(id);
-      }
-    });
-
-    // ============ GOOGLE LOGIN ============
-    document.getElementById('googleLoginBtn').onclick = async () => {
-      const { GoogleAuthProvider, signInWithPopup } = window.firebaseModules;
-      const provider = new GoogleAuthProvider();
-      try {
-        await signInWithPopup(S.auth, provider);
-      } catch (err) {
-        console.error('Login error:', err);
-      }
-    };
-
-    // ============ RENDER ============
-    function render() {
-      renderViews();
-      renderStats();
-      renderRestaurantGrid();
-      renderDetail();
-      renderDiscoveries();
-      renderMap();
-      renderPreferences();
-    }
-
-    function renderViews() {
-      document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-      const activeView = document.querySelector(`[data-view="${S.currentView}"]`);
-      if (activeView) activeView.classList.add('active');
-
-      // Header: transparent on home, dark on other views
-      const header = document.querySelector('.header');
-      if (header) {
-        if (S.currentView === 'home') {
-          header.style.background = 'transparent';
-          header.style.backdropFilter = 'none';
-        } else {
-          header.style.background = 'rgba(8, 9, 13, 0.95)';
-          header.style.backdropFilter = 'blur(20px)';
-        }
-      }
-
-      if (S.user) {
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('appContainer').style.display = 'flex';
-      } else {
-        document.getElementById('loginScreen').classList.remove('hidden');
-        document.getElementById('appContainer').style.display = 'none';
-      }
-    }
-
-    function renderStats() {
-      const total = S.restaurants.length;
-      const favorites = S.restaurants.filter(r => r.status === 'favorite').length;
-      const visited = S.restaurants.filter(r => r.status === 'visited' || r.status === 'favorite').length;
-      const wishlist = S.restaurants.filter(r => r.status === 'wishlist').length;
-
-      document.getElementById('totalCount').textContent = total;
-      document.getElementById('favoritesCount').textContent = favorites;
-      document.getElementById('visitedCount').textContent = visited;
-      document.getElementById('wishlistCount').textContent = wishlist;
-
-      const newDiscoveries = S.discoveries.filter(d => d.status === 'new').length;
-      document.getElementById('discoveryCount').textContent = newDiscoveries > 0 ? `${newDiscoveries} new discoveries waiting — check Discover` : '';
-
-      // Hero recommendation — disabled (using ambient hero instead)
-      const heroEl = document.getElementById('heroRecommendation');
-      if (heroEl) heroEl.style.display = 'none';
-
-      // Tonight's Pick — random favorite or visited restaurant
-      const picks = S.restaurants.filter(r => r.status === 'favorite' || r.status === 'visited');
-      if (picks.length > 0) {
-        const pick = picks[Math.floor(Math.random() * picks.length)];
-        S.tonightsPick = pick;
-        document.getElementById('homePickName').textContent = pick.name;
-        const meta = [pick.cuisine?.join(', '), pick.neighborhood, pick.priceRange ? '$'.repeat(pick.priceRange) : ''].filter(Boolean).join(' · ');
-        document.getElementById('homePickMeta').textContent = meta;
-      } else if (S.restaurants.length > 0) {
-        const pick = S.restaurants[Math.floor(Math.random() * S.restaurants.length)];
-        S.tonightsPick = pick;
-        document.getElementById('homePickName').textContent = pick.name;
-        document.getElementById('homePickMeta').textContent = pick.neighborhood || 'Explore something new';
-      } else {
-        document.getElementById('homePickName').textContent = 'Add your first restaurant';
-        document.getElementById('homePickMeta').textContent = 'Tap Collection to get started';
-      }
-    }
-
-    function showTonightsPick() {
-      if (S.tonightsPick) {
-        showDetail(S.tonightsPick);
-      } else {
-        switchView('collection');
-      }
-    }
-
-    function renderRestaurantGrid() {
-      let filtered = S.restaurants;
-
-      if (S.filterStatus !== 'all') {
-        filtered = filtered.filter(r => r.status === S.filterStatus);
-      }
-
-      if (S.searchQuery) {
-        filtered = filtered.filter(r => r.name.toLowerCase().includes(S.searchQuery) || (r.neighborhood || '').toLowerCase().includes(S.searchQuery));
-      }
-
-      filtered.sort((a, b) => a.name.localeCompare(b.name));
-
-      const grid = document.getElementById('restaurantGrid');
-      grid.innerHTML = filtered.map(r => `
-        <div class="restaurant-card" data-id="${r.id}">
-          <div class="restaurant-name">${r.name}</div>
-          <div class="restaurant-meta">
-            <span>${r.neighborhood || ''}</span>
-            ${r.neighborhood && (r.cuisine||[]).length ? '<span>·</span>' : ''}
-            <span>${(r.cuisine || []).slice(0,1).join('')}</span>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderDetail() {
-      const r = S.selectedRestaurant;
-      if (!r) return;
-
-      document.getElementById('detailName').textContent = r.name;
-      document.getElementById('detailMeta').innerHTML = `
-        <span>${r.neighborhood}</span>
-        <span>${'$'.repeat(r.priceRange || 1)}</span>
-        <span>${(r.cuisine || []).join(', ')}</span>
-      `;
-      document.getElementById('detailAddress').textContent = r.address || '';
-
-      // Website button
-      const webBtn = document.getElementById('detailWebsiteBtn');
-      if (r.externalLinks?.website || r.website) {
-        webBtn.style.display = '';
-        webBtn.onclick = () => window.open(r.externalLinks?.website || r.website, '_blank');
-      } else {
-        webBtn.style.display = 'none';
-      }
-
-      let ratingsHtml = '<div class="detail-section">';
-      ratingsHtml += '<h3 class="detail-section-title">Ratings</h3>';
-      ratingsHtml += '<div class="ratings-grid">';
-
-      if (r.mattRating || r.mattNotes) {
-        ratingsHtml += `
-          <div class="rating-column">
-            <div class="rating-head matt">Matt</div>
-            ${r.mattRating ? `<div class="rating-stars">${'★'.repeat(r.mattRating)}${'☆'.repeat(5-r.mattRating)}</div>` : ''}
-            ${r.mattNotes ? `<div class="rating-notes">"${r.mattNotes}"</div>` : ''}
-          </div>
-        `;
-      }
-
-      if (r.deniseRating || r.deniseNotes) {
-        ratingsHtml += `
-          <div class="rating-column">
-            <div class="rating-head denise">Denise</div>
-            ${r.deniseRating ? `<div class="rating-stars">${'★'.repeat(r.deniseRating)}${'☆'.repeat(5-r.deniseRating)}</div>` : ''}
-            ${r.deniseNotes ? `<div class="rating-notes">"${r.deniseNotes}"</div>` : ''}
-          </div>
-        `;
-      }
-
-      ratingsHtml += '</div></div>';
-      document.getElementById('detailRatings').innerHTML = ratingsHtml;
-
-      let externalHtml = '';
-      if (Object.keys(r.externalRatings || {}).length > 0) {
-        externalHtml = '<div class="detail-section"><h3 class="detail-section-title">External Ratings</h3>';
-        if (r.externalRatings.google?.score) externalHtml += `<div style="margin-bottom: 0.5rem;"><strong>Google:</strong> ${r.externalRatings.google.score}/5</div>`;
-        if (r.externalRatings.michelin?.stars) externalHtml += `<div style="margin-bottom: 0.5rem;"><strong>Michelin:</strong> ${'★'.repeat(r.externalRatings.michelin.stars === 'bib' ? 0 : parseInt(r.externalRatings.michelin.stars))} ${r.externalRatings.michelin.stars === 'bib' ? 'Bib' : ''}</div>`;
-        if (r.externalRatings.infatuation?.score) externalHtml += `<div style="margin-bottom: 0.5rem;"><strong>Infatuation:</strong> ${r.externalRatings.infatuation.score}/10</div>`;
-        externalHtml += '</div>';
-      }
-      document.getElementById('detailExternalRatings').innerHTML = externalHtml;
-
-      let visitsHtml = '';
-      if ((r.visits || []).length > 0) {
-        visitsHtml = '<div class="detail-section"><h3 class="detail-section-title">Visit History</h3><div class="timeline">';
-        r.visits.forEach(v => {
-          visitsHtml += `
-            <div class="timeline-item">
-              <div class="timeline-dot"></div>
-              <div class="timeline-date">${v.date}</div>
-              <div class="timeline-occasion">${v.occasion}</div>
-              ${v.mattRating ? `<div style="font-size: 12px; margin-bottom: 0.5rem;">M: ${'★'.repeat(v.mattRating)}${'☆'.repeat(5-v.mattRating)}</div>` : ''}
-              ${v.deniseRating ? `<div style="font-size: 12px; margin-bottom: 0.5rem;">D: ${'★'.repeat(v.deniseRating)}${'☆'.repeat(5-v.deniseRating)}</div>` : ''}
-              ${v.wineNotes ? `<div class="timeline-note">Wine: ${v.wineNotes}</div>` : ''}
-            </div>
-          `;
-        });
-        visitsHtml += '</div></div>';
-      }
-      document.getElementById('detailVisits').innerHTML = visitsHtml;
-    }
-
-    function renderDiscoveries() {
-      const active = (S.discoveries || []).filter(d => d.status === 'new' || d.status === 'added');
-      const container = document.getElementById('discoveryCards');
-      const sources = [...new Set(active.map(d => d.source?.name))];
-
-      let sourceFilters = sources.map(s => `<div class="chip" data-filter="${s}">${s}</div>`).join('');
-      document.getElementById('sourceFilters').innerHTML = sourceFilters;
-
-      container.innerHTML = active.map(d => `
-        <div class="discovery-card">
-          <div class="discovery-header">
-            <div class="discovery-info">
-              <div class="discovery-name">${d.name}</div>
-              <div class="discovery-source">${d.source?.name || 'Unknown'}</div>
-              <div class="discovery-date">Found: ${d.dateFound}</div>
-            </div>
-          </div>
-          <div class="discovery-actions">
-            <button class="btn btn-primary btn-small" onclick="onDiscoveryAction('add', '${d.id}')">Add to List</button>
-            <button class="btn btn-secondary btn-small" onclick="onDiscoveryAction('research', '${d.id}')">Research</button>
-            <button class="btn btn-danger btn-small" onclick="onDiscoveryAction('dismiss', '${d.id}')">Dismiss</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderMap() {
-      const byNeighborhood = {};
-      S.restaurants.forEach(r => {
-        const n = r.neighborhood || 'Other';
-        if (!byNeighborhood[n]) byNeighborhood[n] = [];
-        byNeighborhood[n].push(r);
-      });
-
-      const container = document.getElementById('mapContainer');
-      container.innerHTML = Object.entries(byNeighborhood).map(([name, restaurants]) => `
-        <div class="neighborhood">
-          <div class="neighborhood-name">${name}</div>
-          <div class="neighborhood-count">${restaurants.length} restaurants</div>
-          <div style="margin-top: 0.5rem; font-size: 11px; color: var(--text2);">
-            ${restaurants.map(r => r.name).join(', ')}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderPreferences() {
-      const pref = calculatePreferences();
-      const html = `
-        <h4 style="margin-bottom: 1rem; color: var(--text2); font-size: 12px;">Based on your dining patterns:</h4>
-        ${Object.entries(pref).map(([key, val]) => `
-          <div style="margin-bottom: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-              <span style="font-size: 13px; font-weight: 600; text-transform: capitalize;">${key.replace(/([A-Z])/g, ' $1')}</span>
-              <span style="font-size: 13px; color: var(--text2);">${(val * 100).toFixed(0)}%</span>
-            </div>
-            <div class="bar-fill"><div class="bar-value" style="width: ${val * 100}%"></div></div>
-          </div>
-        `).join('')}
-      `;
-      document.getElementById('preferencesContent').innerHTML = html;
-    }
-
-    function calculatePreferences() {
-      const restaurants = S.restaurants.filter(r => r.status !== 'skip');
-      if (restaurants.length === 0) return {};
-
-      const prefs = {
-        upscale: 0, romantic: 0, lively: 0, casual: 0, scene: 0,
-        dateNight: 0, business: 0, special: 0,
+    if (filtered.length === 0) {
+      const msgs = {
+        favorites: { t: 'No favorites yet', m: 'Restaurants you and Denise both rate 4+ appear here.' },
+        'been-there': { t: 'No visits logged', m: 'Add a restaurant and log your first visit.' },
+        'want-to-try': { t: 'Nothing on the list', m: 'Add restaurants you want to try.' },
+        recommended: { t: 'No recommendations yet', m: 'Add restaurants others have recommended.' },
       };
-
-      restaurants.forEach(r => {
-        if (r.atmosphere) prefs[r.atmosphere] = (prefs[r.atmosphere] || 0) + 1;
-        (r.bestFor || []).forEach(bf => {
-          if (bf === 'date-night') prefs.dateNight++;
-          else if (bf === 'business') prefs.business++;
-          else if (bf === 'special-occasion') prefs.special++;
-        });
-      });
-
-      const total = Object.values(prefs).reduce((a, b) => a + b, 1);
-      Object.keys(prefs).forEach(k => prefs[k] = Math.min(prefs[k] / total, 1));
-      return prefs;
+      const em = msgs[list] || { t: 'Nothing here', m: '' };
+      container.innerHTML = `<div class="empty-state"><h3>${em.t}</h3><p>${em.m}</p></div>`;
+      return;
     }
 
-    // ============ DINING PREFERENCES (SAVE/LOAD) ============
-    let prefSaveTimeout = null;
+    filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    container.innerHTML = filtered.map(r => {
+      const cuisine = (r.cuisine || []).join(', ');
+      const price = '$'.repeat(r.priceRange || 2);
+      const mr = r.mattRating || avgRating(r, 'matt');
+      const dr = r.deniseRating || avgRating(r, 'denise');
+      const ratingStr = mr ? `M:${mr}` + (dr ? ` D:${dr}` : '') : '';
+      const source = r.source && r.source.name ? `<span class="source-tag">${esc(r.source.name)}</span>` : '';
+      return `<div class="restaurant-card" onclick="openDetail('${esc(r.id)}')">
+        <div><div class="r-name">${esc(r.name)}</div><div class="r-meta">${esc([r.neighborhood, cuisine, price].filter(Boolean).join(' \u00b7 '))}</div>${source}</div>
+        <div class="r-rating">${ratingStr}</div></div>`;
+    }).join('');
+  }
 
-    async function loadDiningPrefs() {
-      if (!S.user || !S.db) return;
-      try {
-        const { doc } = window.firebaseModules;
-        const { getDoc } = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
-        const ref = doc(S.db, `users/${S.user.uid}/settings`, 'diningPrefs');
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          const data = snap.data();
-          document.getElementById('mattPrefsInput').value = data.matt || '';
-          document.getElementById('denisePrefsInput').value = data.denise || '';
-        }
-      } catch (e) { console.log('loadDiningPrefs error:', e); }
+  // ============ RESTAURANT DETAIL ============
+  window.openDetail = (id) => {
+    const r = S.restaurants.find(x => x.id === id);
+    if (!r) return;
+    S.selectedRestaurant = r;
+
+    const cuisine = (r.cuisine || []).join(', ');
+    const price = '$'.repeat(r.priceRange || 2);
+    const mr = r.mattRating || avgRating(r, 'matt');
+    const dr = r.deniseRating || avgRating(r, 'denise');
+
+    let visitsHtml = '';
+    if (r.visits && r.visits.length > 0) {
+      visitsHtml = r.visits.slice().reverse().map(v => `<div class="visit-entry">
+        <div class="visit-date">${esc(v.date || 'Unknown')}${v.occasion ? ' \u00b7 ' + esc(v.occasion) : ''}</div>
+        ${v.mattRating ? `<div class="visit-notes"><strong>Matt ${v.mattRating}/5</strong>${v.mattNotes ? ' \u2014 ' + esc(v.mattNotes) : ''}</div>` : ''}
+        ${v.deniseRating ? `<div class="visit-notes"><strong>Denise ${v.deniseRating}/5</strong>${v.deniseNotes ? ' \u2014 ' + esc(v.deniseNotes) : ''}</div>` : ''}
+        ${v.dishes && v.dishes.length ? `<div class="visit-notes">Dishes: ${esc(v.dishes.join(', '))}</div>` : ''}
+        ${v.wineNotes ? `<div class="visit-notes">Wine: ${esc(v.wineNotes)}</div>` : ''}
+        ${v.pros && v.pros.length ? `<div class="visit-notes" style="color:var(--champagne)">+ ${esc(v.pros.join(', '))}</div>` : ''}
+        ${v.cons && v.cons.length ? `<div class="visit-notes" style="color:#b55">- ${esc(v.cons.join(', '))}</div>` : ''}
+      </div>`).join('');
     }
 
-    async function saveDiningPrefs() {
-      if (!S.user || !S.db) return;
-      try {
-        const { doc, setDoc } = window.firebaseModules;
-        const ref = doc(S.db, `users/${S.user.uid}/settings`, 'diningPrefs');
-        await setDoc(ref, {
-          matt: document.getElementById('mattPrefsInput').value,
-          denise: document.getElementById('denisePrefsInput').value,
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
-      } catch (e) { console.log('saveDiningPrefs error:', e); }
+    const endorsements = (r.trustedSourceEndorsements || []).map(e => `<span class="source-tag">${esc(e.sourceName)}</span>`).join('');
+    const tags = (r.tags || []).map(t => `<span class="source-tag">${esc(t)}</span>`).join('');
+    const bestFor = (r.bestFor || []).map(b => `<span class="source-tag">${esc(b)}</span>`).join('');
+
+    document.getElementById('detailContent').innerHTML = `
+      <button class="detail-back" onclick="closeDetail()">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
+      <div class="detail-header">
+        <h2>${esc(r.name)}</h2>
+        <div class="detail-meta">${esc([r.neighborhood, cuisine, price, r.address].filter(Boolean).join(' \u00b7 '))}</div>
+      </div>
+      <div class="detail-ratings">
+        <div class="detail-rating-box"><div class="who">Matt</div><div class="score">${mr || '\u2014'}</div>${r.mattNotes ? `<div class="notes">${esc(r.mattNotes)}</div>` : ''}</div>
+        <div class="detail-rating-box"><div class="who">Denise</div><div class="score">${dr || '\u2014'}</div>${r.deniseNotes ? `<div class="notes">${esc(r.deniseNotes)}</div>` : ''}</div>
+      </div>
+      ${endorsements ? `<div class="detail-section"><h4>Trusted Source Endorsements</h4><div>${endorsements}</div></div>` : ''}
+      ${tags ? `<div class="detail-section"><h4>Tags</h4><div>${tags}</div></div>` : ''}
+      ${bestFor ? `<div class="detail-section"><h4>Best For</h4><div>${bestFor}</div></div>` : ''}
+      <div class="detail-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <h4>Visits${r.visits ? ' (' + r.visits.length + ')' : ''}</h4>
+          <button class="btn btn-secondary" style="padding:6px 14px;font-size:12px;" onclick="openLogVisitModal('${esc(r.id)}')">Log Visit</button>
+        </div>
+        ${visitsHtml || '<p style="font-size:13px;color:var(--stone);font-style:italic;">No visits logged yet.</p>'}
+      </div>`;
+
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('detailView').classList.add('active');
+    document.getElementById('addFab').classList.add('hidden');
+    document.getElementById('appContent').scrollTop = 0;
+  };
+
+  window.closeDetail = () => {
+    document.getElementById('detailView').classList.remove('active');
+    document.getElementById('restaurantsView').classList.add('active');
+    document.getElementById('addFab').classList.remove('hidden');
+  };
+
+  // ============ ADD RESTAURANT ============
+  window.openAddRestaurantModal = () => {
+    document.getElementById('addRestaurantModal').classList.remove('hidden');
+    ['addName','addNeighborhood','addCuisine','addSourceName','addAddress','addBestFor','addTags'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('addPrice').value = '2';
+    document.getElementById('addStatus').value = 'visited';
+    document.getElementById('addSourceGroup').style.display = 'none';
+  };
+
+  document.getElementById('addStatus').addEventListener('change', (e) => {
+    document.getElementById('addSourceGroup').style.display = e.target.value === 'recommended' ? 'block' : 'none';
+  });
+
+  window.saveRestaurant = async () => {
+    const name = document.getElementById('addName').value.trim();
+    if (!name) return;
+    const data = {
+      name,
+      neighborhood: document.getElementById('addNeighborhood').value.trim(),
+      cuisine: document.getElementById('addCuisine').value.split(',').map(s => s.trim()).filter(Boolean),
+      priceRange: parseInt(document.getElementById('addPrice').value),
+      status: document.getElementById('addStatus').value,
+      address: document.getElementById('addAddress').value.trim(),
+      bestFor: document.getElementById('addBestFor').value.split(',').map(s => s.trim()).filter(Boolean),
+      tags: document.getElementById('addTags').value.split(',').map(s => s.trim()).filter(Boolean),
+      visits: [], trustedSourceEndorsements: [],
+      mattRating: 0, deniseRating: 0, mattNotes: '', deniseNotes: '',
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+    };
+    if (data.status === 'recommended') {
+      const sn = document.getElementById('addSourceName').value.trim();
+      if (sn) { data.source = { type: 'person', name: sn }; data.trustedSourceEndorsements = [{ sourceName: sn, sourceType: 'person' }]; }
     }
+    const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    try {
+      await setDoc(doc(db, 'restaurants', id), data);
+      await loadRestaurants(); renderRestaurantList(); closeModal('addRestaurantModal');
+    } catch (e) { console.error('Save restaurant:', e); alert('Error saving.'); }
+  };
 
-    function setupPrefAutoSave(inputId, savedMsgId) {
-      const input = document.getElementById(inputId);
-      if (!input) return;
-      input.addEventListener('input', () => {
-        clearTimeout(prefSaveTimeout);
-        prefSaveTimeout = setTimeout(async () => {
-          await saveDiningPrefs();
-          const msg = document.getElementById(savedMsgId);
-          msg.style.display = 'block';
-          setTimeout(() => msg.style.display = 'none', 2000);
-        }, 1000);
-      });
+  // ============ LOG VISIT ============
+  window.openLogVisitModal = (id) => {
+    const r = S.restaurants.find(x => x.id === id);
+    if (!r) return;
+    S.selectedRestaurant = r;
+    document.getElementById('logVisitModal').classList.remove('hidden');
+    document.getElementById('logVisitName').textContent = r.name;
+    document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('visitOccasion').value = 'date-night';
+    ['visitMattNotes','visitDeniseNotes','visitDishes','visitWine','visitPros','visitCons'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('visitReturn').value = 'yes';
+    initStars('visitMattRating', 0);
+    initStars('visitDeniseRating', 0);
+  };
+
+  function initStars(containerId, initial) {
+    const c = document.getElementById(containerId);
+    c.dataset.rating = initial;
+    c.innerHTML = [1,2,3,4,5].map(i => `<svg class="rating-star ${i <= initial ? 'filled' : ''}" viewBox="0 0 24 24" data-value="${i}" onclick="setRating('${containerId}',${i})"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="${i <= initial ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5"/></svg>`).join('');
+  }
+
+  window.setRating = (containerId, value) => {
+    const c = document.getElementById(containerId);
+    c.dataset.rating = value;
+    c.querySelectorAll('.rating-star').forEach(star => {
+      const v = parseInt(star.dataset.value);
+      star.classList.toggle('filled', v <= value);
+      star.querySelector('polygon').setAttribute('fill', v <= value ? 'currentColor' : 'none');
+    });
+  };
+
+  window.saveVisit = async () => {
+    const r = S.selectedRestaurant;
+    if (!r) return;
+    const visit = {
+      date: document.getElementById('visitDate').value,
+      occasion: document.getElementById('visitOccasion').value,
+      mattRating: parseInt(document.getElementById('visitMattRating').dataset.rating) || 0,
+      deniseRating: parseInt(document.getElementById('visitDeniseRating').dataset.rating) || 0,
+      mattNotes: document.getElementById('visitMattNotes').value.trim(),
+      deniseNotes: document.getElementById('visitDeniseNotes').value.trim(),
+      dishes: document.getElementById('visitDishes').value.split(',').map(s => s.trim()).filter(Boolean),
+      wineNotes: document.getElementById('visitWine').value.trim(),
+      pros: document.getElementById('visitPros').value.split(',').map(s => s.trim()).filter(Boolean),
+      cons: document.getElementById('visitCons').value.split(',').map(s => s.trim()).filter(Boolean),
+      wouldReturn: document.getElementById('visitReturn').value,
+    };
+    try {
+      const ref = doc(db, 'restaurants', r.id);
+      const visits = [...(r.visits || []), visit];
+      const updates = { visits, status: 'visited', updatedAt: new Date().toISOString() };
+      if (visit.mattRating) updates.mattRating = visit.mattRating;
+      if (visit.deniseRating) updates.deniseRating = visit.deniseRating;
+      if (visit.mattNotes) updates.mattNotes = visit.mattNotes;
+      if (visit.deniseNotes) updates.deniseNotes = visit.deniseNotes;
+      await updateDoc(ref, updates);
+      await loadRestaurants(); closeModal('logVisitModal'); openDetail(r.id);
+    } catch (e) { console.error('Save visit:', e); alert('Error saving visit.'); }
+  };
+
+  // ============ PREFERENCES ============
+  window.openPrefModal = (person) => {
+    S.editingPrefPerson = person;
+    const pref = S.preferences[person];
+    document.getElementById('prefModalTitle').textContent = `${person === 'matt' ? "Matt" : "Denise"}'s Preferences`;
+    document.getElementById('prefTastes').value = pref?.generalTastes || '';
+    document.getElementById('prefCravings').value = pref?.currentCravings || '';
+    document.getElementById('prefDealbreakers').value = pref?.dealbreakers || '';
+    document.getElementById('prefModal').classList.remove('hidden');
+  };
+
+  window.savePreferences = async () => {
+    const person = S.editingPrefPerson;
+    const data = {
+      displayName: person === 'matt' ? 'Matt' : 'Denise',
+      generalTastes: document.getElementById('prefTastes').value.trim(),
+      currentCravings: document.getElementById('prefCravings').value.trim(),
+      dealbreakers: document.getElementById('prefDealbreakers').value.trim(),
+      updatedAt: new Date().toISOString(),
+    };
+    try {
+      await setDoc(doc(db, 'preferences', person), data);
+      S.preferences[person] = data; renderSettings(); closeModal('prefModal');
+    } catch (e) { console.error('Save pref:', e); alert('Error saving.'); }
+  };
+
+  // ============ TRUSTED SOURCES ============
+  window.openSourceModal = () => {
+    document.getElementById('sourceModal').classList.remove('hidden');
+    ['sourceName','sourceHandle','sourceNotes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('sourceType').value = 'publication';
+  };
+
+  window.saveSource = async () => {
+    const name = document.getElementById('sourceName').value.trim();
+    if (!name) return;
+    const data = {
+      name, type: document.getElementById('sourceType').value,
+      handle: document.getElementById('sourceHandle').value.trim(),
+      notes: document.getElementById('sourceNotes').value.trim(),
+      createdAt: new Date().toISOString(),
+    };
+    const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    try {
+      await setDoc(doc(db, 'trustedSources', id), data);
+      await loadSources(); renderSettings(); closeModal('sourceModal');
+    } catch (e) { console.error('Save source:', e); alert('Error saving.'); }
+  };
+
+  window.deleteSource = async (id) => {
+    if (!confirm('Remove this trusted source?')) return;
+    try { await deleteDoc(doc(db, 'trustedSources', id)); await loadSources(); renderSettings(); }
+    catch (e) { console.error('Delete source:', e); }
+  };
+
+  // ============ RENDER SETTINGS ============
+  function renderSettings() {
+    ['matt', 'denise'].forEach(person => {
+      const pref = S.preferences[person];
+      const display = document.getElementById(`${person}PrefDisplay`);
+      if (pref && (pref.generalTastes || pref.currentCravings || pref.dealbreakers)) {
+        display.innerHTML = `
+          ${pref.generalTastes ? `<p class="pref-text">${esc(pref.generalTastes)}</p>` : ''}
+          ${pref.currentCravings ? `<p class="pref-text" style="margin-top:6px;color:var(--champagne)">Craving: ${esc(pref.currentCravings)}</p>` : ''}
+          ${pref.dealbreakers ? `<p class="pref-text" style="margin-top:6px;color:var(--stone)">Avoid: ${esc(pref.dealbreakers)}</p>` : ''}`;
+      } else { display.innerHTML = `<p class="pref-empty">Tap edit to add preferences</p>`; }
+    });
+
+    const sl = document.getElementById('sourcesList');
+    if (S.trustedSources.length === 0) {
+      sl.innerHTML = `<p style="font-size:13px;color:var(--stone);font-style:italic;padding:0.5rem 0;">No trusted sources added yet.</p>`;
+    } else {
+      sl.innerHTML = S.trustedSources.map(s => `<div class="source-item">
+        <div><div class="source-name">${esc(s.name)}</div><div class="source-type">${esc(s.type)}${s.handle ? ' \u00b7 ' : ''}<span class="source-handle">${esc(s.handle || '')}</span></div>
+        ${s.notes ? `<div style="font-size:12px;color:var(--slate);margin-top:2px;">${esc(s.notes)}</div>` : ''}</div>
+        <button class="source-delete" onclick="deleteSource('${esc(s.id)}')" title="Remove">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button></div>`).join('');
     }
+  }
 
-    setupPrefAutoSave('mattPrefsInput', 'mattPrefsSaved');
-    setupPrefAutoSave('denisePrefsInput', 'denisePrefsSaved');
+  // ============ MODALS ============
+  window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 
-    // ============ VIDEO SPEED ============
-    const loginVid = document.getElementById('loginVideo');
-    if (loginVid) loginVid.playbackRate = 0.4;
-    document.querySelectorAll('.app-video-bg video').forEach(v => v.playbackRate = 0.35);
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.add('hidden'); });
+  });
 
-    // ============ INIT ============
-    clearStarInputs();
-    initFirebase();
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+  // ============ VOICE ============
+  window.toggleVoice = () => {
+    const btn = document.getElementById('voiceBtn');
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      alert('Voice input not supported in this browser.'); return;
     }
-  </script>
+    if (S.voiceListening) {
+      S.recognition?.stop(); S.voiceListening = false; btn.classList.remove('listening'); return;
+    }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SR();
+    recognition.continuous = false; recognition.interimResults = true; recognition.lang = 'en-US';
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
+      document.getElementById('conciergeInput').value = transcript;
+      autoResize(document.getElementById('conciergeInput'));
+    };
+    recognition.onend = () => { S.voiceListening = false; btn.classList.remove('listening'); };
+    recognition.onerror = () => { S.voiceListening = false; btn.classList.remove('listening'); };
+    S.recognition = recognition;
+    recognition.start();
+    S.voiceListening = true;
+    btn.classList.add('listening');
+  };
+
+  // ============ HELPERS ============
+  window.fillSuggestion = (text) => {
+    const el = document.getElementById('conciergeInput');
+    el.value = text; autoResize(el); el.focus();
+  };
+
+  window.autoResize = (el) => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
+
+  function esc(str) { if (!str) return ''; const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+  // ============ PILL TABS ============
+  document.getElementById('restaurantTabs').addEventListener('click', (e) => {
+    const pill = e.target.closest('.pill');
+    if (!pill) return;
+    document.querySelectorAll('#restaurantTabs .pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    S.currentList = pill.dataset.list;
+    renderRestaurantList();
+  });
+
+  // ============ INIT ============
+  document.getElementById('bottomNav').style.display = 'none';
+</script>
 </body>
 </html>

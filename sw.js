@@ -1,8 +1,8 @@
-const CACHE_NAME = 'dining-companion-v1.0';
+const CACHE_NAME = 'table-v1.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=iA+Writer+Mono:wght@400&display=swap'
 ];
 
 self.addEventListener('install', e => {
