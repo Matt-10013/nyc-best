@@ -310,7 +310,12 @@
     .restaurant-card:active { transform: scale(0.985); }
     .r-name { font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--ink); }
     .r-meta { font-family: var(--mono); font-size: 11px; color: var(--slate); margin-top: 2px; }
+    .r-right { text-align: right; flex-shrink: 0; }
     .r-rating { font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--champagne); white-space: nowrap; }
+    .r-return { font-family: var(--mono); font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 3px; }
+    .r-return.yes { color: var(--champagne); }
+    .r-return.maybe { color: var(--slate); }
+    .r-return.no { color: #b55; }
 
     /* Detail View */
     .detail-back {
@@ -344,6 +349,16 @@
     .visit-entry { background: var(--linen); border-radius: 10px; padding: 1rem; margin-bottom: 0.5rem; }
     .visit-date { font-family: var(--mono); font-size: 11px; color: var(--champagne); }
     .visit-notes { font-size: 13px; color: var(--slate); margin-top: 4px; line-height: 1.45; }
+
+    .resy-slots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .resy-slot {
+      display: inline-block; padding: 6px 12px; border-radius: 8px;
+      background: var(--champagne); color: white; font-family: var(--mono);
+      font-size: 12px; text-decoration: none; cursor: pointer;
+      transition: opacity 0.15s var(--ease);
+    }
+    .resy-slot:active { opacity: 0.7; }
+    .resy-status { font-family: var(--mono); font-size: 11px; color: var(--slate); margin-top: 6px; }
 
     .source-tag {
       display: inline-flex; align-items: center; gap: 4px;
@@ -681,64 +696,54 @@
       <button class="modal-close" onclick="closeModal('logVisitModal')">&times;</button>
     </div>
     <div id="logVisitName" style="font-family:var(--serif);font-size:20px;margin-bottom:1rem;"></div>
-    <div class="input-group">
-      <label>Date</label>
-      <input type="date" id="visitDate">
+    <div style="display:flex;gap:0.75rem;margin-bottom:0.75rem;">
+      <div class="input-group" style="flex:1;margin-bottom:0;">
+        <label>Date</label>
+        <input type="date" id="visitDate">
+      </div>
+      <div class="input-group" style="flex:1;margin-bottom:0;">
+        <label>Meal</label>
+        <select id="visitMeal">
+          <option value="dinner">Dinner</option>
+          <option value="lunch">Lunch</option>
+          <option value="brunch">Brunch</option>
+          <option value="drinks">Drinks</option>
+        </select>
+      </div>
     </div>
-    <div class="input-group">
-      <label>Occasion</label>
-      <select id="visitOccasion">
-        <option value="date-night">Date Night</option>
-        <option value="business">Business</option>
-        <option value="friends">Friends</option>
-        <option value="special-occasion">Special Occasion</option>
-        <option value="casual">Casual</option>
-      </select>
-    </div>
-    <div class="divider" style="margin:1rem 0;"></div>
+    <div class="divider" style="margin:0.75rem 0;border-top:1px solid var(--stone);opacity:0.3;"></div>
     <div style="display:flex;gap:1rem;">
       <div style="flex:1">
-        <div class="input-group">
-          <label>Matt's Rating</label>
-          <div class="rating-input" id="visitMattRating" data-rating="0"></div>
-        </div>
-        <div class="input-group">
-          <label>Matt's Notes</label>
-          <textarea id="visitMattNotes" placeholder="What did you think?"></textarea>
-        </div>
+        <label style="font-size:12px;color:var(--slate);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">Matt</label>
+        <div id="visitMattRating" class="star-row" style="margin-bottom:6px;"></div>
+        <textarea id="visitMattNotes" placeholder="Notes..." style="width:100%;min-height:50px;border-radius:10px;border:1px solid var(--stone);padding:10px;font-family:var(--sans);font-size:13px;resize:none;background:white;color:var(--ink);"></textarea>
       </div>
       <div style="flex:1">
-        <div class="input-group">
-          <label>Denise's Rating</label>
-          <div class="rating-input" id="visitDeniseRating" data-rating="0"></div>
-        </div>
-        <div class="input-group">
-          <label>Denise's Notes</label>
-          <textarea id="visitDeniseNotes" placeholder="What did you think?"></textarea>
-        </div>
+        <label style="font-size:12px;color:var(--slate);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">Denise</label>
+        <div id="visitDeniseRating" class="star-row" style="margin-bottom:6px;"></div>
+        <textarea id="visitDeniseNotes" placeholder="Notes..." style="width:100%;min-height:50px;border-radius:10px;border:1px solid var(--stone);padding:10px;font-family:var(--sans);font-size:13px;resize:none;background:white;color:var(--ink);"></textarea>
       </div>
     </div>
+    <div class="divider" style="margin:0.75rem 0;border-top:1px solid var(--stone);opacity:0.3;"></div>
     <div class="input-group">
-      <label>Dishes</label>
-      <input type="text" id="visitDishes" placeholder="e.g., Tuna tartare, Filet mignon">
-    </div>
-    <div class="input-group">
-      <label>Wine / Cocktail Notes</label>
-      <textarea id="visitWine" placeholder="Optional" style="min-height:50px;"></textarea>
+      <label>Standout Dishes</label>
+      <input type="text" id="visitDishes" placeholder="e.g., Truffle pasta, Wagyu tartare">
     </div>
     <div style="display:flex;gap:0.75rem;">
       <div class="input-group" style="flex:1">
-        <label>Pros</label>
-        <input type="text" id="visitPros" placeholder="e.g., great service">
+        <label>Would Return?</label>
+        <select id="visitReturn"><option value="yes">Yes</option><option value="maybe">Maybe</option><option value="no">No</option></select>
       </div>
       <div class="input-group" style="flex:1">
-        <label>Cons</label>
-        <input type="text" id="visitCons" placeholder="e.g., loud, slow">
+        <label>Occasion</label>
+        <select id="visitOccasion">
+          <option value="date-night">Date Night</option>
+          <option value="business">Business</option>
+          <option value="friends">Friends</option>
+          <option value="special-occasion">Special Occasion</option>
+          <option value="casual">Casual</option>
+        </select>
       </div>
-    </div>
-    <div class="input-group">
-      <label>Would Return?</label>
-      <select id="visitReturn"><option value="yes">Yes</option><option value="maybe">Maybe</option><option value="no">No</option></select>
     </div>
     <button class="btn btn-primary" style="width:100%;margin-top:0.5rem;" onclick="saveVisit()">Save Visit</button>
   </div>
@@ -1025,9 +1030,11 @@
       const dr = avgRating(r, 'denise') || r.deniseRating || 0;
       const ratingStr = mr ? `M:${mr}` + (dr ? ` D:${dr}` : '') : '';
       const source = r.source && r.source.name ? `<span class="source-tag">${esc(r.source.name)}</span>` : '';
+      const wr = r.wouldReturn || (r.visits?.length ? r.visits[r.visits.length - 1].wouldReturn : '');
+      const wrHtml = wr && wr !== 'yes' ? `<div class="r-return ${esc(wr)}">${wr === 'maybe' ? 'Maybe return' : 'Would not return'}</div>` : '';
       return `<div class="restaurant-card" onclick="openDetail('${esc(r.id)}')">
-        <div><div class="r-name">${esc(r.name)}</div><div class="r-meta">${esc([r.neighborhood, cuisine, price].filter(Boolean).join(' \u00b7 '))}</div>${source}</div>
-        <div class="r-rating">${ratingStr}</div></div>`;
+        <div><div class="r-name">${esc(r.name)}</div><div class="r-meta">${esc([r.neighborhood, cuisine, price].filter(Boolean).join(' · '))}</div>${source}</div>
+        <div class="r-right"><div class="r-rating">${ratingStr}</div>${wrHtml}</div></div>`;
     }).join('');
   }
 
@@ -1093,6 +1100,27 @@
           <button class="btn btn-secondary" style="padding:6px 14px;font-size:12px;" onclick="openLogVisitModal('${esc(r.id)}')">Log Visit</button>
         </div>
         ${visitsHtml || '<p style="font-size:13px;color:var(--stone);font-style:italic;">No visits logged yet.</p>'}
+      </div>
+      <div class="detail-section">
+        <h4>Resy Availability</h4>
+        <div style="display:flex;gap:0.5rem;align-items:flex-end;margin-bottom:8px;">
+          <div style="flex:1;">
+            <label style="font-size:11px;color:var(--slate);font-family:var(--mono);display:block;margin-bottom:4px;">Date</label>
+            <input type="date" id="resyDate" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--stone);font-family:var(--sans);font-size:13px;background:white;">
+          </div>
+          <div style="width:70px;">
+            <label style="font-size:11px;color:var(--slate);font-family:var(--mono);display:block;margin-bottom:4px;">Party</label>
+            <select id="resyParty" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--stone);font-family:var(--sans);font-size:13px;background:white;">
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary" style="padding:8px 14px;font-size:12px;white-space:nowrap;" onclick="checkResy()">Check</button>
+        </div>
+        <div id="resyResults"></div>
       </div>`;
 
     document.querySelectorAll('.view').forEach(v => { v.classList.remove('active'); v.style.display = 'none'; });
@@ -1100,6 +1128,9 @@
     document.getElementById('detailView').style.display = 'block';
     document.getElementById('addFab').classList.add('hidden');
     document.getElementById('appContent').scrollTop = 0;
+
+    // Set default Resy date to today
+    document.getElementById('resyDate').value = new Date().toISOString().split('T')[0];
   };
 
   window.closeDetail = () => {
@@ -1108,6 +1139,56 @@
     document.getElementById('restaurantsView').classList.add('active');
     document.getElementById('restaurantsView').style.display = 'block';
     document.getElementById('addFab').classList.remove('hidden');
+  };
+
+  // ============ RESY AVAILABILITY ============
+  window.checkResy = async () => {
+    const r = S.selectedRestaurant;
+    if (!r) return;
+    const day = document.getElementById('resyDate').value;
+    const partySize = parseInt(document.getElementById('resyParty').value) || 2;
+    const resultsEl = document.getElementById('resyResults');
+    resultsEl.innerHTML = '<div class="resy-status">Checking Resy...</div>';
+
+    try {
+      const data = await callFn('resyAvailability', { name: r.name, neighborhood: r.neighborhood, day, partySize });
+
+      if (!data.found) {
+        resultsEl.innerHTML = `<div class="resy-status">Not found on Resy</div>`;
+        return;
+      }
+
+      if (!data.available) {
+        resultsEl.innerHTML = `<div class="resy-status">No availability for ${day} (party of ${partySize})</div>
+          <a href="${esc(data.resyUrl)}" target="_blank" style="font-family:var(--mono);font-size:11px;color:var(--champagne);margin-top:4px;display:inline-block;">View on Resy →</a>`;
+        return;
+      }
+
+      // Group slots by type
+      const slotsByType = {};
+      data.slots.forEach(s => {
+        const type = s.type || 'Dining Room';
+        if (!slotsByType[type]) slotsByType[type] = [];
+        // Format time nicely
+        const dt = new Date(s.time);
+        const timeStr = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        slotsByType[type].push(timeStr);
+      });
+
+      let html = '';
+      for (const [type, times] of Object.entries(slotsByType)) {
+        html += `<div style="margin-bottom:8px;">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--slate);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;">${esc(type)}</div>
+          <div class="resy-slots">${times.map(t => `<a class="resy-slot" href="${esc(data.resyUrl)}" target="_blank">${esc(t)}</a>`).join('')}</div>
+        </div>`;
+      }
+
+      html += `<a href="${esc(data.resyUrl)}" target="_blank" style="font-family:var(--mono);font-size:11px;color:var(--champagne);margin-top:6px;display:inline-block;">Book on Resy →</a>`;
+      resultsEl.innerHTML = html;
+    } catch (e) {
+      console.error('Resy check:', e);
+      resultsEl.innerHTML = `<div class="resy-status">Error checking availability</div>`;
+    }
   };
 
   // ============ EDIT RESTAURANT ============
@@ -1292,8 +1373,9 @@
     document.getElementById('logVisitModal').classList.remove('hidden');
     document.getElementById('logVisitName').textContent = r.name;
     document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('visitMeal').value = 'dinner';
     document.getElementById('visitOccasion').value = 'date-night';
-    ['visitMattNotes','visitDeniseNotes','visitDishes','visitWine','visitPros','visitCons'].forEach(id => document.getElementById(id).value = '');
+    ['visitMattNotes','visitDeniseNotes','visitDishes'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('visitReturn').value = 'yes';
     initStars('visitMattRating', 0);
     initStars('visitDeniseRating', 0);
@@ -1320,25 +1402,22 @@
     if (!r) return;
     const visit = {
       date: document.getElementById('visitDate').value,
-      occasion: document.getElementById('visitOccasion').value,
+      occasion: document.getElementById('visitMeal').value,
+      meal: document.getElementById('visitMeal').value,
       mattRating: parseInt(document.getElementById('visitMattRating').dataset.rating) || 0,
       deniseRating: parseInt(document.getElementById('visitDeniseRating').dataset.rating) || 0,
       mattNotes: document.getElementById('visitMattNotes').value.trim(),
       deniseNotes: document.getElementById('visitDeniseNotes').value.trim(),
       dishes: document.getElementById('visitDishes').value.split(',').map(s => s.trim()).filter(Boolean),
-      wineNotes: document.getElementById('visitWine').value.trim(),
-      pros: document.getElementById('visitPros').value.split(',').map(s => s.trim()).filter(Boolean),
-      cons: document.getElementById('visitCons').value.split(',').map(s => s.trim()).filter(Boolean),
       wouldReturn: document.getElementById('visitReturn').value,
+      context: document.getElementById('visitOccasion').value,
     };
     try {
       const ref = doc(db, 'restaurants', r.id);
       const visits = [...(r.visits || []), visit];
-      const updates = { visits, status: 'visited', updatedAt: new Date().toISOString() };
-      if (visit.mattRating) updates.mattRating = visit.mattRating;
-      if (visit.deniseRating) updates.deniseRating = visit.deniseRating;
-      if (visit.mattNotes) updates.mattNotes = visit.mattNotes;
-      if (visit.deniseNotes) updates.deniseNotes = visit.deniseNotes;
+      // Update top-level wouldReturn and standoutDishes from latest visit
+      const updates = { visits, status: 'visited', updatedAt: new Date().toISOString(), wouldReturn: visit.wouldReturn };
+      if (visit.dishes.length) updates.standoutDishes = visit.dishes.join(', ');
       await updateDoc(ref, updates);
       await loadRestaurants(); closeModal('logVisitModal'); openDetail(r.id);
     } catch (e) { console.error('Save visit:', e); alert('Error saving visit.'); }

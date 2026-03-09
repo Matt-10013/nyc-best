@@ -152,6 +152,87 @@ Be opinionated. Be specific. Reference their actual history and preferences. If 
   }
 });
 
+// ============ RESY AVAILABILITY ============
+exports.resyAvailability = onRequest({ cors: false }, async (req, res) => {
+  if (handleCors(req, res)) return;
+  const user = await verifyAuth(req);
+  if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+  const { name, neighborhood, day, partySize } = req.body;
+  if (!name || !day) return res.status(400).json({ error: "Missing name or day" });
+
+  const RESY_API_KEY = "VbWk7s3L4KiK5fzlO7JD3Q5EYolJI7n5";
+  const headers = {
+    "Authorization": `ResyAPI api_key="${RESY_API_KEY}"`,
+    "Origin": "https://resy.com",
+    "Referer": "https://resy.com/",
+  };
+
+  try {
+    // Step 1: Search for the venue to get venue_id
+    const searchQ = encodeURIComponent(name);
+    const loc = encodeURIComponent(neighborhood ? `${neighborhood}, New York, NY` : "New York, NY");
+    const searchUrl = `https://api.resy.com/3/venuesearch/search?query=${searchQ}&geo={"latitude":40.7128,"longitude":-74.0060}&per_page=5&types=["venue"]`;
+
+    const searchRes = await fetch(searchUrl, { headers });
+    const searchData = await searchRes.json();
+
+    const venues = searchData?.search?.hits || [];
+    if (venues.length === 0) {
+      return res.status(200).json({ found: false, message: "Restaurant not found on Resy" });
+    }
+
+    // Best match — first result
+    const venue = venues[0];
+    const venueId = venue.id?.resy;
+    const venueName = venue.name;
+    const venueSlug = venue.url_slug;
+
+    if (!venueId) {
+      return res.status(200).json({ found: false, message: "No Resy venue ID found" });
+    }
+
+    // Step 2: Get availability for that venue
+    const size = partySize || 2;
+    const findUrl = `https://api.resy.com/4/find?lat=40.7128&long=-74.0060&day=${day}&party_size=${size}&venue_id=${venueId}`;
+
+    const findRes = await fetch(findUrl, { headers });
+    const findData = await findRes.json();
+
+    const venueData = findData?.results?.venues?.[0];
+    if (!venueData || !venueData.slots || venueData.slots.length === 0) {
+      return res.status(200).json({
+        found: true,
+        venueId,
+        venueName,
+        venueSlug,
+        available: false,
+        message: "No availability for this date/party size",
+      });
+    }
+
+    // Parse slots
+    const slots = venueData.slots.map(slot => ({
+      time: slot.date?.start,
+      type: slot.config?.type || "Dining Room",
+      token: slot.config?.token,
+    })).filter(s => s.time);
+
+    return res.status(200).json({
+      found: true,
+      venueId,
+      venueName,
+      venueSlug,
+      available: true,
+      slots,
+      resyUrl: `https://resy.com/cities/ny/${venueSlug}`,
+    });
+  } catch (e) {
+    console.error("Resy error:", e);
+    return res.status(500).json({ error: "Resy lookup error", detail: e.message });
+  }
+});
+
 // ============ YELP ENRICHMENT ============
 exports.yelpEnrich = onRequest({ cors: false, secrets: ["YELP_API_KEY"] }, async (req, res) => {
   if (handleCors(req, res)) return;
