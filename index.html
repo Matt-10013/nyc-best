@@ -756,7 +756,7 @@
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('bottomNav').style.display = 'flex';
       await loadAllData();
-      renderCurrentView();
+      switchTab('home');
     } else {
       document.getElementById('loginScreen').classList.remove('hidden');
       document.getElementById('bottomNav').style.display = 'none';
