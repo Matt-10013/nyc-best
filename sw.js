@@ -1,4 +1,4 @@
-const CACHE_NAME = 'table-v2.0';
+const CACHE_NAME = 'table-v2.1';
 const STATIC_ASSETS = [
   './',
   './index.html',

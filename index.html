@@ -522,20 +522,6 @@
       <input type="text" id="addName" placeholder="e.g., Gramercy Tavern">
     </div>
     <div class="input-group">
-      <label>Neighborhood</label>
-      <input type="text" id="addNeighborhood" placeholder="e.g., West Village">
-    </div>
-    <div style="display:flex;gap:0.75rem;">
-      <div class="input-group" style="flex:1">
-        <label>Cuisine</label>
-        <input type="text" id="addCuisine" placeholder="e.g., French, Italian">
-      </div>
-      <div class="input-group" style="flex:0.5">
-        <label>Price (1-4)</label>
-        <select id="addPrice"><option value="1">$</option><option value="2" selected>$$</option><option value="3">$$$</option><option value="4">$$$$</option></select>
-      </div>
-    </div>
-    <div class="input-group">
       <label>Status</label>
       <select id="addStatus">
         <option value="visited">Been There</option>
@@ -549,19 +535,23 @@
         <input type="text" id="addSourceName" placeholder="e.g., David Ness, The Infatuation">
       </div>
     </div>
-    <div class="input-group">
-      <label>Address</label>
-      <input type="text" id="addAddress" placeholder="Optional">
+    <div id="addFeedbackSection">
+      <div class="divider" style="margin:1rem 0;border-top:1px solid var(--stone);opacity:0.3;"></div>
+      <div style="display:flex;gap:1rem;">
+        <div style="flex:1">
+          <label style="font-size:12px;color:var(--slate);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">Matt</label>
+          <div id="addMattRating" class="star-row" style="margin-bottom:6px;"></div>
+          <textarea id="addMattNotes" placeholder="Notes..." style="width:100%;min-height:50px;border-radius:10px;border:1px solid var(--stone);padding:10px;font-family:var(--sans);font-size:13px;resize:none;background:white;color:var(--ink);"></textarea>
+        </div>
+        <div style="flex:1">
+          <label style="font-size:12px;color:var(--slate);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">Denise</label>
+          <div id="addDeniseRating" class="star-row" style="margin-bottom:6px;"></div>
+          <textarea id="addDeniseNotes" placeholder="Notes..." style="width:100%;min-height:50px;border-radius:10px;border:1px solid var(--stone);padding:10px;font-family:var(--sans);font-size:13px;resize:none;background:white;color:var(--ink);"></textarea>
+        </div>
+      </div>
     </div>
-    <div class="input-group">
-      <label>Best For</label>
-      <input type="text" id="addBestFor" placeholder="e.g., date-night, business, casual">
-    </div>
-    <div class="input-group">
-      <label>Tags</label>
-      <input type="text" id="addTags" placeholder="e.g., great wine list, romantic">
-    </div>
-    <button class="btn btn-primary" style="width:100%;margin-top:0.5rem;" onclick="saveRestaurant()">Save Restaurant</button>
+    <div id="addEnrichStatus" style="display:none;text-align:center;padding:0.5rem 0;font-family:var(--mono);font-size:11px;color:var(--champagne);"></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:0.75rem;" onclick="saveRestaurant()">Save Restaurant</button>
   </div>
 </div>
 
@@ -963,56 +953,89 @@
   // ============ ADD RESTAURANT ============
   window.openAddRestaurantModal = () => {
     document.getElementById('addRestaurantModal').classList.remove('hidden');
-    ['addName','addNeighborhood','addCuisine','addSourceName','addAddress','addBestFor','addTags'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('addPrice').value = '2';
+    document.getElementById('addName').value = '';
+    document.getElementById('addSourceName').value = '';
+    document.getElementById('addMattNotes').value = '';
+    document.getElementById('addDeniseNotes').value = '';
     document.getElementById('addStatus').value = 'visited';
     document.getElementById('addSourceGroup').style.display = 'none';
+    document.getElementById('addFeedbackSection').style.display = 'block';
+    document.getElementById('addEnrichStatus').style.display = 'none';
+    initStars('addMattRating', 0);
+    initStars('addDeniseRating', 0);
   };
 
   document.getElementById('addStatus').addEventListener('change', (e) => {
     document.getElementById('addSourceGroup').style.display = e.target.value === 'recommended' ? 'block' : 'none';
+    // Hide feedback section for wishlist/recommended (no visit yet)
+    document.getElementById('addFeedbackSection').style.display = e.target.value === 'visited' ? 'block' : 'none';
   });
 
   window.saveRestaurant = async () => {
     const name = document.getElementById('addName').value.trim();
     if (!name) return;
+
+    const status = document.getElementById('addStatus').value;
+    const mattRating = parseInt(document.getElementById('addMattRating')?.dataset?.rating) || 0;
+    const deniseRating = parseInt(document.getElementById('addDeniseRating')?.dataset?.rating) || 0;
+    const mattNotes = document.getElementById('addMattNotes').value.trim();
+    const deniseNotes = document.getElementById('addDeniseNotes').value.trim();
+
     const data = {
       name,
-      neighborhood: document.getElementById('addNeighborhood').value.trim(),
-      cuisine: document.getElementById('addCuisine').value.split(',').map(s => s.trim()).filter(Boolean),
-      priceRange: parseInt(document.getElementById('addPrice').value),
-      status: document.getElementById('addStatus').value,
-      address: document.getElementById('addAddress').value.trim(),
-      bestFor: document.getElementById('addBestFor').value.split(',').map(s => s.trim()).filter(Boolean),
-      tags: document.getElementById('addTags').value.split(',').map(s => s.trim()).filter(Boolean),
-      visits: [], trustedSourceEndorsements: [],
-      mattRating: 0, deniseRating: 0, mattNotes: '', deniseNotes: '',
+      neighborhood: '', cuisine: [], priceRange: 0, address: '',
+      bestFor: [], tags: [],
+      status,
+      visits: [],
+      trustedSourceEndorsements: [],
+      mattRating, deniseRating, mattNotes, deniseNotes,
       createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
     };
-    if (data.status === 'recommended') {
+
+    // Add a visit entry if status is visited and ratings exist
+    if (status === 'visited' && (mattRating || deniseRating)) {
+      data.visits.push({
+        date: new Date().toISOString().split('T')[0],
+        occasion: '', mattRating, deniseRating, mattNotes, deniseNotes,
+        dishes: [], wineNotes: '', pros: [], cons: [], wouldReturn: 'yes',
+      });
+    }
+
+    if (status === 'recommended') {
       const sn = document.getElementById('addSourceName').value.trim();
       if (sn) { data.source = { type: 'person', name: sn }; data.trustedSourceEndorsements = [{ sourceName: sn, sourceType: 'person' }]; }
     }
+
     const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    // Show enrichment status
+    const enrichEl = document.getElementById('addEnrichStatus');
+    enrichEl.style.display = 'block';
+    enrichEl.textContent = 'Saving...';
+
     try {
-      // Save first, then enrich in background
       await setDoc(doc(db, 'restaurants', id), data);
+      enrichEl.textContent = 'Looking up details on Yelp...';
+
+      // Yelp enrichment — wait for it so the card populates immediately
+      const yelp = await enrichWithYelp(name, '');
+      if (yelp) {
+        const enriched = {};
+        if (yelp.rating) enriched.yelpRating = yelp.rating;
+        if (yelp.reviewCount) enriched.yelpReviewCount = yelp.reviewCount;
+        if (yelp.url) enriched.yelpUrl = yelp.url;
+        if (yelp.categories) { enriched.yelpCategories = yelp.categories; enriched.cuisine = yelp.categories; }
+        if (yelp.phone) enriched.yelpPhone = yelp.phone;
+        if (yelp.imageUrl) enriched.yelpImageUrl = yelp.imageUrl;
+        if (yelp.address) enriched.address = yelp.address;
+        if (yelp.neighborhood) enriched.neighborhood = yelp.neighborhood;
+        if (yelp.price) enriched.priceRange = yelp.price.length; // $ = 1, $$ = 2, etc.
+        enriched.updatedAt = new Date().toISOString();
+        await updateDoc(doc(db, 'restaurants', id), enriched);
+      }
+
       await loadRestaurants(); renderRestaurantList(); closeModal('addRestaurantModal');
-      // Yelp enrichment (non-blocking)
-      enrichWithYelp(name, data.neighborhood).then(async (yelp) => {
-        if (yelp) {
-          const enriched = {
-            yelpRating: yelp.rating, yelpReviewCount: yelp.reviewCount,
-            yelpUrl: yelp.url, yelpCategories: yelp.categories,
-            yelpPhone: yelp.phone, yelpImageUrl: yelp.imageUrl,
-          };
-          if (!data.address && yelp.address) enriched.address = yelp.address;
-          await updateDoc(doc(db, 'restaurants', id), enriched);
-          await loadRestaurants();
-          if (S.currentTab === 'restaurants') renderRestaurantList();
-        }
-      });
-    } catch (e) { console.error('Save restaurant:', e); alert('Error saving.'); }
+    } catch (e) { console.error('Save restaurant:', e); alert('Error saving.'); enrichEl.style.display = 'none'; }
   };
 
   // ============ LOG VISIT ============

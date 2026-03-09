@@ -186,6 +186,7 @@ exports.yelpEnrich = onRequest({ cors: false, secrets: ["YELP_API_KEY"] }, async
         price: biz.price,
         categories: (biz.categories || []).map(c => c.title),
         address: biz.location?.display_address?.join(", ") || "",
+        neighborhood: biz.location?.neighborhood || biz.location?.city || "",
         phone: biz.phone,
         url: biz.url,
         imageUrl: biz.image_url,
