@@ -393,14 +393,14 @@
   <!-- MAIN CONTENT -->
   <div class="app-content" id="appContent">
     <!-- HOME -->
-    <div class="view active" id="homeView">
+    <div class="view active" id="homeView" style="display:block;">
       <h1><em>Table</em></h1>
       <p class="home-tagline">Manhattan dining, for two</p>
       <button class="home-cta" onclick="switchTab('reservation')">Find a table tonight</button>
     </div>
 
     <!-- RESERVATION -->
-    <div class="view" id="reservationView">
+    <div class="view" id="reservationView" style="display:none;">
       <div class="concierge-container">
         <div class="concierge-header">
           <h2>Find a Table</h2>
@@ -433,7 +433,7 @@
     </div>
 
     <!-- RESTAURANTS -->
-    <div class="view" id="restaurantsView">
+    <div class="view" id="restaurantsView" style="display:none;">
       <div class="page-header"><h2>Restaurants</h2></div>
       <div class="pill-tabs" id="restaurantTabs">
         <button class="pill active" data-list="for-you">For You</button>
@@ -446,12 +446,12 @@
     </div>
 
     <!-- DETAIL -->
-    <div class="view" id="detailView">
+    <div class="view" id="detailView" style="display:none;">
       <div id="detailContent"></div>
     </div>
 
     <!-- SETTINGS -->
-    <div class="view" id="settingsView">
+    <div class="view" id="settingsView" style="display:none;">
       <div class="page-header"><h2>Settings</h2></div>
       <div class="settings-section">
         <h3>Preferences</h3>
@@ -806,10 +806,13 @@
     const navEl = document.querySelector(`[data-tab="${tab}"]`);
     if (navEl) navEl.classList.add('active');
 
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     const viewMap = { home: 'homeView', reservation: 'reservationView', restaurants: 'restaurantsView', settings: 'settingsView' };
+    document.querySelectorAll('.view').forEach(v => {
+      v.classList.remove('active');
+      v.style.display = 'none';
+    });
     const el = document.getElementById(viewMap[tab]);
-    if (el) el.classList.add('active');
+    if (el) { el.classList.add('active'); el.style.display = 'block'; }
 
     document.getElementById('addFab').classList.toggle('hidden', tab !== 'restaurants');
     renderCurrentView();
@@ -938,15 +941,18 @@
         ${visitsHtml || '<p style="font-size:13px;color:var(--stone);font-style:italic;">No visits logged yet.</p>'}
       </div>`;
 
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => { v.classList.remove('active'); v.style.display = 'none'; });
     document.getElementById('detailView').classList.add('active');
+    document.getElementById('detailView').style.display = 'block';
     document.getElementById('addFab').classList.add('hidden');
     document.getElementById('appContent').scrollTop = 0;
   };
 
   window.closeDetail = () => {
     document.getElementById('detailView').classList.remove('active');
+    document.getElementById('detailView').style.display = 'none';
     document.getElementById('restaurantsView').classList.add('active');
+    document.getElementById('restaurantsView').style.display = 'block';
     document.getElementById('addFab').classList.remove('hidden');
   };
 
