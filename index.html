@@ -217,7 +217,7 @@
 
     .concierge-input-wrap { position: relative; margin-bottom: 1.5rem; }
     .concierge-input {
-      width: 100%; padding: 18px 52px 18px 20px;
+      width: 100%; padding: 18px 92px 18px 20px;
       border-radius: 16px; border: 1px solid var(--stone);
       background: white; font-family: var(--sans); font-size: 15px;
       color: var(--ink); outline: none; line-height: 1.5;
@@ -249,6 +249,39 @@
 
     .concierge-results { flex: 1; }
     .concierge-status { text-align: center; padding: 2rem; font-family: var(--serif); font-size: 16px; font-style: italic; color: var(--slate); }
+    .concierge-note { text-align: center; padding: 1rem 1.5rem 0; font-family: var(--serif); font-size: 15px; font-style: italic; color: var(--slate); }
+
+    .send-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--champagne); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: white; transition: all 0.15s var(--ease);
+    }
+    .send-btn:disabled { background: var(--stone); cursor: default; }
+    .send-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--stone); border-top-color: var(--champagne); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .for-you-header { display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem 0.75rem; }
+    .for-you-header button { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--champagne); background: none; border: 1px solid var(--champagne); border-radius: 50px; padding: 6px 14px; cursor: pointer; transition: all 0.15s var(--ease); }
+    .for-you-header button:hover { background: var(--champagne); color: white; }
+    .for-you-header button:disabled { opacity: 0.5; cursor: default; }
+
+    .for-you-card {
+      background: var(--linen); border-radius: 12px;
+      padding: 1rem 1.25rem; margin: 0 1.5rem 0.5rem;
+      cursor: pointer; transition: transform 0.15s var(--ease);
+    }
+    .for-you-card:active { transform: scale(0.985); }
+    .for-you-reason { font-size: 12px; color: var(--slate); margin-top: 6px; line-height: 1.45; display: none; font-style: italic; }
+    .for-you-card.expanded .for-you-reason { display: block; }
+    .for-you-source { display: inline-block; padding: 2px 8px; border-radius: 50px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 4px; }
+    .for-you-source.wishlist { background: rgba(200,169,110,0.12); color: var(--champagne); }
+    .for-you-source.similar { background: rgba(136,129,120,0.1); color: var(--slate); }
+    .for-you-source.new { background: rgba(26,26,26,0.06); color: var(--ink); }
+    .for-you-source.trusted { background: rgba(200,169,110,0.2); color: var(--champagne); }
 
     .result-card {
       background: var(--glass);
@@ -377,8 +410,11 @@
           <textarea class="concierge-input" id="conciergeInput"
             placeholder="Quiet spot in the West Village, good wine, table for two at 8..."
             rows="1" oninput="autoResize(this)"></textarea>
-          <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
+          <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" style="right:52px;">
             <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </button>
+          <button class="send-btn" id="sendBtn" onclick="submitConcierge()">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           </button>
         </div>
         <div class="concierge-suggestions">
@@ -390,7 +426,7 @@
         <div class="concierge-results" id="conciergeResults">
           <div class="concierge-status" id="conciergeStatus">
             <em>Your concierge is ready.</em><br>
-            <span style="font-family:var(--mono);font-size:11px;font-style:normal;color:var(--stone);">AI integration coming in Phase 2</span>
+            <span style="font-family:var(--mono);font-size:11px;font-style:normal;color:var(--stone);">Ask for anything — quiet date night, business dinner, something new.</span>
           </div>
         </div>
       </div>
@@ -677,11 +713,32 @@
     restaurants: [],
     trustedSources: [],
     preferences: { matt: null, denise: null },
+    forYouList: [],
     selectedRestaurant: null,
     editingPrefPerson: null,
     voiceListening: false,
     recognition: null,
+    conciergeLoading: false,
   };
+
+  // ============ FIREBASE FUNCTIONS HELPER ============
+  function getFunctionUrl(fnName) {
+    return `https://us-central1-nyc-best.cloudfunctions.net/${fnName}`;
+  }
+
+  async function callFn(fnName, body = {}) {
+    const token = await S.user.getIdToken();
+    const res = await fetch(getFunctionUrl(fnName), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `Function ${fnName} failed: ${res.status}`);
+    }
+    return res.json();
+  }
 
   // ============ AUTH ============
   window.signIn = async () => {
@@ -718,7 +775,15 @@
 
   // ============ DATA LOADING ============
   async function loadAllData() {
-    await Promise.all([loadRestaurants(), loadSources(), loadPreferences()]);
+    await Promise.all([loadRestaurants(), loadSources(), loadPreferences(), loadForYouList()]);
+  }
+
+  async function loadForYouList() {
+    try {
+      const snap = await getDocs(collection(db, 'forYouList'));
+      S.forYouList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      S.forYouList.sort((a, b) => (b.score || 0) - (a.score || 0));
+    } catch (e) { console.error('Load For You:', e); }
   }
 
   async function loadRestaurants() {
@@ -764,6 +829,17 @@
   function renderCurrentView() {
     if (S.currentTab === 'restaurants') renderRestaurantList();
     if (S.currentTab === 'settings') renderSettings();
+    if (S.currentTab === 'home') renderHome();
+  }
+
+  function renderHome() {
+    // Show restaurant count on home
+    const count = S.restaurants.length;
+    const visited = S.restaurants.filter(r => r.visits && r.visits.length > 0).length;
+    const sub = document.querySelector('.home-tagline');
+    if (sub && count > 0) {
+      sub.textContent = `${count} restaurants · ${visited} visited`;
+    }
   }
 
   // ============ RESTAURANT LIST ============
@@ -780,7 +856,7 @@
     let filtered = [];
 
     if (list === 'for-you') {
-      container.innerHTML = `<div class="empty-state"><h3>Your concierge is learning</h3><p>As you log visits and set preferences, personalized recommendations will appear here.</p></div>`;
+      renderForYou(container);
       return;
     } else if (list === 'favorites') {
       filtered = S.restaurants.filter(r => {
@@ -919,8 +995,23 @@
     }
     const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     try {
+      // Save first, then enrich in background
       await setDoc(doc(db, 'restaurants', id), data);
       await loadRestaurants(); renderRestaurantList(); closeModal('addRestaurantModal');
+      // Yelp enrichment (non-blocking)
+      enrichWithYelp(name, data.neighborhood).then(async (yelp) => {
+        if (yelp) {
+          const enriched = {
+            yelpRating: yelp.rating, yelpReviewCount: yelp.reviewCount,
+            yelpUrl: yelp.url, yelpCategories: yelp.categories,
+            yelpPhone: yelp.phone, yelpImageUrl: yelp.imageUrl,
+          };
+          if (!data.address && yelp.address) enriched.address = yelp.address;
+          await updateDoc(doc(db, 'restaurants', id), enriched);
+          await loadRestaurants();
+          if (S.currentTab === 'restaurants') renderRestaurantList();
+        }
+      });
     } catch (e) { console.error('Save restaurant:', e); alert('Error saving.'); }
   };
 
@@ -1065,6 +1156,115 @@
     }
   }
 
+  // ============ FOR YOU LIST ============
+  function renderForYou(container) {
+    if (S.forYouList.length === 0) {
+      container.innerHTML = `
+        <div class="for-you-header">
+          <span></span>
+          <button onclick="refreshForYou(this)" id="refreshForYouBtn">Generate List</button>
+        </div>
+        <div class="empty-state"><h3>Your concierge is learning</h3><p>Add some restaurants and preferences, then tap "Generate List" for personalized picks.</p></div>`;
+      return;
+    }
+    const header = `<div class="for-you-header">
+      <span style="font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);">${S.forYouList.length} picks for you</span>
+      <button onclick="refreshForYou(this)" id="refreshForYouBtn">Refresh</button>
+    </div>`;
+    const cards = S.forYouList.map(item => {
+      const price = '$'.repeat(item.priceRange || 2);
+      const meta = [item.neighborhood, item.cuisine, price].filter(Boolean).join(' · ');
+      const srcClass = item.source || 'new';
+      const srcLabel = { wishlist: 'From your list', similar: 'Similar to favorites', new: 'New discovery', trusted: 'Trusted source' }[srcClass] || 'Pick';
+      return `<div class="for-you-card" onclick="this.classList.toggle('expanded')">
+        <div class="r-name">${esc(item.name)}</div>
+        <div class="r-meta">${esc(meta)}</div>
+        <span class="for-you-source ${srcClass}">${srcLabel}</span>
+        <div class="for-you-reason">${esc(item.reasoning || '')}</div>
+      </div>`;
+    }).join('');
+    container.innerHTML = header + cards;
+  }
+
+  window.refreshForYou = async (btn) => {
+    if (!S.user) return;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      await callFn('refreshForYou');
+      await loadForYouList();
+      renderRestaurantList();
+    } catch (e) {
+      console.error('Refresh For You error:', e);
+      alert('Error refreshing recommendations. Make sure Firebase Functions are deployed.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Refresh';
+    }
+  };
+
+  // ============ CONCIERGE SUBMIT ============
+  window.submitConcierge = async () => {
+    const input = document.getElementById('conciergeInput');
+    const query = input.value.trim();
+    if (!query || S.conciergeLoading) return;
+
+    S.conciergeLoading = true;
+    const resultsEl = document.getElementById('conciergeResults');
+    resultsEl.innerHTML = `<div class="concierge-status"><span class="spinner"></span><br><em style="display:inline-block;margin-top:12px;">Finding the perfect spots...</em></div>`;
+
+    try {
+      const data = await callFn('concierge', { query });
+      const recs = data.recommendations || [];
+
+      if (recs.length === 0) {
+        resultsEl.innerHTML = `<div class="concierge-status"><em>No recommendations found. Try a different request.</em></div>`;
+      } else {
+        let html = '';
+        if (data.conciergeNote) {
+          html += `<div class="concierge-note">${esc(data.conciergeNote)}</div>`;
+        }
+        html += recs.map(r => {
+          const price = '$'.repeat(r.priceRange || 2);
+          const meta = [r.cuisine, r.neighborhood, price].filter(Boolean).join(' · ');
+          const badge = { wishlist: 'From your list', favorite: 'Past favorite', new: 'New suggestion' }[r.source] || '';
+          const sources = (r.trustedSourceMentions || []).filter(Boolean).join(', ');
+          return `<div class="result-card" onclick="this.classList.toggle('expanded')">
+            <div class="result-rank">${badge || 'Pick ' + r.rank}</div>
+            <div class="result-name">${esc(r.name)}</div>
+            <div class="result-meta">${esc(meta)}</div>
+            ${sources ? `<div style="margin-top:4px;"><span class="source-tag">${esc(sources)}</span></div>` : ''}
+            <div class="result-reasoning">${esc(r.reasoning)}</div>
+          </div>`;
+        }).join('');
+        resultsEl.innerHTML = html;
+      }
+    } catch (e) {
+      console.error('Concierge error:', e);
+      resultsEl.innerHTML = `<div class="concierge-status"><em>Something went wrong. Make sure Firebase Functions are deployed.</em><br><span style="font-family:var(--mono);font-size:11px;color:var(--stone);font-style:normal;">${esc(e.message)}</span></div>`;
+    } finally {
+      S.conciergeLoading = false;
+    }
+  };
+
+  // Enter key to submit concierge
+  document.getElementById('conciergeInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submitConcierge();
+    }
+  });
+
+  // ============ YELP ENRICHMENT ============
+  async function enrichWithYelp(name, neighborhood) {
+    if (!S.user) return null;
+    try {
+      const data = await callFn('yelpEnrich', { name, neighborhood });
+      if (data.found && data.yelp) return data.yelp;
+    } catch (e) { console.error('Yelp enrichment error:', e); }
+    return null;
+  }
+
   // ============ MODALS ============
   window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 
@@ -1101,6 +1301,7 @@
   window.fillSuggestion = (text) => {
     const el = document.getElementById('conciergeInput');
     el.value = text; autoResize(el); el.focus();
+    submitConcierge();
   };
 
   window.autoResize = (el) => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };

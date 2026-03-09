@@ -1,4 +1,4 @@
-const CACHE_NAME = 'table-v1.0';
+const CACHE_NAME = 'table-v2.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -24,11 +24,12 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // Network-only for Firebase services
+  // Network-only for Firebase services and Cloud Functions
   if (url.hostname.includes('firebaseio.com') ||
       url.hostname.includes('googleapis.com') && url.pathname.includes('/identitytoolkit') ||
       url.hostname.includes('firestore.googleapis.com') ||
-      url.hostname.includes('accounts.google.com')) {
+      url.hostname.includes('accounts.google.com') ||
+      url.hostname.includes('cloudfunctions.net')) {
     return;
   }
 
