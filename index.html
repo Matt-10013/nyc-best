@@ -1805,7 +1805,7 @@
       renderRestaurantList();
     } catch (e) {
       console.error('Refresh For You error:', e);
-      alert('Error refreshing recommendations. Make sure Firebase Functions are deployed.');
+      alert('Error: ' + e.message);
     } finally {
       btn.disabled = false;
       btn.textContent = 'Refresh';
