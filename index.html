@@ -107,6 +107,85 @@
       border-radius: 16px; padding: 1.5rem;
     }
 
+    /* Filter Row (pills + inline search) */
+    .filter-row { display: flex; align-items: center; gap: 10px; padding: 0 1.5rem; margin-bottom: 1rem; }
+    .filter-row .pill-tabs { flex: 1; min-width: 0; margin-bottom: 0; padding: 0; }
+    .filter-row .inline-search { position: relative; flex-shrink: 0; width: 34px; height: 34px; transition: width 0.25s var(--ease); }
+    .filter-row .inline-search.expanded { width: 150px; }
+    .filter-row .inline-search input {
+      width: 100%; height: 34px; padding: 0 10px 0 30px; border-radius: 50px;
+      border: 1px solid var(--stone); background: white;
+      font-family: var(--sans); font-size: 12px; color: var(--ink); outline: none;
+      transition: border-color 0.15s var(--ease), opacity 0.2s var(--ease); opacity: 0;
+    }
+    .filter-row .inline-search.expanded input { opacity: 1; }
+    .filter-row .inline-search:not(.expanded) input { border-color: transparent; background: transparent; }
+    .filter-row .inline-search .search-icon {
+      position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; stroke: var(--slate); fill: none; stroke-width: 1.5;
+      cursor: pointer; z-index: 2;
+    }
+    .filter-row .inline-search input:focus { border-color: var(--champagne); }
+
+    /* Filter Chips Bar */
+    .filter-chips-bar { display: flex; gap: 6px; padding: 0 1.5rem; margin-bottom: 0.75rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .filter-chips-bar::-webkit-scrollbar { display: none; }
+    .filter-chips-bar.hidden { display: none; }
+    .filter-chip {
+      flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 12px; border-radius: 50px;
+      border: 1px solid var(--stone); background: transparent;
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px;
+      color: var(--slate); cursor: pointer; transition: all 0.15s var(--ease);
+      -webkit-tap-highlight-color: transparent; white-space: nowrap;
+    }
+    .filter-chip.active { background: rgba(200,169,110,0.12); color: var(--champagne); border-color: var(--champagne); }
+    .filter-chip svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .active-filter-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--champagne); color: white;
+      font-family: var(--mono); font-size: 9px; font-weight: 600;
+    }
+
+    /* Filter Dropdown */
+    .filter-dropdown-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(26,26,26,0.25); backdrop-filter: blur(2px);
+      z-index: 150; display: flex; align-items: flex-end; justify-content: center;
+      animation: fadeIn 0.15s var(--ease);
+    }
+    .filter-dropdown-overlay.hidden { display: none; }
+    .filter-dropdown {
+      background: var(--bone); border-radius: 16px 16px 0 0;
+      width: 100%; max-width: 500px; max-height: 60vh;
+      overflow-y: auto; padding: 1.25rem 1.5rem;
+      animation: slideUp 0.2s var(--ease);
+    }
+    .filter-dropdown h4 { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--slate); margin-bottom: 10px; }
+    .filter-dropdown-options { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+    .filter-option {
+      padding: 6px 14px; border-radius: 50px;
+      border: 1px solid var(--stone); background: transparent;
+      font-family: var(--sans); font-size: 12px; color: var(--slate);
+      cursor: pointer; transition: all 0.12s var(--ease);
+    }
+    .filter-option.selected { background: var(--ink); color: var(--bone); border-color: var(--ink); }
+    .filter-dropdown-actions { display: flex; gap: 10px; justify-content: flex-end; padding-top: 0.5rem; border-top: 1px solid rgba(196,189,178,0.3); }
+    .filter-dropdown-actions button { font-family: var(--mono); font-size: 11px; padding: 8px 16px; border-radius: 50px; cursor: pointer; transition: all 0.12s var(--ease); }
+    .filter-clear { border: none; background: none; color: var(--slate); }
+    .filter-apply { border: none; background: var(--ink); color: var(--bone); }
+
+    /* Offline indicator */
+    .offline-banner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      padding: 6px 1.5rem; text-align: center;
+      background: var(--slate); color: var(--bone);
+      font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+      transition: transform 0.3s var(--ease); transform: translateY(-100%);
+    }
+    .offline-banner.visible { transform: translateY(0); }
+
     /* Pill Tabs */
     .pill-tabs { display: flex; gap: 6px; padding: 0 1.5rem; margin-bottom: 1rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .pill-tabs::-webkit-scrollbar { display: none; }
@@ -346,9 +425,17 @@
     .detail-section { padding: 0 1.5rem; margin-bottom: 1.5rem; }
     .detail-section h4 { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--slate); margin-bottom: 8px; }
 
-    .visit-entry { background: var(--linen); border-radius: 10px; padding: 1rem; margin-bottom: 0.5rem; }
+    .visit-entry { background: var(--linen); border-radius: 10px; padding: 1rem; margin-bottom: 0.5rem; position: relative; }
     .visit-date { font-family: var(--mono); font-size: 11px; color: var(--champagne); }
     .visit-notes { font-size: 13px; color: var(--slate); margin-top: 4px; line-height: 1.45; }
+    .visit-edit-btn {
+      position: absolute; top: 10px; right: 10px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: transparent; border: none; cursor: pointer;
+      color: var(--stone); display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s var(--ease);
+    }
+    .visit-edit-btn:hover { color: var(--champagne); background: rgba(200,169,110,0.08); }
 
     .resy-slots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .resy-slot {
@@ -403,6 +490,7 @@
 </head>
 <body>
 
+<div class="offline-banner" id="offlineBanner">You're offline — browsing your journal</div>
 <div class="app">
   <!-- LOGIN -->
   <div class="login-screen" id="loginScreen">
@@ -425,12 +513,12 @@
 
     <!-- RESERVATION -->
     <div class="view" id="reservationView" style="display:none;">
-      <div class="concierge-container">
-        <div class="concierge-header">
-          <h2>Find a Table</h2>
-          <p>Describe what you're looking for</p>
-        </div>
-        <div class="concierge-input-wrap">
+      <div class="page-header">
+        <h2>Reserve</h2>
+        <p>Describe what you're looking for</p>
+      </div>
+      <div style="padding:0 1.5rem 1rem;">
+        <div class="concierge-input-wrap" style="margin-bottom:0;">
           <textarea class="concierge-input" id="conciergeInput"
             placeholder="Quiet spot in the West Village, good wine, table for two at 8..."
             rows="1" oninput="autoResize(this)"></textarea>
@@ -441,17 +529,17 @@
             <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           </button>
         </div>
-        <div class="concierge-suggestions">
-          <button class="suggestion-chip" onclick="fillSuggestion('Quiet dinner for two tonight')">Quiet tonight</button>
-          <button class="suggestion-chip" onclick="fillSuggestion('Something new in Midtown, upscale Italian')">New in Midtown</button>
-          <button class="suggestion-chip" onclick="fillSuggestion('Date night, West Village, natural wine')">West Village date</button>
-          <button class="suggestion-chip" onclick="fillSuggestion('Business dinner, impressive, 4 people')">Business dinner</button>
-        </div>
-        <div class="concierge-results" id="conciergeResults">
-          <div class="concierge-status" id="conciergeStatus">
-            <em>Your concierge is ready.</em><br>
-            <span style="font-family:var(--mono);font-size:11px;font-style:normal;color:var(--stone);">Ask for anything — quiet date night, business dinner, something new.</span>
-          </div>
+      </div>
+      <div class="pill-tabs" style="margin-bottom:1rem;">
+        <button class="suggestion-chip" onclick="fillSuggestion('Quiet dinner for two tonight')">Quiet tonight</button>
+        <button class="suggestion-chip" onclick="fillSuggestion('Something new in Midtown, upscale Italian')">New in Midtown</button>
+        <button class="suggestion-chip" onclick="fillSuggestion('Date night, West Village, natural wine')">West Village date</button>
+        <button class="suggestion-chip" onclick="fillSuggestion('Business dinner, impressive, 4 people')">Business dinner</button>
+      </div>
+      <div id="conciergeResults" style="padding:0;">
+        <div class="concierge-status" id="conciergeStatus">
+          <em>Your concierge is ready.</em><br>
+          <span style="font-family:var(--mono);font-size:11px;font-style:normal;color:var(--stone);">Ask for anything — quiet date night, business dinner, something new.</span>
         </div>
       </div>
     </div>
@@ -459,20 +547,33 @@
     <!-- RESTAURANTS -->
     <div class="view" id="restaurantsView" style="display:none;">
       <div class="page-header"><h2>Restaurants</h2></div>
-      <div style="padding:0 1.5rem 0.75rem;">
-        <div style="position:relative;">
-          <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--slate);fill:none;stroke-width:1.5;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="restaurantSearch" placeholder="Search name, neighborhood, cuisine..." style="width:100%;padding:10px 12px 10px 36px;border-radius:10px;border:1px solid var(--stone);font-family:var(--sans);font-size:14px;background:white;color:var(--ink);outline:none;" oninput="filterRestaurants()">
+      <div class="filter-row">
+        <div class="pill-tabs" id="restaurantTabs">
+          <button class="pill active" data-list="for-you">For You</button>
+          <button class="pill" data-list="favorites">Favorites</button>
+          <button class="pill" data-list="been-there">Been There</button>
+          <button class="pill" data-list="want-to-try">Want to Try</button>
+          <button class="pill" data-list="recommended">Recommended</button>
+        </div>
+        <div class="inline-search" id="inlineSearchWrap" onclick="expandSearch()">
+          <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="restaurantSearch" placeholder="Search..." oninput="filterRestaurants()" onblur="collapseSearch()">
         </div>
       </div>
-      <div class="pill-tabs" id="restaurantTabs">
-        <button class="pill active" data-list="for-you">For You</button>
-        <button class="pill" data-list="favorites">Favorites</button>
-        <button class="pill" data-list="been-there">Been There</button>
-        <button class="pill" data-list="want-to-try">Want to Try</button>
-        <button class="pill" data-list="recommended">Recommended</button>
-      </div>
+      <div class="filter-chips-bar hidden" id="filterChipsBar"></div>
       <div id="restaurantList"></div>
+    </div>
+
+    <!-- FILTER DROPDOWN -->
+    <div class="filter-dropdown-overlay hidden" id="filterDropdown" onclick="if(event.target===this)closeFilterDropdown()">
+      <div class="filter-dropdown">
+        <h4 id="filterDropdownTitle">Filter</h4>
+        <div class="filter-dropdown-options" id="filterDropdownOptions"></div>
+        <div class="filter-dropdown-actions">
+          <button class="filter-clear" onclick="clearCurrentFilter()">Clear</button>
+          <button class="filter-apply" onclick="applyFilter()">Apply</button>
+        </div>
+      </div>
     </div>
 
     <!-- DETAIL -->
@@ -502,6 +603,7 @@
       </div>
       <div class="settings-section">
         <h3>Trusted Sources</h3>
+        <div id="sourceQueryResults" style="display:none;margin-bottom:1rem;"></div>
         <div id="sourcesList"></div>
         <button class="btn btn-secondary" style="width:100%;margin-top:0.75rem;" onclick="openSourceModal()">
           <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -749,6 +851,70 @@
   </div>
 </div>
 
+<!-- EDIT VISIT MODAL -->
+<div class="modal-overlay hidden" id="editVisitModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit Visit</h3>
+      <button class="modal-close" onclick="closeModal('editVisitModal')">&times;</button>
+    </div>
+    <div id="editVisitName" style="font-family:var(--serif);font-size:20px;margin-bottom:1rem;"></div>
+    <div style="display:flex;gap:0.75rem;margin-bottom:0.75rem;">
+      <div class="input-group" style="flex:1;margin-bottom:0;">
+        <label>Date</label>
+        <input type="date" id="editVisitDate">
+      </div>
+      <div class="input-group" style="flex:1;margin-bottom:0;">
+        <label>Meal</label>
+        <select id="editVisitMeal">
+          <option value="dinner">Dinner</option>
+          <option value="lunch">Lunch</option>
+          <option value="brunch">Brunch</option>
+          <option value="drinks">Drinks</option>
+        </select>
+      </div>
+    </div>
+    <div class="divider" style="margin:0.75rem 0;border-top:1px solid var(--stone);opacity:0.3;"></div>
+    <div style="display:flex;gap:1rem;">
+      <div style="flex:1">
+        <label style="font-size:12px;color:var(--slate);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">Matt</label>
+        <div id="editVisitMattRating" class="star-row" style="margin-bottom:6px;"></div>
+        <textarea id="editVisitMattNotes" placeholder="Notes..." style="width:100%;min-height:50px;border-radius:10px;border:1px solid var(--stone);padding:10px;font-family:var(--sans);font-size:13px;resize:none;background:white;color:var(--ink);"></textarea>
+      </div>
+      <div style="flex:1">
+        <label style="font-size:12px;color:var(--slate);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px;">Denise</label>
+        <div id="editVisitDeniseRating" class="star-row" style="margin-bottom:6px;"></div>
+        <textarea id="editVisitDeniseNotes" placeholder="Notes..." style="width:100%;min-height:50px;border-radius:10px;border:1px solid var(--stone);padding:10px;font-family:var(--sans);font-size:13px;resize:none;background:white;color:var(--ink);"></textarea>
+      </div>
+    </div>
+    <div class="divider" style="margin:0.75rem 0;border-top:1px solid var(--stone);opacity:0.3;"></div>
+    <div class="input-group">
+      <label>Standout Dishes</label>
+      <input type="text" id="editVisitDishes" placeholder="e.g., Truffle pasta, Wagyu tartare">
+    </div>
+    <div style="display:flex;gap:0.75rem;">
+      <div class="input-group" style="flex:1">
+        <label>Would Return?</label>
+        <select id="editVisitReturn"><option value="yes">Yes</option><option value="maybe">Maybe</option><option value="no">No</option></select>
+      </div>
+      <div class="input-group" style="flex:1">
+        <label>Occasion</label>
+        <select id="editVisitOccasion">
+          <option value="date-night">Date Night</option>
+          <option value="business">Business</option>
+          <option value="friends">Friends</option>
+          <option value="special-occasion">Special Occasion</option>
+          <option value="casual">Casual</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="deleteVisit()">Delete Visit</button>
+      <button class="btn btn-primary" style="flex:2;" onclick="saveEditVisit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- PREFERENCE MODAL -->
 <div class="modal-overlay hidden" id="prefModal">
   <div class="modal">
@@ -832,6 +998,9 @@
     voiceListening: false,
     recognition: null,
     conciergeLoading: false,
+    activeFilters: { cuisine: [], neighborhood: [], price: [], occasion: [] },
+    filterDropdownType: null,
+    filterTempSelection: [],
   };
 
   // ============ FIREBASE FUNCTIONS HELPER ============
@@ -879,6 +1048,7 @@
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('bottomNav').style.display = 'flex';
       await loadAllData();
+      cacheRestaurantsOffline(); // cache for offline
       switchTab('home');
     } else {
       document.getElementById('loginScreen').classList.remove('hidden');
@@ -903,7 +1073,12 @@
     try {
       const snap = await getDocs(collection(db, 'restaurants'));
       S.restaurants = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch (e) { console.error('Load restaurants:', e); }
+      cacheRestaurantsOffline();
+    } catch (e) {
+      console.warn('Load restaurants from network failed, trying cache:', e);
+      const cached = await loadRestaurantsFromCache();
+      if (cached.length) S.restaurants = cached;
+    }
   }
 
   async function loadSources() {
@@ -943,7 +1118,7 @@
   };
 
   function renderCurrentView() {
-    if (S.currentTab === 'restaurants') renderRestaurantList();
+    if (S.currentTab === 'restaurants') { updateFilterChips(); renderRestaurantList(); }
     if (S.currentTab === 'settings') renderSettings();
     if (S.currentTab === 'home') renderHome();
   }
@@ -1001,6 +1176,9 @@
       filtered = S.restaurants.filter(r => r.status === 'recommended');
     }
 
+    // Apply attribute filters
+    filtered = applyFiltersToList(filtered);
+
     // Apply search filter
     if (searchQ) {
       filtered = filtered.filter(r => matchesSearch(r, searchQ));
@@ -1055,7 +1233,12 @@
 
     let visitsHtml = '';
     if (r.visits && r.visits.length > 0) {
-      visitsHtml = r.visits.slice().reverse().map(v => `<div class="visit-entry">
+      visitsHtml = r.visits.slice().reverse().map((v, revIdx) => {
+        const origIdx = r.visits.length - 1 - revIdx;
+        return `<div class="visit-entry">
+        <button class="visit-edit-btn" onclick="event.stopPropagation();openEditVisit('${esc(r.id)}',${origIdx})" title="Edit visit">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
         <div class="visit-date">${esc(v.date || 'Unknown')}${v.occasion ? ' \u00b7 ' + esc(v.occasion) : ''}</div>
         ${v.mattRating ? `<div class="visit-notes"><strong>Matt ${v.mattRating}/5</strong>${v.mattNotes ? ' \u2014 ' + esc(v.mattNotes) : ''}</div>` : ''}
         ${v.deniseRating ? `<div class="visit-notes"><strong>Denise ${v.deniseRating}/5</strong>${v.deniseNotes ? ' \u2014 ' + esc(v.deniseNotes) : ''}</div>` : ''}
@@ -1064,7 +1247,8 @@
         ${v.wineNotes ? `<div class="visit-notes">Wine: ${esc(v.wineNotes)}</div>` : ''}
         ${v.pros && v.pros.length ? `<div class="visit-notes" style="color:var(--champagne)">+ ${esc(v.pros.join(', '))}</div>` : ''}
         ${v.cons && v.cons.length ? `<div class="visit-notes" style="color:#b55">- ${esc(v.cons.join(', '))}</div>` : ''}
-      </div>`).join('');
+      </div>`;
+      }).join('');
     }
 
     const endorsements = (r.trustedSourceEndorsements || []).map(e => `<span class="source-tag">${esc(e.sourceName)}</span>`).join('');
@@ -1423,6 +1607,82 @@
     } catch (e) { console.error('Save visit:', e); alert('Error saving visit.'); }
   };
 
+  // ============ EDIT VISIT ============
+  let editingVisitIdx = null;
+
+  window.openEditVisit = (restaurantId, visitIdx) => {
+    const r = S.restaurants.find(x => x.id === restaurantId);
+    if (!r || !r.visits || !r.visits[visitIdx]) return;
+    S.selectedRestaurant = r;
+    editingVisitIdx = visitIdx;
+    const v = r.visits[visitIdx];
+
+    document.getElementById('editVisitModal').classList.remove('hidden');
+    document.getElementById('editVisitName').textContent = r.name;
+    document.getElementById('editVisitDate').value = v.date || '';
+    document.getElementById('editVisitMeal').value = v.meal || v.occasion || 'dinner';
+    document.getElementById('editVisitMattNotes').value = v.mattNotes || '';
+    document.getElementById('editVisitDeniseNotes').value = v.deniseNotes || '';
+    document.getElementById('editVisitDishes').value = (v.dishes || []).join(', ');
+    document.getElementById('editVisitReturn').value = v.wouldReturn || 'yes';
+    document.getElementById('editVisitOccasion').value = v.context || v.occasion || 'date-night';
+    initStars('editVisitMattRating', v.mattRating || 0);
+    initStars('editVisitDeniseRating', v.deniseRating || 0);
+  };
+
+  window.saveEditVisit = async () => {
+    const r = S.selectedRestaurant;
+    if (!r || editingVisitIdx === null) return;
+
+    const visits = [...r.visits];
+    visits[editingVisitIdx] = {
+      ...visits[editingVisitIdx],
+      date: document.getElementById('editVisitDate').value,
+      meal: document.getElementById('editVisitMeal').value,
+      occasion: document.getElementById('editVisitMeal').value,
+      mattRating: parseInt(document.getElementById('editVisitMattRating').dataset.rating) || 0,
+      deniseRating: parseInt(document.getElementById('editVisitDeniseRating').dataset.rating) || 0,
+      mattNotes: document.getElementById('editVisitMattNotes').value.trim(),
+      deniseNotes: document.getElementById('editVisitDeniseNotes').value.trim(),
+      dishes: document.getElementById('editVisitDishes').value.split(',').map(s => s.trim()).filter(Boolean),
+      wouldReturn: document.getElementById('editVisitReturn').value,
+      context: document.getElementById('editVisitOccasion').value,
+    };
+
+    try {
+      const latestVisit = visits[visits.length - 1];
+      const updates = { visits, updatedAt: new Date().toISOString(), wouldReturn: latestVisit.wouldReturn };
+      if (latestVisit.dishes && latestVisit.dishes.length) updates.standoutDishes = latestVisit.dishes.join(', ');
+      await updateDoc(doc(db, 'restaurants', r.id), updates);
+      await loadRestaurants();
+      closeModal('editVisitModal');
+      editingVisitIdx = null;
+      openDetail(r.id);
+    } catch (e) { console.error('Edit visit:', e); alert('Error saving visit changes.'); }
+  };
+
+  window.deleteVisit = async () => {
+    const r = S.selectedRestaurant;
+    if (!r || editingVisitIdx === null) return;
+    if (!confirm('Delete this visit? This cannot be undone.')) return;
+
+    const visits = [...r.visits];
+    visits.splice(editingVisitIdx, 1);
+
+    try {
+      const updates = { visits, updatedAt: new Date().toISOString() };
+      if (visits.length > 0) {
+        const latestVisit = visits[visits.length - 1];
+        updates.wouldReturn = latestVisit.wouldReturn || '';
+      }
+      await updateDoc(doc(db, 'restaurants', r.id), updates);
+      await loadRestaurants();
+      closeModal('editVisitModal');
+      editingVisitIdx = null;
+      openDetail(r.id);
+    } catch (e) { console.error('Delete visit:', e); alert('Error deleting visit.'); }
+  };
+
   // ============ PREFERENCES ============
   window.openPrefModal = (person) => {
     S.editingPrefPerson = person;
@@ -1497,7 +1757,8 @@
     } else {
       sl.innerHTML = S.trustedSources.map(s => `<div class="source-item">
         <div><div class="source-name">${esc(s.name)}</div><div class="source-type">${esc(s.type)}${s.handle ? ' \u00b7 ' : ''}<span class="source-handle">${esc(s.handle || '')}</span></div>
-        ${s.notes ? `<div style="font-size:12px;color:var(--slate);margin-top:2px;">${esc(s.notes)}</div>` : ''}</div>
+        ${s.notes ? `<div style="font-size:12px;color:var(--slate);margin-top:2px;">${esc(s.notes)}</div>` : ''}
+        <button style="border:none;background:none;font-family:var(--mono);font-size:10px;color:var(--champagne);cursor:pointer;padding:4px 0;margin-top:2px;" onclick="event.stopPropagation();queryTrustedSource('${esc(s.name)}','${esc(s.handle || '')}')">What's new? →</button></div>
         <button class="source-delete" onclick="deleteSource('${esc(s.id)}')" title="Remove">
           <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button></div>`).join('');
@@ -1654,6 +1915,20 @@
 
   window.autoResize = (el) => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
 
+  // Inline search expand/collapse
+  window.expandSearch = () => {
+    const wrap = document.getElementById('inlineSearchWrap');
+    if (wrap.classList.contains('expanded')) return;
+    wrap.classList.add('expanded');
+    setTimeout(() => document.getElementById('restaurantSearch').focus(), 260);
+  };
+  window.collapseSearch = () => {
+    const wrap = document.getElementById('inlineSearchWrap');
+    const input = document.getElementById('restaurantSearch');
+    if (input.value.trim()) return; // keep open if there's text
+    wrap.classList.remove('expanded');
+  };
+
   function esc(str) { if (!str) return ''; const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
   // ============ PILL TABS ============
@@ -1663,8 +1938,200 @@
     document.querySelectorAll('#restaurantTabs .pill').forEach(p => p.classList.remove('active'));
     pill.classList.add('active');
     S.currentList = pill.dataset.list;
+    S.activeFilters = { cuisine: [], neighborhood: [], price: [], occasion: [] };
+    updateFilterChips();
     renderRestaurantList();
   });
+
+  // ============ FILTER SYSTEM ============
+  function getFilterOptions() {
+    const cuisines = new Set(), neighborhoods = new Set(), prices = new Set(), occasions = new Set();
+    S.restaurants.forEach(r => {
+      (r.cuisine || []).forEach(c => cuisines.add(c));
+      if (r.neighborhood) neighborhoods.add(r.neighborhood);
+      if (r.priceRange) prices.add(r.priceRange);
+      (r.bestFor || []).forEach(b => occasions.add(b));
+      (r.visits || []).forEach(v => { if (v.context) occasions.add(v.context); if (v.occasion) occasions.add(v.occasion); });
+    });
+    return {
+      cuisine: [...cuisines].sort(),
+      neighborhood: [...neighborhoods].sort(),
+      price: [1,2,3,4].filter(p => prices.has(p)),
+      occasion: [...occasions].sort(),
+    };
+  }
+
+  function updateFilterChips() {
+    const bar = document.getElementById('filterChipsBar');
+    if (S.currentList === 'for-you') { bar.classList.add('hidden'); return; }
+    bar.classList.remove('hidden');
+
+    const opts = getFilterOptions();
+    const totalActive = Object.values(S.activeFilters).reduce((sum, arr) => sum + arr.length, 0);
+    const types = [
+      { key: 'cuisine', label: 'Cuisine' },
+      { key: 'neighborhood', label: 'Neighborhood' },
+      { key: 'price', label: 'Price' },
+      { key: 'occasion', label: 'Occasion' },
+    ];
+
+    bar.innerHTML = (totalActive > 0 ? `<button class="filter-chip" onclick="clearAllFilters()" style="color:#b55;border-color:#b55;">Clear all <span class="active-filter-count" style="background:#b55;">${totalActive}</span></button>` : '') +
+      types.filter(t => opts[t.key].length > 0).map(t => {
+        const count = S.activeFilters[t.key].length;
+        const label = count > 0 ? `${t.label} <span class="active-filter-count">${count}</span>` : t.label;
+        return `<button class="filter-chip ${count ? 'active' : ''}" onclick="openFilterDropdown('${t.key}')">${label} <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>`;
+      }).join('');
+  }
+
+  window.openFilterDropdown = (type) => {
+    S.filterDropdownType = type;
+    S.filterTempSelection = [...S.activeFilters[type]];
+    const opts = getFilterOptions()[type];
+    const labels = { cuisine: 'Cuisine', neighborhood: 'Neighborhood', price: 'Price Range', occasion: 'Occasion' };
+    document.getElementById('filterDropdownTitle').textContent = labels[type] || type;
+    document.getElementById('filterDropdownOptions').innerHTML = opts.map(o => {
+      const display = type === 'price' ? '$'.repeat(o) : o;
+      const val = String(o);
+      const sel = S.filterTempSelection.map(String).includes(val) ? 'selected' : '';
+      return `<button class="filter-option ${sel}" data-val="${esc(val)}" onclick="toggleFilterOption(this)">${esc(display)}</button>`;
+    }).join('');
+    document.getElementById('filterDropdown').classList.remove('hidden');
+  };
+
+  window.toggleFilterOption = (btn) => {
+    const val = btn.dataset.val;
+    btn.classList.toggle('selected');
+    if (btn.classList.contains('selected')) {
+      if (!S.filterTempSelection.map(String).includes(val)) S.filterTempSelection.push(val);
+    } else {
+      S.filterTempSelection = S.filterTempSelection.filter(v => String(v) !== val);
+    }
+  };
+
+  window.closeFilterDropdown = () => {
+    document.getElementById('filterDropdown').classList.add('hidden');
+    S.filterDropdownType = null;
+  };
+
+  window.applyFilter = () => {
+    const type = S.filterDropdownType;
+    if (type) {
+      S.activeFilters[type] = type === 'price' ? S.filterTempSelection.map(Number) : [...S.filterTempSelection];
+    }
+    closeFilterDropdown();
+    updateFilterChips();
+    renderRestaurantList();
+  };
+
+  window.clearCurrentFilter = () => {
+    S.filterTempSelection = [];
+    document.querySelectorAll('#filterDropdownOptions .filter-option').forEach(b => b.classList.remove('selected'));
+  };
+
+  window.clearAllFilters = () => {
+    S.activeFilters = { cuisine: [], neighborhood: [], price: [], occasion: [] };
+    updateFilterChips();
+    renderRestaurantList();
+  };
+
+  function applyFiltersToList(list) {
+    const f = S.activeFilters;
+    return list.filter(r => {
+      if (f.cuisine.length && !(r.cuisine || []).some(c => f.cuisine.includes(c))) return false;
+      if (f.neighborhood.length && !f.neighborhood.includes(r.neighborhood)) return false;
+      if (f.price.length && !f.price.includes(r.priceRange)) return false;
+      if (f.occasion.length) {
+        const rOccasions = [...(r.bestFor || []), ...(r.visits || []).map(v => v.context || v.occasion).filter(Boolean)];
+        if (!f.occasion.some(o => rOccasions.includes(o))) return false;
+      }
+      return true;
+    });
+  }
+
+  // ============ TRUSTED SOURCE QUERYING ============
+  window.queryTrustedSource = async (sourceName, sourceHandle) => {
+    const resultsEl = document.getElementById('sourceQueryResults');
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = `<div class="glass-card" style="margin-bottom:0;"><div style="text-align:center;"><span class="spinner"></span><p style="font-family:var(--serif);font-size:14px;font-style:italic;color:var(--slate);margin-top:8px;">Searching for recent picks from ${esc(sourceName)}...</p></div></div>`;
+
+    try {
+      const data = await callFn('querySource', { sourceName, sourceHandle });
+      if (data.recommendations && data.recommendations.length > 0) {
+        resultsEl.innerHTML = `<div class="glass-card" style="margin-bottom:0;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h4 style="font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--champagne);">Recent from ${esc(sourceName)}</h4>
+            <button style="border:none;background:none;color:var(--stone);cursor:pointer;font-size:16px;" onclick="document.getElementById('sourceQueryResults').style.display='none'">&times;</button>
+          </div>
+          ${data.recommendations.map(r => `<div style="padding:8px 0;border-bottom:1px solid rgba(196,189,178,0.2);">
+            <div style="font-family:var(--serif);font-size:16px;color:var(--ink);">${esc(r.name)}</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--slate);margin-top:2px;">${esc([r.cuisine, r.neighborhood, r.price].filter(Boolean).join(' · '))}</div>
+            <div style="font-size:12px;color:var(--slate);margin-top:4px;font-style:italic;line-height:1.4;">${esc(r.context)}</div>
+          </div>`).join('')}
+          ${data.summary ? `<p style="font-size:12px;color:var(--slate);margin-top:10px;font-style:italic;">${esc(data.summary)}</p>` : ''}
+        </div>`;
+      } else {
+        resultsEl.innerHTML = `<div class="glass-card" style="margin-bottom:0;text-align:center;">
+          <button style="position:absolute;top:10px;right:10px;border:none;background:none;color:var(--stone);cursor:pointer;font-size:16px;" onclick="document.getElementById('sourceQueryResults').style.display='none'">&times;</button>
+          <p style="font-family:var(--serif);font-size:14px;color:var(--slate);font-style:italic;">No recent recommendations found from ${esc(sourceName)}.</p>
+        </div>`;
+      }
+    } catch (e) {
+      console.error('Source query error:', e);
+      resultsEl.innerHTML = `<div class="glass-card" style="margin-bottom:0;text-align:center;">
+        <p style="font-size:13px;color:#b55;">Error searching ${esc(sourceName)}. ${esc(e.message)}</p>
+        <button style="border:none;background:none;color:var(--stone);cursor:pointer;font-size:12px;margin-top:6px;" onclick="document.getElementById('sourceQueryResults').style.display='none'">Dismiss</button>
+      </div>`;
+    }
+  };
+
+  // ============ OFFLINE / PWA ============
+  // IndexedDB for offline restaurant cache
+  const IDB_NAME = 'table-offline';
+  const IDB_STORE = 'restaurants';
+
+  function openIDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = () => { req.result.createObjectStore(IDB_STORE, { keyPath: 'id' }); };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function cacheRestaurantsOffline() {
+    try {
+      const idb = await openIDB();
+      const tx = idb.transaction(IDB_STORE, 'readwrite');
+      const store = tx.objectStore(IDB_STORE);
+      store.clear();
+      S.restaurants.forEach(r => store.put(r));
+    } catch (e) { console.warn('IDB cache error:', e); }
+  }
+
+  async function loadRestaurantsFromCache() {
+    try {
+      const idb = await openIDB();
+      return new Promise((resolve, reject) => {
+        const tx = idb.transaction(IDB_STORE, 'readonly');
+        const req = tx.objectStore(IDB_STORE).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    } catch { return []; }
+  }
+
+  // Offline detection
+  function updateOnlineStatus() {
+    const banner = document.getElementById('offlineBanner');
+    if (navigator.onLine) {
+      banner.classList.remove('visible');
+    } else {
+      banner.classList.add('visible');
+    }
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
 
   // ============ INIT ============
   document.getElementById('bottomNav').style.display = 'none';
